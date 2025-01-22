@@ -49,7 +49,7 @@ def _(llm, mo):
 
 
     chatbot = mo.ui.chat(
-        model, prompts=["Get google.com"], show_configuration_controls=False
+        model, prompts=["What are some files in my filesystem", "Get google.com"], show_configuration_controls=False
     )
     chatbot
     return chatbot, model
