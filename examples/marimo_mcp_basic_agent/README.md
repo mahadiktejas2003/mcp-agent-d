@@ -9,8 +9,14 @@ determination on what to use at what time to satisfy the request.
 First modify `mcp_agent.config.yaml` to include directories to which
 you'd like to give the agent access.
 
-Then run this example with:
+Then run with:
 
 ```bash
 OPENAI_API_KEY=<your-api-key> uvx marimo edit --sandbox notebook.py
+```
+
+To serve as a read-only app, use
+
+```
+OPENAI_API_KEY=<your-api-key> uvx marimo run --sandbox notebook.py
 ```
