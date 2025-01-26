@@ -11,6 +11,7 @@ from mcp_agent.logging.logger import get_logger
 from mcp_agent.executor.workflow_signal import SignalWaitCallback
 from mcp_agent.human_input.types import HumanInputCallback
 from mcp_agent.human_input.handler import console_input_callback
+from mcp_agent.workflows.llm.llm_selector import ModelSelector
 
 R = TypeVar("R")
 
@@ -43,7 +44,18 @@ class MCPApp:
         human_input_callback: Optional[HumanInputCallback] = console_input_callback,
         signal_notification: Optional[SignalWaitCallback] = None,
         upstream_session: Optional["ServerSession"] = None,
+        model_selector: ModelSelector = None,
     ):
+        """
+        Initialize the application with a name and optional settings.
+        Args:
+            name: Name of the application
+            settings: Application configuration - If unspecified, the settings are loaded from mcp_agent.config.yaml
+            human_input_callback: Callback for handling human input
+            signal_notification: Callback for getting notified on workflow signals/events.
+            upstream_session: Optional upstream session if the MCPApp is running as a server to an MCP client.
+            initialize_model_selector: Initializes the built-in ModelSelector to help with model selection. Defaults to False.
+        """
         self.name = name
 
         # We use these to initialize the context in initialize()
@@ -51,6 +63,7 @@ class MCPApp:
         self._human_input_callback = human_input_callback
         self._signal_notification = signal_notification
         self._upstream_session = upstream_session
+        self._model_selector = model_selector
 
         self._workflows: Dict[str, Type] = {}  # id to workflow class
         self._logger = None
@@ -114,6 +127,7 @@ class MCPApp:
         self._context.human_input_handler = self._human_input_callback
         self._context.signal_notification = self._signal_notification
         self._context.upstream_session = self._upstream_session
+        self._context.model_selector = self._model_selector
 
         self._initialized = True
         self.logger.info("MCPAgent initialized")

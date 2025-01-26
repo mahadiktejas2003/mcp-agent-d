@@ -58,3 +58,9 @@ dev = [
 
 [project.scripts]
 mcp-agent = "mcp_agent.cli.__main__:app"
+
+[tool.setuptools.packages.find]
+include = ["mcp-agent"]
+
+[tool.setuptools.package-data]
+mcp-agent = ["data/*.json"]

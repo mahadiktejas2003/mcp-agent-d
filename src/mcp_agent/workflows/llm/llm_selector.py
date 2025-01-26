@@ -1,6 +1,9 @@
+import json
+from importlib import resources
 from typing import Dict, List
+
 from numpy import average
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
 from mcp.types import ModelHint, ModelPreferences
 
@@ -14,7 +17,10 @@ class ModelBenchmarks(BaseModel):
         init=False
     )  # Enforces that extra fields are floats
 
-    mmlu_score: float
+    quality_score: float | None = None
+    """A blended quality score for the model."""
+
+    mmlu_score: float | None = None
     gsm8k_score: float | None = None
     bbh_score: float | None = None
 
@@ -42,12 +48,17 @@ class ModelCost(BaseModel):
     Cost benchmarks for comparing different models.
     """
 
-    input_cost_per_1m: float = Field(gt=0)
+    blended_cost_per_1m: float | None = None
+    """
+    Blended cost mixing input/output cost per 1M tokens.
+    """
+
+    input_cost_per_1m: float | None = None
     """
     Cost per 1M input tokens.
     """
 
-    output_cost_per_1m: float = Field(gt=0)
+    output_cost_per_1m: float | None = None
     """
     Cost per 1M output tokens.
     """
@@ -83,7 +94,16 @@ class ModelSelector:
     dimensions to help clients make an appropriate selection for their use case.
     """
 
-    def __init__(self, benchmark_weights: Dict[str, float] | None = None):
+    def __init__(
+        self,
+        models: List[ModelInfo] = None,
+        benchmark_weights: Dict[str, float] | None = None,
+    ):
+        if not models:
+            self.models = load_default_models()
+        else:
+            self.models = models
+
         if benchmark_weights:
             self.benchmark_weights = benchmark_weights
         else:
@@ -93,43 +113,48 @@ class ModelSelector:
         if abs(sum(self.benchmark_weights.values()) - 1.0) > 1e-6:
             raise ValueError("Benchmark weights must sum to 1.0")
 
+        # Next, we'll use the benchmark weights to decide the best model
+        self.max_values = self._calculate_max_scores(self.models)
+
     def select_best_model(
-        self, models: List[ModelInfo], model_preferences: ModelPreferences
+        self, model_preferences: ModelPreferences, provider: str | None = None
     ) -> ModelInfo:
         """
         Select the best model from a given list of models based on the given model preferences.
         """
 
-        if not models:
+        if not self.models:
             raise ValueError("No models available for selection")
 
-        candidate_models = models
+        candidate_models = self.models
         # First check the model hints
         if model_preferences.hints:
             candidate_models = []
-            for model in models:
+            for model in self.models:
                 for hint in model_preferences.hints:
                     if self._check_model_hint(model, hint):
                         candidate_models.append(model)
 
             if not candidate_models:
                 # If no hints match, we'll use all models and let the benchmark weights decide
-                candidate_models = models
+                candidate_models = self.models
 
-        # Next, we'll use the benchmark weights to decide the best model
-        max_values = self._calculate_max_scores(models, model_preferences)
         scores = []
 
         for model in candidate_models:
             cost_score = self._calculate_cost_score(
-                model, model_preferences, max_cost=max_values["max_cost"]
+                model, model_preferences, max_cost=self.max_values["max_cost"]
             )
             speed_score = self._calculate_speed_score(
                 model,
-                max_tokens_per_second=max_values["max_tokens_per_second"],
-                max_time_to_first_token_ms=max_values["max_time_to_first_token_ms"],
+                max_tokens_per_second=self.max_values["max_tokens_per_second"],
+                max_time_to_first_token_ms=self.max_values[
+                    "max_time_to_first_token_ms"
+                ],
             )
-            intelligence_score = self._calculate_intelligence_score(model, max_values)
+            intelligence_score = self._calculate_intelligence_score(
+                model, self.max_values
+            )
 
             model_score = (
                 (model_preferences.costPriority or 0) * cost_score
@@ -145,23 +170,29 @@ class ModelSelector:
         Check if a model matches a specific hint.
         """
 
+        name_match = True
         if hint.name:
-            return hint.name == model.name
+            name_match = hint.name == model.name
+
+        provider_match = True
+        if hint.provider:
+            provider_match = hint.provider == model.provider
 
         # This can be extended to check for more hints
-        return False
+        return name_match and provider_match
 
-    def _calculate_total_cost(
-        self, model: ModelInfo, model_preferences: ModelPreferences
-    ) -> float:
+    def _calculate_total_cost(self, model: ModelInfo, io_ratio: float = 3.0) -> float:
         """
         Calculate a single cost metric of a model based on input/output token costs,
         and a ratio of input to output tokens.
+
+        Args:
+            model: The model to calculate the cost for.
+            io_ratio: The estimated ratio of input to output tokens. Defaults to 3.0.
         """
-        # Input/output token ratio -- used to calculate a cost estimate
-        io_ratio: float = (
-            model_preferences.io_ratio if model_preferences.io_ratio else 3.0
-        )
+
+        if model.metrics.cost.blended_cost_per_1m:
+            return model.metrics.cost.blended_cost_per_1m
 
         input_cost = model.metrics.cost.input_cost_per_1m
         output_cost = model.metrics.cost.output_cost_per_1m
@@ -228,17 +259,13 @@ class ModelSelector:
         )
         return latency_score
 
-    def _calculate_max_scores(
-        self, models: List[ModelInfo], model_preferences: ModelPreferences
-    ) -> Dict[str, float]:
+    def _calculate_max_scores(self, models: List[ModelInfo]) -> Dict[str, float]:
         """
         Of all the models, calculate the maximum value for each benchmark metric.
         """
         max_dict: Dict[str, float] = {}
 
-        max_dict["max_cost"] = max(
-            self._calculate_total_cost(m, model_preferences) for m in models
-        )
+        max_dict["max_cost"] = max(self._calculate_total_cost(m) for m in models)
         max_dict["max_tokens_per_second"] = max(
             max(m.metrics.speed.tokens_per_second for m in models), 1e-6
         )
@@ -257,3 +284,17 @@ class ModelSelector:
                     max_dict[key] = score
 
         return max_dict
+
+
+def load_default_models() -> List[ModelInfo]:
+    """
+    We use ArtificialAnalysis benchmarks for determining the best model.
+    """
+    with (
+        resources.files("mcp_agent.data")
+        .joinpath("artificial_analysis_llm_benchmarks.json")
+        .open() as file
+    ):
+        data = json.load(file)  # Array of ModelInfo objects
+        adapter = TypeAdapter(List[ModelInfo])
+        return adapter.validate_python(data)
