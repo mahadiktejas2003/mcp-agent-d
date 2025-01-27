@@ -1,4 +1,5 @@
 import json
+from difflib import SequenceMatcher
 from importlib import resources
 from typing import Dict, List
 
@@ -196,11 +197,12 @@ class ModelSelector:
 
         name_match = True
         if hint.name:
-            name_match = hint.name == model.name
+            name_match = _fuzzy_match(hint.name, model.name)
 
         provider_match = True
-        if hint.provider:
-            provider_match = hint.provider == model.provider
+        provider: str | None = getattr(hint, "provider", None)
+        if provider:
+            provider_match = _fuzzy_match(provider, model.provider)
 
         # This can be extended to check for more hints
         return name_match and provider_match
@@ -215,7 +217,7 @@ class ModelSelector:
             io_ratio: The estimated ratio of input to output tokens. Defaults to 3.0.
         """
 
-        if model.metrics.cost.blended_cost_per_1m:
+        if model.metrics.cost.blended_cost_per_1m is not None:
             return model.metrics.cost.blended_cost_per_1m
 
         input_cost = model.metrics.cost.input_cost_per_1m
@@ -301,6 +303,9 @@ class ModelSelector:
         for model in models:
             benchmark_dict: Dict[str, float] = model.metrics.intelligence.model_dump()
             for bench, score in benchmark_dict.items():
+                if score is None:
+                    continue
+
                 key = f"max_{bench}"
                 if key in max_dict:
                     max_dict[key] = max(max_dict[key], score)
@@ -322,3 +327,19 @@ def load_default_models() -> List[ModelInfo]:
         data = json.load(file)  # Array of ModelInfo objects
         adapter = TypeAdapter(List[ModelInfo])
         return adapter.validate_python(data)
+
+
+def _fuzzy_match(str1: str, str2: str, threshold: float = 0.8) -> bool:
+    """
+    Fuzzy match two strings
+
+    Args:
+        str1: First string to compare
+        str2: Second string to compare
+        threshold: Minimum similarity ratio to consider a match (0.0 to 1.0)
+
+    Returns:
+        bool: True if strings match above threshold, False otherwise
+    """
+    sequence_ratio = SequenceMatcher(None, str1.lower(), str2.lower()).ratio()
+    return sequence_ratio >= threshold
