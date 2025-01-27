@@ -8,6 +8,7 @@ from mcp_agent.workflows.llm.augmented_llm import (
     MessageParamT,
     MessageT,
     ModelT,
+    RequestParams,
 )
 
 if TYPE_CHECKING:
@@ -60,12 +61,7 @@ class FanIn(ContextDependent):
     async def generate(
         self,
         messages: FanInInput,
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> List[MessageT]:
         """
         Request fan-in agent generation from a list of messages from multiple sources/agents.
@@ -85,23 +81,13 @@ class FanIn(ContextDependent):
 
             return await llm.generate(
                 message=message,
-                use_history=use_history,
-                max_iterations=max_iterations,
-                model=model,
-                stop_sequences=stop_sequences,
-                max_tokens=max_tokens,
-                parallel_tool_calls=parallel_tool_calls,
+                request_params=request_params,
             )
 
     async def generate_str(
         self,
         messages: FanInInput,
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> str:
         """
         Request fan-in agent generation from a list of messages from multiple sources/agents.
@@ -122,25 +108,14 @@ class FanIn(ContextDependent):
                 llm = await ctx_agent.attach_llm(self.llm_factory)
 
             return await llm.generate_str(
-                message=message,
-                use_history=use_history,
-                max_iterations=max_iterations,
-                model=model,
-                stop_sequences=stop_sequences,
-                max_tokens=max_tokens,
-                parallel_tool_calls=parallel_tool_calls,
+                message=message, request_params=request_params
             )
 
     async def generate_structured(
         self,
         messages: FanInInput,
         response_model: Type[ModelT],
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> ModelT:
         """
         Request a structured fan-in agent generation from a list of messages
@@ -163,12 +138,7 @@ class FanIn(ContextDependent):
             return await llm.generate_structured(
                 message=message,
                 response_model=response_model,
-                use_history=use_history,
-                max_iterations=max_iterations,
-                model=model,
-                stop_sequences=stop_sequences,
-                max_tokens=max_tokens,
-                parallel_tool_calls=parallel_tool_calls,
+                request_params=request_params,
             )
 
     async def aggregate_messages(

@@ -1,19 +1,25 @@
+from abc import abstractmethod
+
 from typing import Generic, List, Optional, Protocol, Type, TypeVar, TYPE_CHECKING
+
+from pydantic import Field
 
 from mcp.types import (
     CallToolRequest,
     CallToolResult,
+    CreateMessageRequestParams,
+    CreateMessageResult,
+    SamplingMessage,
     TextContent,
 )
 
 from mcp_agent.context_dependent import ContextDependent
 from mcp_agent.mcp.mcp_aggregator import MCPAggregator
-
+from mcp_agent.workflows.llm.llm_selector import ModelSelector
 
 if TYPE_CHECKING:
     from mcp_agent.agents.agent import Agent
     from mcp_agent.context import Context
-
 
 MessageParamT = TypeVar("MessageParamT")
 """A type representing an input message to an LLM."""
@@ -23,6 +29,10 @@ MessageT = TypeVar("MessageT")
 
 ModelT = TypeVar("ModelT")
 """A type representing a structured output message from an LLM."""
+
+# TODO: saqadri - SamplingMessage is fairly limiting - consider extending
+MCPMessageParam = SamplingMessage
+MCPMessageResult = CreateMessageResult
 
 
 class Memory(Protocol, Generic[MessageParamT]):
@@ -69,30 +79,57 @@ class SimpleMemory(Memory, Generic[MessageParamT]):
         self.history = []
 
 
+class RequestParams(CreateMessageRequestParams):
+    """
+    Parameters to configure the AugmentedLLM 'generate' requests.
+    """
+
+    messages: None = Field(exclude=True, default=None)
+    """
+    Ignored. 'messages' are removed from CreateMessageRequestParams 
+    to avoid confusion with the 'message' parameter on 'generate' method.
+    """
+
+    maxTokens: int = 2048
+    """The maximum number of tokens to sample, as requested by the server."""
+
+    model: str | None = None
+    """
+    The model to use for the LLM generation.
+    If specified, this overrides the 'modelPreferences' selection criteria.
+    """
+
+    use_history: bool = True
+    """
+    Include the message history in the generate request.
+    """
+
+    max_iterations: int = 10
+    """
+    The maximum number of iterations to run the LLM for.
+    """
+
+    parallel_tool_calls: bool = True
+    """
+    Whether to allow multiple tool calls per iteration.
+    Also known as multi-step tool use.
+    """
+
+
 class AugmentedLLMProtocol(Protocol, Generic[MessageParamT, MessageT]):
     """Protocol defining the interface for augmented LLMs"""
 
     async def generate(
         self,
         message: str | MessageParamT | List[MessageParamT],
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> List[MessageT]:
         """Request an LLM generation, which may run multiple iterations, and return the result"""
 
     async def generate_str(
         self,
         message: str | MessageParamT | List[MessageParamT],
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> str:
         """Request an LLM generation and return the string representation of the result"""
 
@@ -100,17 +137,32 @@ class AugmentedLLMProtocol(Protocol, Generic[MessageParamT, MessageT]):
         self,
         message: str | MessageParamT | List[MessageParamT],
         response_model: Type[ModelT],
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> ModelT:
         """Request a structured LLM generation and return the result as a Pydantic model."""
 
 
-class AugmentedLLM(ContextDependent, Generic[MessageParamT, MessageT]):
+class ProviderToMCPConverter(Protocol, Generic[MessageParamT, MessageT]):
+    """Conversions between LLM provider and MCP types"""
+
+    @classmethod
+    def to_mcp_message_result(cls, result: MessageT) -> MCPMessageResult:
+        """Convert an LLM response to an MCP message result type."""
+
+    @classmethod
+    def from_mcp_message_result(cls, result: MCPMessageResult) -> MessageT:
+        """Convert an MCP message result to an LLM response type."""
+
+    @classmethod
+    def to_mcp_message_param(cls, param: MessageParamT) -> MCPMessageParam:
+        """Convert an LLM input to an MCP message (SamplingMessage) type."""
+
+    @classmethod
+    def from_mcp_message_param(cls, param: MCPMessageParam) -> MessageParamT:
+        """Convert an MCP message (SamplingMessage) to an LLM input type."""
+
+
+class AugmentedLLM(ContextDependent, AugmentedLLMProtocol[MessageParamT, MessageT]):
     """
     The basic building block of agentic systems is an LLM enhanced with augmentations
     such as retrieval, tools, and memory provided from a collection of MCP servers.
@@ -121,20 +173,16 @@ class AugmentedLLM(ContextDependent, Generic[MessageParamT, MessageT]):
     # TODO: saqadri - add streaming support (e.g. generate_stream)
     # TODO: saqadri - consider adding middleware patterns for pre/post processing of messages, for now we have pre/post_tool_call
 
-    @classmethod
-    async def convert_message_to_message_param(
-        cls, message: MessageT, **kwargs
-    ) -> MessageParamT:
-        """Convert a response object to an input parameter object to allow LLM calls to be chained."""
-        # Many LLM implementations will allow the same type for input and output messages
-        return message
+    provider: str | None = None
 
     def __init__(
         self,
+        agent: Optional["Agent"] = None,
         server_names: List[str] | None = None,
         instruction: str | None = None,
         name: str | None = None,
-        agent: Optional["Agent"] = None,
+        default_request_params: RequestParams | None = None,
+        type_converter: Type[ProviderToMCPConverter[MessageParamT, MessageT]] = None,
         context: Optional["Context"] = None,
         **kwargs,
     ):
@@ -153,43 +201,110 @@ class AugmentedLLM(ContextDependent, Generic[MessageParamT, MessageT]):
             agent.instruction if agent and isinstance(agent.instruction, str) else None
         )
         self.history: Memory[MessageParamT] = SimpleMemory[MessageParamT]()
+        self.default_request_params = default_request_params
+        self.model_preferences = (
+            self.default_request_params.modelPreferences
+            if self.default_request_params
+            else None
+        )
 
+        self.model_selector = self.context.model_selector
+        self.type_converter = type_converter
+
+    @abstractmethod
     async def generate(
         self,
         message: str | MessageParamT | List[MessageParamT],
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> List[MessageT]:
         """Request an LLM generation, which may run multiple iterations, and return the result"""
 
+    @abstractmethod
     async def generate_str(
         self,
         message: str | MessageParamT | List[MessageParamT],
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> str:
         """Request an LLM generation and return the string representation of the result"""
 
+    @abstractmethod
     async def generate_structured(
         self,
         message: str | MessageParamT | List[MessageParamT],
         response_model: Type[ModelT],
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> ModelT:
         """Request a structured LLM generation and return the result as a Pydantic model."""
+
+    async def select_model(
+        self, request_params: RequestParams | None = None
+    ) -> str | None:
+        """
+        Select an LLM based on the request parameters.
+        If a model is specified in the request, it will override the model selection criteria.
+        """
+        model_preferences = self.model_preferences
+        if request_params is not None:
+            model_preferences = request_params.modelPreferences or model_preferences
+            model = request_params.model
+            if model:
+                return model
+
+        if not self.model_selector:
+            self.model_selector = ModelSelector()
+
+        model_info = self.model_selector.select_best_model(
+            model_preferences=model_preferences, provider=self.provider
+        )
+
+        return model_info.name
+
+    def get_request_params(
+        self,
+        request_params: RequestParams | None = None,
+        default: RequestParams | None = None,
+    ) -> RequestParams:
+        """
+        Get request parameters with merged-in defaults and overrides.
+        Args:
+            request_params: The request parameters to use as overrides.
+            default: The default request parameters to use as the base.
+                If unspecified, self.default_request_params will be used.
+        """
+        # Start with the defaults
+        default_request_params = default or self.default_request_params
+
+        params = default_request_params.model_dump() if default_request_params else {}
+        # If user provides overrides, update the defaults
+        if request_params:
+            params.update(request_params.model_dump(exclude_unset=True))
+
+        # Create a new RequestParams object with the updated values
+        return RequestParams(**params)
+
+    def to_mcp_message_result(self, result: MessageT) -> MCPMessageResult:
+        """Convert an LLM response to an MCP message result type."""
+        return self.type_converter.to_mcp_message_result(result)
+
+    def from_mcp_message_result(self, result: MCPMessageResult) -> MessageT:
+        """Convert an MCP message result to an LLM response type."""
+        return self.type_converter.from_mcp_message_result(result)
+
+    def to_mcp_message_param(self, param: MessageParamT) -> MCPMessageParam:
+        """Convert an LLM input to an MCP message (SamplingMessage) type."""
+        return self.type_converter.to_mcp_message_param(param)
+
+    def from_mcp_message_param(self, param: MCPMessageParam) -> MessageParamT:
+        """Convert an MCP message (SamplingMessage) to an LLM input type."""
+        return self.type_converter.from_mcp_message_param(param)
+
+    @classmethod
+    def convert_message_to_message_param(
+        cls, message: MessageT, **kwargs
+    ) -> MessageParamT:
+        """Convert a response object to an input parameter object to allow LLM calls to be chained."""
+        # Many LLM implementations will allow the same type for input and output messages
+        return message
 
     async def get_last_message(self) -> MessageParamT | None:
         """

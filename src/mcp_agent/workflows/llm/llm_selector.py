@@ -75,6 +75,10 @@ class ModelMetrics(BaseModel):
 
 
 class ModelInfo(BaseModel):
+    """
+    LLM metadata, including performance benchmarks.
+    """
+
     name: str
     description: str | None = None
     provider: str
@@ -113,8 +117,8 @@ class ModelSelector:
         if abs(sum(self.benchmark_weights.values()) - 1.0) > 1e-6:
             raise ValueError("Benchmark weights must sum to 1.0")
 
-        # Next, we'll use the benchmark weights to decide the best model
         self.max_values = self._calculate_max_scores(self.models)
+        self.models_by_provider = self._models_by_provider(self.models)
 
     def select_best_model(
         self, model_preferences: ModelPreferences, provider: str | None = None
@@ -123,24 +127,31 @@ class ModelSelector:
         Select the best model from a given list of models based on the given model preferences.
         """
 
-        if not self.models:
-            raise ValueError("No models available for selection")
+        models: List[ModelInfo] = []
+        if provider:
+            models = self.models_by_provider[provider]
+        else:
+            models = self.models
 
-        candidate_models = self.models
+        if not models:
+            raise ValueError(f"No models available for selection. Provider={provider}")
+
+        candidate_models = models
         # First check the model hints
         if model_preferences.hints:
             candidate_models = []
-            for model in self.models:
+            for model in models:
                 for hint in model_preferences.hints:
                     if self._check_model_hint(model, hint):
                         candidate_models.append(model)
 
             if not candidate_models:
                 # If no hints match, we'll use all models and let the benchmark weights decide
-                candidate_models = self.models
+                candidate_models = models
 
         scores = []
 
+        # Next, we'll use the benchmark weights to decide the best model
         for model in candidate_models:
             cost_score = self._calculate_cost_score(
                 model, model_preferences, max_cost=self.max_values["max_cost"]
@@ -164,6 +175,19 @@ class ModelSelector:
             scores.append((model_score, model))
 
         return max(scores, key=lambda x: x[0])[1]
+
+    def _models_by_provider(
+        self, models: List[ModelInfo]
+    ) -> Dict[str, List[ModelInfo]]:
+        """
+        Group models by provider.
+        """
+        provider_models: Dict[str, List[ModelInfo]] = {}
+        for model in models:
+            if model.provider not in provider_models:
+                provider_models[model.provider] = []
+            provider_models[model.provider].append(model)
+        return provider_models
 
     def _check_model_hint(self, model: ModelInfo, hint: ModelHint) -> bool:
         """

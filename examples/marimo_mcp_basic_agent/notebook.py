@@ -34,7 +34,6 @@ def _(ListToolsResult, mo, tools):
             res += f"- **{tool.name}**: {tool.description}\n\n"
         return res
 
-
     tools_str = format_list_tools_result(tools)
     mo.accordion({"View tools": mo.md(tools_str)})
     return format_list_tools_result, tools_str
@@ -47,9 +46,10 @@ def _(llm, mo):
         response = await llm.generate_str(message.content)
         return mo.md(response)
 
-
     chatbot = mo.ui.chat(
-        model, prompts=["What are some files in my filesystem", "Get google.com"], show_configuration_controls=False
+        model,
+        prompts=["What are some files in my filesystem", "Get google.com"],
+        show_configuration_controls=False,
     )
     chatbot
     return chatbot, model
@@ -87,6 +87,7 @@ async def _(Agent, OpenAIAugmentedLLM):
 @app.cell
 def _():
     import marimo as mo
+
     return (mo,)
 
 

@@ -3,6 +3,7 @@ import os
 
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
+from mcp_agent.workflows.llm.augmented_llm import RequestParams
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 
 # from mcp_agent.workflows.parallel.fan_in import FanIn
@@ -84,7 +85,8 @@ async def example_usage():
         )
 
         result = await parallel.generate_str(
-            message=f"Student short story submission: {SHORT_STORY}", model="gpt-4o"
+            message=f"Student short story submission: {SHORT_STORY}",
+            request_params=RequestParams(model="gpt-4o"),
         )
 
         logger.info(f"{result}")

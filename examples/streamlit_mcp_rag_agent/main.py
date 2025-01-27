@@ -2,6 +2,7 @@ import asyncio
 from qdrant_client import QdrantClient
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
+from mcp_agent.workflows.llm.augmented_llm import RequestParams
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 from agent_state import get_agent_state
 import streamlit as st
@@ -66,7 +67,7 @@ async def main():
             response = ""
             with st.spinner("Thinking..."):
                 response = await state.llm.generate_str(
-                    message=prompt, use_history=True
+                    message=prompt, request_params=RequestParams(use_history=True)
                 )
             st.markdown(response)
 

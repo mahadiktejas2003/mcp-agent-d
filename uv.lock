@@ -806,6 +806,7 @@ temporal = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "anthropic" },
     { name = "pre-commit" },
     { name = "pydantic" },
     { name = "pyyaml" },
@@ -836,6 +837,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "anthropic", specifier = ">=0.42.0" },
     { name = "pre-commit", specifier = ">=4.0.1" },
     { name = "pydantic", specifier = ">=2.10.4" },
     { name = "pyyaml", specifier = ">=6.0.2" },
