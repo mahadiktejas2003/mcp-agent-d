@@ -1,7 +1,7 @@
 [project]
 name = "mcp-agent"
-version = "0.0.3"
-description = "Agent framework for Model Context Protocol (MCP)"
+version = "0.0.4"
+description = "Build effective agents with Model Context Protocol (MCP) using simple, composable patterns."
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
