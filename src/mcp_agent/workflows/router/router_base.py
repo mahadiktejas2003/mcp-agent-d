@@ -1,13 +1,15 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Dict, Generic, List, TypeVar
+from typing import Callable, Dict, Generic, List, Optional, TypeVar, TYPE_CHECKING
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from mcp.server.fastmcp.tools import Tool as FastTool
 
 from mcp_agent.agents.agent import Agent
-from mcp_agent.context import get_current_context
-from mcp_agent.mcp_server_registry import ServerRegistry
+from mcp_agent.context_dependent import ContextDependent
 from mcp_agent.logging.logger import get_logger
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 logger = get_logger(__name__)
 
@@ -26,6 +28,8 @@ class RouterResult(BaseModel, Generic[ResultT]):
     This is optional and may only be provided if the router is probabilistic (e.g. a probabilistic binary classifier).
     """
 
+    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
+
 
 class RouterCategory(BaseModel):
     """
@@ -42,6 +46,8 @@ class RouterCategory(BaseModel):
     category: str | Agent | Callable
     """The class to route to"""
 
+    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
+
 
 class ServerRouterCategory(RouterCategory):
     """A class that represents a category of routing to an MCP server"""
@@ -55,7 +61,7 @@ class AgentRouterCategory(RouterCategory):
     servers: List[ServerRouterCategory] = Field(default_factory=list)
 
 
-class Router(ABC):
+class Router(ABC, ContextDependent):
     """
     Routing classifies an input and directs it to one or more specialized followup tasks.
     This class helps to route an input to a specific MCP server,
@@ -82,22 +88,23 @@ class Router(ABC):
         mcp_servers_names: A list of server names to route the input to.
         agents: A list of agents to route the input to.
         functions: A list of functions to route the input to.
-        server_registry: The server registry to use for resolving the server names.
     """
 
     def __init__(
         self,
-        mcp_servers_names: List[str] | None = None,
+        server_names: List[str] | None = None,
         agents: List[Agent] | None = None,
         functions: List[Callable] | None = None,
         routing_instruction: str | None = None,
-        server_registry: ServerRegistry | None = None,
+        context: Optional["Context"] = None,
+        **kwargs,
     ):
+        super().__init__(context=context, **kwargs)
         self.routing_instruction = routing_instruction
-        self.server_names = mcp_servers_names or []
+        self.server_names = server_names or []
         self.agents = agents or []
         self.functions = functions or []
-        self.server_registry = server_registry or get_current_context().server_registry
+        self.server_registry = self.context.server_registry
 
         # A dict of categories to route to, keyed by category name.
         # These are populated in the initialize method.

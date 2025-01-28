@@ -5,7 +5,6 @@ from typing import AsyncGenerator, Callable
 from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 from mcp import ClientSession
 
-from mcp_agent.context import get_current_context
 from mcp_agent.logging.logger import get_logger
 from mcp_agent.mcp_server_registry import ServerRegistry
 from mcp_agent.mcp.mcp_agent_client_session import MCPAgentClientSession
@@ -16,11 +15,11 @@ logger = get_logger(__name__)
 @asynccontextmanager
 async def gen_client(
     server_name: str,
+    server_registry: ServerRegistry,
     client_session_factory: Callable[
         [MemoryObjectReceiveStream, MemoryObjectSendStream, timedelta | None],
         ClientSession,
     ] = MCPAgentClientSession,
-    server_registry: ServerRegistry | None = None,
 ) -> AsyncGenerator[ClientSession, None]:
     """
     Create a client session to the specified server.
@@ -28,9 +27,6 @@ async def gen_client(
     If required, callers can specify their own message receive loop and ClientSession class constructor to customize further.
     For persistent connections, use connect() or MCPConnectionManager instead.
     """
-    ctx = get_current_context()
-    server_registry = server_registry or ctx.server_registry
-
     if not server_registry:
         raise ValueError(
             "Server registry not found in the context. Please specify one either on this method, or in the context."
@@ -45,20 +41,17 @@ async def gen_client(
 
 async def connect(
     server_name: str,
+    server_registry: ServerRegistry,
     client_session_factory: Callable[
         [MemoryObjectReceiveStream, MemoryObjectSendStream, timedelta | None],
         ClientSession,
     ] = MCPAgentClientSession,
-    server_registry: ServerRegistry | None = None,
 ) -> ClientSession:
     """
     Create a persistent client session to the specified server.
     Handles server startup, initialization, and message receive loop setup.
     If required, callers can specify their own message receive loop and ClientSession class constructor to customize further.
     """
-    ctx = get_current_context()
-    server_registry = server_registry or ctx.server_registry
-
     if not server_registry:
         raise ValueError(
             "Server registry not found in the context. Please specify one either on this method, or in the context."
@@ -74,14 +67,11 @@ async def connect(
 
 async def disconnect(
     server_name: str | None,
-    server_registry: ServerRegistry | None = None,
+    server_registry: ServerRegistry,
 ) -> None:
     """
     Disconnect from the specified server. If server_name is None, disconnect from all servers.
     """
-    ctx = get_current_context()
-    server_registry = server_registry or ctx.server_registry
-
     if not server_registry:
         raise ValueError(
             "Server registry not found in the context. Please specify one either on this method, or in the context."

@@ -1,8 +1,8 @@
-from typing import List
+from typing import List, Optional, TYPE_CHECKING
 
 from numpy import mean
 
-from mcp_agent.workflows.embedding import (
+from mcp_agent.workflows.embedding.embedding_base import (
     FloatArray,
     EmbeddingModel,
     compute_confidence,
@@ -13,6 +13,9 @@ from mcp_agent.workflows.intent_classifier.intent_classifier_base import (
     IntentClassifier,
     IntentClassificationResult,
 )
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 
 class EmbeddingIntent(Intent):
@@ -38,8 +41,10 @@ class EmbeddingIntentClassifier(IntentClassifier):
         self,
         intents: List[Intent],
         embedding_model: EmbeddingModel,
+        context: Optional["Context"] = None,
+        **kwargs,
     ):
-        super().__init__(intents=intents)
+        super().__init__(intents=intents, context=context, **kwargs)
         self.embedding_model = embedding_model
         self.initialized = False
 

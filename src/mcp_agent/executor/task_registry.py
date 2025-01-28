@@ -32,13 +32,3 @@ class ActivityRegistry:
 
     def list_activities(self) -> List[str]:
         return list(self._activities.keys())
-
-
-global_task_registry = ActivityRegistry()
-
-
-def get_activity_registry():
-    """
-    Get the current activity/task registry.
-    """
-    return global_task_registry

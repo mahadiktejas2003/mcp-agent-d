@@ -1,6 +1,6 @@
 import contextlib
 from enum import Enum
-from typing import Callable, List, Type
+from typing import Callable, List, Optional, Type, TYPE_CHECKING
 from pydantic import BaseModel, Field
 
 from mcp_agent.workflows.llm.augmented_llm import (
@@ -8,10 +8,13 @@ from mcp_agent.workflows.llm.augmented_llm import (
     MessageParamT,
     MessageT,
     ModelT,
+    RequestParams,
 )
 from mcp_agent.agents.agent import Agent
-from mcp_agent.executor.executor import Executor
 from mcp_agent.logging.logger import get_logger
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 logger = get_logger(__name__)
 
@@ -68,7 +71,7 @@ class EvaluatorOptimizerLLM(AugmentedLLM[MessageParamT, MessageT]):
         min_rating: QualityRating = QualityRating.GOOD,
         max_refinements: int = 3,
         llm_factory: Callable[[Agent], AugmentedLLM] | None = None,
-        executor: Executor | None = None,
+        context: Optional["Context"] = None,
     ):
         """
         Initialize the evaluator-optimizer workflow.
@@ -83,9 +86,8 @@ class EvaluatorOptimizerLLM(AugmentedLLM[MessageParamT, MessageT]):
             min_rating: Minimum acceptable quality rating
             max_refinements: Maximum refinement iterations
             llm_factory: Optional factory to create LLMs from agents
-            executor: Optional executor for parallel operations
         """
-        super().__init__(executor=executor)
+        super().__init__(context=context)
 
         # Set up the optimizer
         self.name = optimizer.name
@@ -148,12 +150,7 @@ class EvaluatorOptimizerLLM(AugmentedLLM[MessageParamT, MessageT]):
     async def generate(
         self,
         message: str | MessageParamT | List[MessageParamT],
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> List[MessageT]:
         """Generate an optimized response through evaluation-guided refinement"""
         refinement_count = 0
@@ -168,12 +165,7 @@ class EvaluatorOptimizerLLM(AugmentedLLM[MessageParamT, MessageT]):
                 await stack.enter_async_context(self.optimizer)
             response = await self.optimizer_llm.generate(
                 message=message,
-                use_history=use_history,
-                max_iterations=max_iterations,
-                model=model,
-                stop_sequences=stop_sequences,
-                max_tokens=max_tokens,
-                parallel_tool_calls=parallel_tool_calls,
+                request_params=request_params,
             )
 
         best_response = response
@@ -198,8 +190,7 @@ class EvaluatorOptimizerLLM(AugmentedLLM[MessageParamT, MessageT]):
                 evaluation_result = await self.evaluator_llm.generate_structured(
                     message=eval_prompt,
                     response_model=EvaluationResult,
-                    model=model,
-                    max_tokens=max_tokens,
+                    request_params=request_params,
                 )
 
             # Track iteration
@@ -253,12 +244,7 @@ class EvaluatorOptimizerLLM(AugmentedLLM[MessageParamT, MessageT]):
 
                 response = await self.optimizer_llm.generate(
                     message=refinement_prompt,
-                    use_history=use_history,
-                    max_iterations=max_iterations,
-                    model=model,
-                    stop_sequences=stop_sequences,
-                    max_tokens=max_tokens,
-                    parallel_tool_calls=parallel_tool_calls,
+                    request_params=request_params,
                 )
 
             refinement_count += 1
@@ -268,22 +254,12 @@ class EvaluatorOptimizerLLM(AugmentedLLM[MessageParamT, MessageT]):
     async def generate_str(
         self,
         message: str | MessageParamT | List[MessageParamT],
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> str:
         """Generate an optimized response and return it as a string"""
         response = await self.generate(
             message=message,
-            use_history=use_history,
-            max_iterations=max_iterations,
-            model=model,
-            stop_sequences=stop_sequences,
-            max_tokens=max_tokens,
-            parallel_tool_calls=parallel_tool_calls,
+            request_params=request_params,
         )
 
         return "\n".join(self.optimizer_llm.message_str(r) for r in response)
@@ -292,29 +268,17 @@ class EvaluatorOptimizerLLM(AugmentedLLM[MessageParamT, MessageT]):
         self,
         message: str | MessageParamT | List[MessageParamT],
         response_model: Type[ModelT],
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> ModelT:
         """Generate an optimized structured response"""
         response_str = await self.generate_str(
-            message=message,
-            use_history=use_history,
-            max_iterations=max_iterations,
-            model=model,
-            stop_sequences=stop_sequences,
-            max_tokens=max_tokens,
-            parallel_tool_calls=parallel_tool_calls,
+            message=message, request_params=request_params
         )
 
         return await self.optimizer.generate_structured(
             message=response_str,
             response_model=response_model,
-            model=model,
-            max_tokens=max_tokens,
+            request_params=request_params,
         )
 
     def _build_eval_prompt(

@@ -1,20 +1,17 @@
-from typing import Callable, Dict, Generic, List, Optional
+from typing import Callable, Dict, Generic, List, Optional, TYPE_CHECKING
 from collections import defaultdict
 
 from pydantic import AnyUrl, BaseModel, ConfigDict
-from mcp.server.fastmcp.tools import Tool as FastTool
 from mcp.types import (
     CallToolRequest,
     EmbeddedResource,
     CallToolResult,
-    ListToolsResult,
     TextContent,
     TextResourceContents,
     Tool,
 )
 
 from mcp_agent.agents.agent import Agent
-from mcp_agent.executor.executor import Executor
 from mcp_agent.human_input.types import HumanInputCallback
 from mcp_agent.workflows.llm.augmented_llm import (
     AugmentedLLM,
@@ -22,6 +19,9 @@ from mcp_agent.workflows.llm.augmented_llm import (
     MessageT,
 )
 from mcp_agent.logging.logger import get_logger
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 logger = get_logger(__name__)
 
@@ -33,6 +33,8 @@ class AgentResource(EmbeddedResource):
 
     agent: Optional["Agent"] = None
 
+    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
+
 
 class AgentFunctionResultResource(EmbeddedResource):
     """
@@ -41,6 +43,8 @@ class AgentFunctionResultResource(EmbeddedResource):
     """
 
     result: "AgentFunctionResult"
+
+    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
 
 def create_agent_resource(agent: "Agent") -> AgentResource:
@@ -84,48 +88,22 @@ class SwarmAgent(Agent):
         functions: List["AgentFunctionCallable"] = None,
         parallel_tool_calls: bool = True,
         human_input_callback: HumanInputCallback = None,
-        executor: Executor | None = None,
+        context: Optional["Context"] = None,
+        **kwargs,
     ):
         super().__init__(
             name=name,
             instruction=instruction,
             server_names=server_names,
+            functions=functions,
             # TODO: saqadri - figure out if Swarm can maintain connection persistence
             # It's difficult because we don't know when the agent will be done with its task
             connection_persistence=False,
             human_input_callback=human_input_callback,
-            executor=executor,
+            context=context,
+            **kwargs,
         )
-        self.functions = functions
         self.parallel_tool_calls = parallel_tool_calls
-
-        # Map function names to tools
-        self._function_tool_map: Dict[str, FastTool] = {}
-
-    async def initialize(self):
-        if self.initialized:
-            return
-
-        await super().initialize()
-        for function in self.functions:
-            tool: FastTool = FastTool.from_function(function)
-            self._function_tool_map[tool.name] = tool
-
-    async def list_tools(self) -> ListToolsResult:
-        if not self.initialized:
-            await self.initialize()
-
-        result = await super().list_tools()
-        for tool in self._function_tool_map.values():
-            result.tools.append(
-                Tool(
-                    name=tool.name,
-                    description=tool.description,
-                    inputSchema=tool.parameters,
-                )
-            )
-
-        return result
 
     async def call_tool(
         self, name: str, arguments: dict | None = None
@@ -272,7 +250,7 @@ class Swarm(AugmentedLLM[MessageParamT, MessageT], Generic[MessageParamT, Messag
         for content in result.content:
             if isinstance(content, AgentResource):
                 # Set the new agent as the current agent
-                await self._set_agent(content.agent)
+                await self.set_agent(content.agent)
                 contents.append(TextContent(type="text", text=content.resource.text))
             elif isinstance(content, AgentFunctionResult):
                 logger.info(
@@ -282,7 +260,7 @@ class Swarm(AugmentedLLM[MessageParamT, MessageT], Generic[MessageParamT, Messag
                 self.context_variables.update(content.context_variables)
                 if content.agent:
                     # Set the new agent as the current agent
-                    self._set_agent(content.agent)
+                    self.set_agent(content.agent)
 
                 contents.append(TextContent(type="text", text=content.resource.text))
             else:
@@ -291,12 +269,12 @@ class Swarm(AugmentedLLM[MessageParamT, MessageT], Generic[MessageParamT, Messag
         result.content = contents
         return result
 
-    async def _set_agent(
+    async def set_agent(
         self,
         agent: SwarmAgent,
     ):
         logger.info(
-            f"Switching from agent '{self.aggregator.name}' -> agent '{agent.name}'"
+            f"Switching from agent '{self.aggregator.name}' -> agent '{agent.name if agent else 'NULL'}'"
         )
         if self.aggregator:
             # Close the current agent
@@ -305,7 +283,7 @@ class Swarm(AugmentedLLM[MessageParamT, MessageT], Generic[MessageParamT, Messag
         # Initialize the new agent (if it's not None)
         self.aggregator = agent
 
-        if not self.aggregator:
+        if not self.aggregator or isinstance(self.aggregator, DoneAgent):
             self.instruction = None
             return
 
@@ -314,4 +292,29 @@ class Swarm(AugmentedLLM[MessageParamT, MessageT], Generic[MessageParamT, Messag
             agent.instruction(self.context_variables)
             if callable(agent.instruction)
             else agent.instruction
+        )
+
+    def should_continue(self) -> bool:
+        """
+        Returns True if the workflow should continue, False otherwise.
+        """
+        if not self.aggregator or isinstance(self.aggregator, DoneAgent):
+            return False
+
+        return True
+
+
+class DoneAgent(SwarmAgent):
+    """
+    A special agent that represents the end of a Swarm workflow.
+    """
+
+    def __init__(self):
+        super().__init__(name="__done__", instruction="Swarm Workflow is complete.")
+
+    async def call_tool(
+        self, _name: str, _arguments: dict | None = None
+    ) -> CallToolResult:
+        return CallToolResult(
+            content=[TextContent(type="text", text="Workflow is complete.")]
         )

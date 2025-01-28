@@ -1,21 +1,25 @@
 import contextlib
 import functools
-from typing import Any, Callable, Coroutine, Dict, List, Type
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Type, TYPE_CHECKING
 
 from mcp_agent.agents.agent import Agent
-from mcp_agent.executor.executor import Executor, AsyncioExecutor
+from mcp_agent.context_dependent import ContextDependent
 from mcp_agent.workflows.llm.augmented_llm import (
     AugmentedLLM,
     MessageParamT,
     MessageT,
     ModelT,
+    RequestParams,
 )
 from mcp_agent.logging.logger import get_logger
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 logger = get_logger(__name__)
 
 
-class FanOut:
+class FanOut(ContextDependent):
     """
     Distribute work to multiple parallel tasks.
 
@@ -28,15 +32,16 @@ class FanOut:
         agents: List[Agent | AugmentedLLM[MessageParamT, MessageT]] | None = None,
         functions: List[Callable[[MessageParamT], List[MessageT]]] | None = None,
         llm_factory: Callable[[Agent], AugmentedLLM[MessageParamT, MessageT]] = None,
-        executor: Executor | None = None,
+        context: Optional["Context"] = None,
+        **kwargs,
     ):
         """
         Initialize the FanOut with a list of agents, functions, or LLMs.
         If agents are provided, they will be wrapped in an AugmentedLLM using llm_factory if not already done so.
         If functions are provided, they will be invoked in parallel directly.
         """
-
-        self.executor = executor or AsyncioExecutor()
+        super().__init__(context=context, **kwargs)
+        self.executor = self.context.executor
         self.llm_factory = llm_factory
         self.agents = agents or []
         self.functions: List[Callable[[MessageParamT], MessageT]] = functions or []
@@ -54,12 +59,7 @@ class FanOut:
     async def generate(
         self,
         message: str | MessageParamT | List[MessageParamT],
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> Dict[str, List[MessageT]]:
         """
         Request fan-out agent/function generations, and return the results as a dictionary.
@@ -83,12 +83,7 @@ class FanOut:
                 tasks.append(
                     llm.generate(
                         message=message,
-                        use_history=use_history,
-                        max_iterations=max_iterations,
-                        model=model,
-                        stop_sequences=stop_sequences,
-                        max_tokens=max_tokens,
-                        parallel_tool_calls=parallel_tool_calls,
+                        request_params=request_params,
                     )
                 )
                 task_names.append(agent.name)
@@ -110,12 +105,7 @@ class FanOut:
     async def generate_str(
         self,
         message: str | MessageParamT | List[MessageParamT],
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> Dict[str, str]:
         """
         Request fan-out agent/function generations and return the string results as a dictionary.
@@ -141,12 +131,7 @@ class FanOut:
                 tasks.append(
                     llm.generate_str(
                         message=message,
-                        use_history=use_history,
-                        max_iterations=max_iterations,
-                        model=model,
-                        stop_sequences=stop_sequences,
-                        max_tokens=max_tokens,
-                        parallel_tool_calls=parallel_tool_calls,
+                        request_params=request_params,
                     )
                 )
                 task_names.append(agent.name)
@@ -164,12 +149,7 @@ class FanOut:
         self,
         message: str | MessageParamT | List[MessageParamT],
         response_model: Type[ModelT],
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> Dict[str, ModelT]:
         """
         Request a structured fan-out agent/function generation and return the result as a Pydantic model.
@@ -192,12 +172,7 @@ class FanOut:
                     llm.generate_structured(
                         message=message,
                         response_model=response_model,
-                        use_history=use_history,
-                        max_iterations=max_iterations,
-                        model=model,
-                        stop_sequences=stop_sequences,
-                        max_tokens=max_tokens,
-                        parallel_tool_calls=parallel_tool_calls,
+                        request_params=request_params,
                     )
                 )
                 task_names.append(agent.name)

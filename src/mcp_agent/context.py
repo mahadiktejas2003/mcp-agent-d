@@ -4,10 +4,12 @@ A central context object to store global state that is shared across the applica
 
 import asyncio
 import concurrent.futures
-from typing import Any, Optional, TypeVar, overload, TYPE_CHECKING
+from typing import Any, Optional, TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict
+
 from mcp import ServerSession
+
 from opentelemetry import trace
 from opentelemetry.propagate import set_global_textmap
 from opentelemetry.sdk.resources import Resource
@@ -16,17 +18,26 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExport
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 
-from mcp_agent.config import Settings, get_settings
+from mcp_agent.config import get_settings
+from mcp_agent.config import Settings
+from mcp_agent.executor.executor import Executor
+from mcp_agent.executor.decorator_registry import (
+    DecoratorRegistry,
+    register_asyncio_decorators,
+    register_temporal_decorators,
+)
+from mcp_agent.executor.task_registry import ActivityRegistry
+from mcp_agent.executor.executor import AsyncioExecutor
+
 from mcp_agent.logging.events import EventFilter
 from mcp_agent.logging.logger import LoggingConfig
 from mcp_agent.logging.transport import create_transport
 from mcp_agent.mcp_server_registry import ServerRegistry
+from mcp_agent.workflows.llm.llm_selector import ModelSelector
 
 if TYPE_CHECKING:
-    # from mcp_agent.executor.executor import Executor
-    from mcp_agent.executor.workflow_signal import SignalWaitCallback
     from mcp_agent.human_input.types import HumanInputCallback
-    # from mcp_agent.human_input.handler import HumanInputHandler
+    from mcp_agent.executor.workflow_signal import SignalWaitCallback
 else:
     # Runtime placeholders for the types
     HumanInputCallback = Any
@@ -39,13 +50,19 @@ class Context(BaseModel):
     This is a global context that is shared across the application.
     """
 
-    config: Settings | None = None
-    # executor: Optional["Executor"] = None
+    config: Optional[Settings] = None
+    executor: Optional[Executor] = None
     human_input_handler: Optional[HumanInputCallback] = None
     signal_notification: Optional[SignalWaitCallback] = None
-    upstream_session: ServerSession | None = None  # TODO: saqadri - figure this out
-    server_registry: ServerRegistry | None = None
-    tracer: trace.Tracer | None = None
+    upstream_session: Optional[ServerSession] = None  # TODO: saqadri - figure this out
+    model_selector: Optional[ModelSelector] = None
+
+    # Registries
+    server_registry: Optional[ServerRegistry] = None
+    task_registry: Optional[ActivityRegistry] = None
+    decorator_registry: Optional[DecoratorRegistry] = None
+
+    tracer: Optional[trace.Tracer] = None
 
     model_config = ConfigDict(
         extra="allow",
@@ -53,7 +70,7 @@ class Context(BaseModel):
     )
 
 
-async def configure_otel(config: Settings):
+async def configure_otel(config: "Settings"):
     """
     Configure OpenTelemetry based on the application config.
     """
@@ -101,12 +118,13 @@ async def configure_otel(config: Settings):
     trace.set_tracer_provider(tracer_provider)
 
 
-async def configure_logger(config: Settings):
+async def configure_logger(config: "Settings"):
     """
     Configure logging and tracing based on the application config.
     """
     event_filter: EventFilter = EventFilter(min_level=config.logger.level)
-    transport = create_transport(config.logger)
+    print(f"Configuring logger with level: {config.logger.level}")
+    transport = create_transport(settings=config.logger, event_filter=event_filter)
     await LoggingConfig.configure(
         event_filter=event_filter,
         transport=transport,
@@ -115,7 +133,7 @@ async def configure_logger(config: Settings):
     )
 
 
-async def configure_usage_telemetry(_config: Settings):
+async def configure_usage_telemetry(_config: "Settings"):
     """
     Configure usage telemetry based on the application config.
     TODO: saqadri - implement usage tracking
@@ -123,7 +141,27 @@ async def configure_usage_telemetry(_config: Settings):
     pass
 
 
-async def initialize_context(config: Settings | None = None):
+async def configure_executor(config: "Settings"):
+    """
+    Configure the executor based on the application config.
+    """
+    if config.execution_engine == "asyncio":
+        return AsyncioExecutor()
+    elif config.execution_engine == "temporal":
+        # Configure Temporal executor
+        from mcp_agent.executor.temporal import TemporalExecutor
+
+        executor = TemporalExecutor(config=config.temporal)
+        return executor
+    else:
+        # Default to asyncio executor
+        executor = AsyncioExecutor()
+        return executor
+
+
+async def initialize_context(
+    config: Optional["Settings"] = None, store_globally: bool = False
+):
     """
     Initialize the global application context.
     """
@@ -139,8 +177,20 @@ async def initialize_context(config: Settings | None = None):
     await configure_logger(config)
     await configure_usage_telemetry(config)
 
+    # Configure the executor
+    context.executor = await configure_executor(config)
+    context.task_registry = ActivityRegistry()
+
+    context.decorator_registry = DecoratorRegistry()
+    register_asyncio_decorators(context.decorator_registry)
+    register_temporal_decorators(context.decorator_registry)
+
     # Store the tracer in context if needed
     context.tracer = trace.get_tracer(config.otel.service_name)
+
+    if store_globally:
+        global _global_context
+        _global_context = context
 
     return context
 
@@ -183,67 +233,8 @@ def get_current_context() -> Context:
     return _global_context
 
 
-async def aget_current_context() -> Context:
-    """
-    Get the current application context, initializing if necessary.
-    """
-    global _global_context
-    if _global_context is None:
-        _global_context = await initialize_context()
-    return _global_context
-
-
 def get_current_config():
     """
     Get the current application config.
     """
     return get_current_context().config or get_settings()
-
-
-async def aget_current_config():
-    """
-    Async verion of get_current_config, to get the current application config.
-    """
-    context = await aget_current_context()
-    return context.config or get_settings()
-
-
-T = TypeVar("T")
-
-
-@overload
-def update_current_context(field: str, value: T) -> T: ...
-
-
-@overload
-def update_current_context(**updates: Any) -> Context: ...
-
-
-def update_current_context(
-    field: str | None = None, value: Any = None, **updates: Any
-) -> Any:
-    """
-    Update the global context, preserving types when updating a single field.
-
-    Can be used in two ways:
-    1. update_current_context("field_name", value)  # Returns the value with its type
-    2. update_current_context(field_name=value)     # Returns the updated Context
-    """
-    global _global_context
-    context = get_current_context()
-    current_data = context.model_dump()
-
-    # Handle single field update with type preservation
-    if field is not None:
-        updates = {field: value}
-
-    # Update the current data with new values
-    current_data.update(updates)
-
-    _global_context = Context(**current_data)
-
-    # Return the value for single field updates to preserve its type
-    if field is not None:
-        return value
-
-    return _global_context

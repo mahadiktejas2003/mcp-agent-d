@@ -1,9 +1,11 @@
-from typing import Callable, List
+from typing import Callable, List, Optional, TYPE_CHECKING
 
 from mcp_agent.agents.agent import Agent
-from mcp_agent.mcp_server_registry import ServerRegistry
 from mcp_agent.workflows.embedding.embedding_cohere import CohereEmbeddingModel
 from mcp_agent.workflows.router.router_embedding import EmbeddingRouter
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 
 class CohereEmbeddingRouter(EmbeddingRouter):
@@ -15,41 +17,43 @@ class CohereEmbeddingRouter(EmbeddingRouter):
 
     def __init__(
         self,
-        mcp_servers_names: List[str] | None = None,
+        server_names: List[str] | None = None,
         agents: List[Agent] | None = None,
         functions: List[Callable] | None = None,
-        server_registry: ServerRegistry | None = None,
         embedding_model: CohereEmbeddingModel | None = None,
+        context: Optional["Context"] = None,
+        **kwargs,
     ):
         embedding_model = embedding_model or CohereEmbeddingModel()
 
         super().__init__(
             embedding_model=embedding_model,
-            mcp_servers_names=mcp_servers_names,
+            server_names=server_names,
             agents=agents,
             functions=functions,
-            server_registry=server_registry,
+            context=context,
+            **kwargs,
         )
 
     @classmethod
     async def create(
         cls,
-        mcp_servers_names: List[str] | None = None,
+        embedding_model: CohereEmbeddingModel | None = None,
+        server_names: List[str] | None = None,
         agents: List[Agent] | None = None,
         functions: List[Callable] | None = None,
-        server_registry: ServerRegistry | None = None,
-        embedding_model: CohereEmbeddingModel | None = None,
+        context: Optional["Context"] = None,
     ) -> "CohereEmbeddingRouter":
         """
         Factory method to create and initialize a router.
         Use this instead of constructor since we need async initialization.
         """
         instance = cls(
-            mcp_servers_names=mcp_servers_names,
+            server_names=server_names,
             agents=agents,
             functions=functions,
-            server_registry=server_registry,
             embedding_model=embedding_model,
+            context=context,
         )
         await instance.initialize()
         return instance

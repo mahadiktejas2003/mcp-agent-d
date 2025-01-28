@@ -55,8 +55,7 @@ class FilteredListener(LifecycleAwareListener):
 
     async def handle_matched_event(self, event: Event):
         """Process an event that matches the filter."""
-        # TODO: saqadri - validate
-        super().handle_event(event)
+        pass
 
 
 class LoggingListener(FilteredListener):
@@ -124,14 +123,19 @@ class BatchingListener(FilteredListener):
         self.batch: List[Event] = []
         self.last_flush: float = time.time()  # Time of last flush
         self._flush_task: asyncio.Task | None = None  # Task for periodic flush loop
+        self._stop_event = None  # Event to signal flush task to stop
 
-    async def start(self):
+    async def start(self, loop=None):
         """Spawn a periodic flush loop."""
+        self._stop_event = asyncio.Event()
         self._flush_task = asyncio.create_task(self._periodic_flush())
 
     async def stop(self):
         """Stop flush loop and flush any remaining events."""
-        if self._flush_task:
+        if self._stop_event:
+            self._stop_event.set()
+
+        if self._flush_task and not self._flush_task.done():
             self._flush_task.cancel()
             try:
                 await self._flush_task
@@ -141,10 +145,18 @@ class BatchingListener(FilteredListener):
         await self.flush()
 
     async def _periodic_flush(self):
-        while True:
-            await asyncio.sleep(self.flush_interval)
-            if time.time() - self.last_flush >= self.flush_interval:
-                await self.flush()
+        try:
+            while not self._stop_event.is_set():
+                try:
+                    await asyncio.wait_for(
+                        self._stop_event.wait(), timeout=self.flush_interval
+                    )
+                except asyncio.TimeoutError:
+                    await self.flush()
+        except asyncio.CancelledError:
+            pass
+        finally:
+            await self.flush()  # Final flush
 
     async def handle_matched_event(self, event):
         self.batch.append(event)
@@ -161,4 +173,4 @@ class BatchingListener(FilteredListener):
         await self._process_batch(to_process)
 
     async def _process_batch(self, events: List[Event]):
-        print(f"[BatchingListener] Processed batch of {len(events)} events.")
+        pass

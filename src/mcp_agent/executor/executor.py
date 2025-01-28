@@ -3,18 +3,32 @@ import functools
 from abc import ABC, abstractmethod
 from contextlib import asynccontextmanager
 from datetime import timedelta
-from typing import Any, AsyncIterator, Callable, Coroutine, Dict, List, Type, TypeVar
+from typing import (
+    Any,
+    AsyncIterator,
+    Callable,
+    Coroutine,
+    Dict,
+    List,
+    Optional,
+    Type,
+    TypeVar,
+    TYPE_CHECKING,
+)
 
 from pydantic import BaseModel, ConfigDict
 
+from mcp_agent.context_dependent import ContextDependent
 from mcp_agent.executor.workflow_signal import (
     AsyncioSignalHandler,
     Signal,
     SignalHandler,
     SignalValueT,
 )
-from mcp_agent.context import get_current_context
 from mcp_agent.logging.logger import get_logger
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 logger = get_logger(__name__)
 
@@ -32,7 +46,7 @@ class ExecutorConfig(BaseModel):
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
 
-class Executor(ABC):
+class Executor(ABC, ContextDependent):
     """Abstract base class for different execution backends"""
 
     def __init__(
@@ -40,7 +54,10 @@ class Executor(ABC):
         engine: str,
         config: ExecutorConfig | None = None,
         signal_bus: SignalHandler = None,
+        context: Optional["Context"] = None,
+        **kwargs,
     ):
+        super().__init__(context=context, **kwargs)
         self.execution_engine = engine
 
         if config:
@@ -146,9 +163,8 @@ class Executor(ABC):
         """
 
         # Notify any callbacks that the workflow is about to be paused waiting for a signal
-        ctx = get_current_context()
-        if ctx.signal_notification:
-            ctx.signal_notification(
+        if self.context.signal_notification:
+            self.context.signal_notification(
                 signal_name=signal_name,
                 request_id=request_id,
                 workflow_id=workflow_id,

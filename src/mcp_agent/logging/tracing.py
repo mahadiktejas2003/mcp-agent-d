@@ -5,30 +5,33 @@ for the Logger module for MCP Agent
 
 import asyncio
 import functools
-from typing import Any, Dict, Callable, Tuple
+from typing import Any, Dict, Callable, Optional, Tuple, TYPE_CHECKING
 
 from opentelemetry import trace
-from opentelemetry.context import Context
+from opentelemetry.context import Context as OtelContext
 from opentelemetry.propagate import extract as otel_extract
 from opentelemetry.trace import set_span_in_context
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
 from opentelemetry.trace import SpanKind, Status, StatusCode
 
-from mcp_agent.context import get_current_context
+from mcp_agent.context_dependent import ContextDependent
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 
-class TelemetryManager:
+class TelemetryManager(ContextDependent):
     """
     Simple manager for creating OpenTelemetry spans automatically.
     Decorator usage: @telemetry.traced("SomeSpanName")
     """
 
-    def __init__(self):
+    def __init__(self, context: Optional["Context"] = None, **kwargs):
         # If needed, configure resources, exporters, etc.
         # E.g.: from opentelemetry.sdk.trace import TracerProvider
         # trace.set_tracer_provider(TracerProvider(...))
-        pass
+        super().__init__(context=context, **kwargs)
 
     def traced(
         self,
@@ -44,8 +47,7 @@ class TelemetryManager:
         def decorator(func):
             span_name = name or f"{func.__module__}.{func.__qualname__}"
 
-            context = get_current_context()
-            tracer = context.tracer or trace.get_tracer("mcp_agent")
+            tracer = self.context.tracer or trace.get_tracer("mcp_agent")
 
             @functools.wraps(func)
             async def async_wrapper(*args, **kwargs):
@@ -102,7 +104,7 @@ class MCPRequestTrace:
     @staticmethod
     def start_span_from_mcp_request(
         method: str, params: Dict[str, Any]
-    ) -> Tuple[trace.Span, Context]:
+    ) -> Tuple[trace.Span, OtelContext]:
         """Extract trace context from incoming MCP request and start a new span"""
         # Extract trace context from _meta if present
         carrier = {}
@@ -113,7 +115,7 @@ class MCPRequestTrace:
             carrier["tracestate"] = _meta["tracestate"]
 
         # Extract context and start span
-        ctx = otel_extract(carrier, context=Context())
+        ctx = otel_extract(carrier, context=OtelContext())
         tracer = trace.get_tracer(__name__)
         span = tracer.start_span(method, context=ctx, kind=SpanKind.SERVER)
         return span, set_span_in_context(span)

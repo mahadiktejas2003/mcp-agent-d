@@ -1,10 +1,13 @@
-from typing import List
+from typing import List, Optional, TYPE_CHECKING
 
 from mcp_agent.workflows.llm.augmented_llm_anthropic import AnthropicAugmentedLLM
 from mcp_agent.workflows.intent_classifier.intent_classifier_base import Intent
 from mcp_agent.workflows.intent_classifier.intent_classifier_llm import (
     LLMIntentClassifier,
 )
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 CLASSIFIER_SYSTEM_INSTRUCTION = """
 You are a precise intent classifier that analyzes input requests to determine their intended action or purpose.
@@ -22,13 +25,19 @@ class AnthropicLLMIntentClassifier(LLMIntentClassifier):
         self,
         intents: List[Intent],
         classification_instruction: str | None = None,
+        context: Optional["Context"] = None,
+        **kwargs,
     ):
-        anthropic_llm = AnthropicAugmentedLLM(instruction=CLASSIFIER_SYSTEM_INSTRUCTION)
+        anthropic_llm = AnthropicAugmentedLLM(
+            instruction=CLASSIFIER_SYSTEM_INSTRUCTION, context=context
+        )
 
         super().__init__(
             llm=anthropic_llm,
             intents=intents,
             classification_instruction=classification_instruction,
+            context=context,
+            **kwargs,
         )
 
     @classmethod
@@ -36,6 +45,7 @@ class AnthropicLLMIntentClassifier(LLMIntentClassifier):
         cls,
         intents: List[Intent],
         classification_instruction: str | None = None,
+        context: Optional["Context"] = None,
     ) -> "AnthropicLLMIntentClassifier":
         """
         Factory method to create and initialize a classifier.
@@ -44,6 +54,7 @@ class AnthropicLLMIntentClassifier(LLMIntentClassifier):
         instance = cls(
             intents=intents,
             classification_instruction=classification_instruction,
+            context=context,
         )
         await instance.initialize()
         return instance

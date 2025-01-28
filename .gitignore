@@ -167,3 +167,6 @@ examples/**/*.secrets.yaml
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 uv.lock
+
+# File generated from promptify script (to create an LLM-friendly prompt for the repo)
+project_contents.md

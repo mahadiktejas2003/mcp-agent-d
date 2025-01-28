@@ -2,6 +2,7 @@
 Events and event filters for the logger module for the MCP Agent
 """
 
+import logging
 import random
 
 from datetime import datetime
@@ -93,13 +94,14 @@ class EventFilter(BaseModel):
         # 4) Minimum severity
         if self.min_level:
             level_map: Dict[EventType, int] = {
-                "debug": 0,
-                "info": 1,
-                "warning": 2,
-                "error": 3,
+                "debug": logging.DEBUG,
+                "info": logging.INFO,
+                "warning": logging.WARNING,
+                "error": logging.ERROR,
             }
-            min_val = level_map.get(self.min_level, 0)
-            event_val = level_map.get(event.type, 0)
+
+            min_val = level_map.get(self.min_level, logging.DEBUG)
+            event_val = level_map.get(event.type, logging.DEBUG)
             if event_val < min_val:
                 return False
 

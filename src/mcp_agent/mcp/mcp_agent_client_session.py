@@ -24,13 +24,13 @@ from mcp.types import (
     TextContent,
 )
 
-from mcp_agent.context import get_current_context, get_current_config
+from mcp_agent.context_dependent import ContextDependent
 from mcp_agent.logging.logger import get_logger
 
 logger = get_logger(__name__)
 
 
-class MCPAgentClientSession(ClientSession):
+class MCPAgentClientSession(ClientSession, ContextDependent):
     """
     MCP Agent framework acts as a client to the servers providing tools/resources/prompts for the agent workloads.
     This is a simple client session for those server connections, and supports
@@ -183,13 +183,13 @@ class MCPAgentClientSession(ClientSession):
         responder: RequestResponder[ServerRequest, ClientResult],
     ):
         logger.info("Handling sampling request: %s", request)
-        ctx = get_current_context()
-        config = get_current_config()
-        session = ctx.upstream_session
+        config = self.context.config
+        session = self.context.upstream_session
         if session is None:
             # TODO: saqadri - consider whether we should be handling the sampling request here as a client
-            print(
-                f"Error: No upstream client available for sampling requests. Request: {request}"
+            logger.warning(
+                "Error: No upstream client available for sampling requests. Request:",
+                data=request,
             )
             try:
                 from anthropic import AsyncAnthropic

@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List
+from typing import Dict, List, Optional, TYPE_CHECKING
 from pydantic import BaseModel, Field
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 
 class Intent(BaseModel):
@@ -51,7 +54,10 @@ class IntentClassifier(ABC):
         - Determining the type of analysis requested for a dataset
     """
 
-    def __init__(self, intents: List[Intent]):
+    def __init__(
+        self, intents: List[Intent], context: Optional["Context"] = None, **kwargs
+    ):
+        super().__init__(context=context, **kwargs)
         self.intents = {intent.name: intent for intent in intents}
         self.initialized: bool = False
 

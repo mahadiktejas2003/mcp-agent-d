@@ -8,7 +8,16 @@ Read more: https://docs.temporal.io/develop/python/core-application
 import asyncio
 import functools
 import uuid
-from typing import Any, AsyncIterator, Callable, Coroutine, Dict, List
+from typing import (
+    Any,
+    AsyncIterator,
+    Callable,
+    Coroutine,
+    Dict,
+    List,
+    Optional,
+    TYPE_CHECKING,
+)
 
 from pydantic import ConfigDict
 from temporalio import activity, workflow, exceptions
@@ -16,9 +25,7 @@ from temporalio.client import Client as TemporalClient
 from temporalio.worker import Worker
 
 from mcp_agent.config import TemporalSettings
-from mcp_agent.context import get_current_config
 from mcp_agent.executor.executor import Executor, ExecutorConfig, R
-from mcp_agent.executor.task_registry import get_activity_registry
 from mcp_agent.executor.workflow_signal import (
     BaseSignalHandler,
     Signal,
@@ -26,6 +33,9 @@ from mcp_agent.executor.workflow_signal import (
     SignalRegistration,
     SignalValueT,
 )
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 
 class TemporalSignalHandler(BaseSignalHandler[SignalValueT]):
@@ -176,10 +186,20 @@ class TemporalExecutor(Executor):
         config: TemporalExecutorConfig | None = None,
         signal_bus: SignalHandler | None = None,
         client: TemporalClient | None = None,
+        context: Optional["Context"] = None,
+        **kwargs,
     ):
         signal_bus = signal_bus or TemporalSignalHandler()
-        super().__init__(engine="temporal", config=config, signal_bus=signal_bus)
-        self.config: TemporalExecutorConfig = config or self._get_config()
+        super().__init__(
+            engine="temporal",
+            config=config,
+            signal_bus=signal_bus,
+            context=context,
+            **kwargs,
+        )
+        self.config: TemporalExecutorConfig = (
+            config or self.context.config.temporal or TemporalExecutorConfig()
+        )
         self.client = client
         self._worker = None
         self._activity_semaphore = None
@@ -188,14 +208,6 @@ class TemporalExecutor(Executor):
             self._activity_semaphore = asyncio.Semaphore(
                 self.config.max_concurrent_activities
             )
-
-    @classmethod
-    def _get_config(cls) -> TemporalExecutorConfig:
-        config = get_current_config()
-        if config.temporal:
-            return TemporalExecutorConfig(**config.temporal.model_dump())
-
-        return TemporalExecutorConfig()
 
     @staticmethod
     def wrap_as_activity(
@@ -368,7 +380,7 @@ class TemporalExecutor(Executor):
             # We'll collect the activities from the global registry
             # and optionally wrap them with `activity.defn` if we want
             # (Not strictly required if your code calls `execute_activity("name")` by name)
-            activity_registry = get_activity_registry()
+            activity_registry = self.context.task_registry
             activities = []
             for name in activity_registry.list_activities():
                 activities.append(activity_registry.get_activity(name))

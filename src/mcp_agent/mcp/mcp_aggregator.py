@@ -1,5 +1,5 @@
 from asyncio import Lock, gather
-from typing import List, Dict
+from typing import List, Dict, Optional, TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict
 from mcp.client.session import ClientSession
@@ -11,12 +11,15 @@ from mcp.types import (
     Tool,
 )
 
-from mcp_agent.context import get_current_context
 from mcp_agent.logging.logger import get_logger
 from mcp_agent.mcp.gen_client import gen_client
 
+from mcp_agent.context_dependent import ContextDependent
 from mcp_agent.mcp.mcp_agent_client_session import MCPAgentClientSession
 from mcp_agent.mcp.mcp_connection_manager import MCPConnectionManager
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 
 logger = get_logger(__name__)
@@ -34,7 +37,7 @@ class NamespacedTool(BaseModel):
     namespaced_tool_name: str
 
 
-class MCPAggregator(BaseModel):
+class MCPAggregator(ContextDependent):
     """
     Aggregates multiple MCP servers. When a developer calls, e.g. call_tool(...),
     the aggregator searches all servers in its list for a server that provides that tool.
@@ -57,9 +60,8 @@ class MCPAggregator(BaseModel):
 
         # Keep a connection manager to manage persistent connections for this aggregator
         if self.connection_persistence:
-            ctx = get_current_context()
             self._persistent_connection_manager = MCPConnectionManager(
-                ctx.server_registry
+                self.context.server_registry
             )
             await self._persistent_connection_manager.__aenter__()
 
@@ -71,17 +73,23 @@ class MCPAggregator(BaseModel):
         await self.close()
 
     def __init__(
-        self, server_names: List[str], connection_persistence: bool = False, **kwargs
+        self,
+        server_names: List[str],
+        connection_persistence: bool = False,
+        context: Optional["Context"] = None,
+        **kwargs,
     ):
         """
         :param server_names: A list of server names to connect to.
         Note: The server names must be resolvable by the gen_client function, and specified in the server registry.
         """
         super().__init__(
-            server_names=server_names,
-            connection_persistence=connection_persistence,
+            context=context,
             **kwargs,
         )
+
+        self.server_names = server_names
+        self.connection_persistence = connection_persistence
 
         self._persistent_connection_manager: MCPConnectionManager = None
 
@@ -160,7 +168,7 @@ class MCPAggregator(BaseModel):
                 result: ListToolsResult = await client.list_tools()
                 return result.tools or []
             except Exception as e:
-                print(f"Error loading tools from server '{server_name}': {e}")
+                logger.error(f"Error loading tools from server '{server_name}'", data=e)
                 return []
 
         async def load_server_tools(server_name: str):
@@ -173,7 +181,9 @@ class MCPAggregator(BaseModel):
                 )
                 tools = await fetch_tools(server_connection.session)
             else:
-                async with gen_client(server_name) as client:
+                async with gen_client(
+                    server_name, server_registry=self.context.server_registry
+                ) as client:
                     tools = await fetch_tools(client)
 
             return server_name, tools
@@ -270,7 +280,9 @@ class MCPAggregator(BaseModel):
             )
             return await try_call_tool(server_connection.session)
         else:
-            async with gen_client(server_name) as client:
+            async with gen_client(
+                server_name, server_registry=self.context.server_registry
+            ) as client:
                 return await try_call_tool(client)
 
 

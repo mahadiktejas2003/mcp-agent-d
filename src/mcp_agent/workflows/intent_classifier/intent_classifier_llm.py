@@ -1,4 +1,4 @@
-from typing import List, Literal
+from typing import List, Literal, Optional, TYPE_CHECKING
 from pydantic import BaseModel
 
 from mcp_agent.workflows.llm.augmented_llm import AugmentedLLM
@@ -7,6 +7,9 @@ from mcp_agent.workflows.intent_classifier.intent_classifier_base import (
     IntentClassifier,
     IntentClassificationResult,
 )
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 DEFAULT_INTENT_CLASSIFICATION_INSTRUCTION = """
 You are a precise intent classifier that analyzes user requests to determine their intended action or purpose.
@@ -70,8 +73,10 @@ class LLMIntentClassifier(IntentClassifier):
         llm: AugmentedLLM,
         intents: List[Intent],
         classification_instruction: str | None = None,
+        context: Optional["Context"] = None,
+        **kwargs,
     ):
-        super().__init__(intents=intents)
+        super().__init__(intents=intents, context=context, **kwargs)
         self.llm = llm
         self.classification_instruction = classification_instruction
 

@@ -1,11 +1,14 @@
 import asyncio
 import os
 
-from mcp_agent.workflows.swarm.swarm import SwarmAgent
+from mcp_agent.app import MCPApp
+from mcp_agent.workflows.swarm.swarm import DoneAgent, SwarmAgent
 from mcp_agent.workflows.swarm.swarm_anthropic import AnthropicSwarm
 from mcp_agent.human_input.handler import console_input_callback
-from mcp_agent.context import get_current_context
-from mcp_agent.logging.logger import get_logger
+
+app = MCPApp(
+    name="airline_customer_service", human_input_callback=console_input_callback
+)
 
 
 # Tools
@@ -38,7 +41,7 @@ def initiate_flight_credits():
 
 def case_resolved():
     """Resolve the case"""
-    return "Case resolved. No further questions."
+    return DoneAgent()
 
 
 # Agents
@@ -197,10 +200,8 @@ lost_baggage = SwarmAgent(
 
 
 async def example_usage():
-    logger = get_logger("mcp_basic_agent.example_usage")
-
-    context = get_current_context()
-    # update_current_context(human_input_handler=console_input_callback)
+    logger = app.logger
+    context = app.context
 
     logger.info("Current config:", data=context.config.model_dump())
 
@@ -243,14 +244,25 @@ to LAX in Los Angeles. The flight # is 1919. The flight departure date is 3pm ET
     for test in test_inputs[:1]:
         result = await swarm.generate_str(test)
         logger.info(f"Result: {result}")
+        swarm.set_agent(triage_agent)
+
+    await triage_agent.shutdown()
 
 
 if __name__ == "__main__":
     import time
 
-    start = time.time()
-    asyncio.run(example_usage())
-    end = time.time()
-    t = end - start
+    async def main():
+        try:
+            await app.initialize()
 
-    print(f"Total run time: {t:.2f}s")
+            start = time.time()
+            await example_usage()
+            end = time.time()
+            t = end - start
+
+            print(f"Total run-time: {t:.2f}s")
+        finally:
+            pass
+
+    asyncio.run(main())

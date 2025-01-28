@@ -1,26 +1,17 @@
-import asyncio
-
-# import logging
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import (
     Any,
-    Callable,
     Dict,
     Generic,
-    Type,
     TypeVar,
     Union,
 )
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from mcp_agent.context import get_current_config
 from mcp_agent.executor.executor import Executor
-from mcp_agent.executor.decorator_registry import get_decorator_registry
-from mcp_agent.executor.task_registry import get_activity_registry
 
-R = TypeVar("R")
 T = TypeVar("T")
 
 
@@ -114,143 +105,6 @@ class Workflow(ABC, Generic[T]):
         return await self.executor.wait_for_signal(
             "human_input", description=description
         )
-
-
-#####################
-# Workflow Decorators
-#####################
-
-
-def get_execution_engine() -> str:
-    """Get the current execution engine (asyncio, Temporal, etc)."""
-    config = get_current_config()
-    return config.execution_engine or "asyncio"
-
-
-def workflow(cls: Type, *args, **kwargs) -> Type:
-    """
-    Decorator for a workflow class. By default it's a no-op,
-    but different executors can use this to customize behavior
-    for workflow registration.
-
-    Example:
-        If Temporal is available & we use a TemporalExecutor,
-        this decorator will wrap with temporal_workflow.defn.
-    """
-    decorator_registry = get_decorator_registry()
-    execution_engine = get_execution_engine()
-    workflow_defn_decorator = decorator_registry.get_workflow_defn_decorator(
-        execution_engine
-    )
-
-    if workflow_defn_decorator:
-        return workflow_defn_decorator(cls, *args, **kwargs)
-
-    # Default no-op
-    return cls
-
-
-def workflow_run(fn: Callable[..., R]) -> Callable[..., R]:
-    """
-    Decorator for a workflow's main 'run' method.
-    Different executors can use this to customize behavior for workflow execution.
-
-    Example:
-        If Temporal is in use, this gets converted to @workflow.run.
-    """
-
-    decorator_registry = get_decorator_registry()
-    execution_engine = get_execution_engine()
-    workflow_run_decorator = decorator_registry.get_workflow_run_decorator(
-        execution_engine
-    )
-
-    if workflow_run_decorator:
-        return workflow_run_decorator(fn)
-
-    # Default no-op
-    def wrapper(*args, **kwargs):
-        # no-op wrapper
-        return fn(*args, **kwargs)
-
-    return wrapper
-
-
-def workflow_task(
-    name: str | None = None,
-    schedule_to_close_timeout: timedelta | None = None,
-    retry_policy: Dict[str, Any] | None = None,
-    **kwargs: Any,
-) -> Callable[[Callable[..., R]], Callable[..., R]]:
-    """
-    Decorator to mark a function as a workflow task,
-    automatically registering it in the global activity registry.
-
-    Args:
-        name: Optional custom name for the activity
-        schedule_to_close_timeout: Maximum time the task can take to complete
-        retry_policy: Retry policy configuration
-        **kwargs: Additional metadata passed to the activity registration
-
-    Returns:
-        Decorated function that preserves async and typing information
-
-    Raises:
-        TypeError: If the decorated function is not async
-        ValueError: If the retry policy or timeout is invalid
-    """
-
-    def decorator(func: Callable[..., R]) -> Callable[..., R]:
-        if not asyncio.iscoroutinefunction(func):
-            raise TypeError(f"Function {func.__name__} must be async.")
-
-        actual_name = name or f"{func.__module__}.{func.__qualname__}"
-        timeout = schedule_to_close_timeout or timedelta(minutes=10)
-        metadata = {
-            "activity_name": actual_name,
-            "schedule_to_close_timeout": timeout,
-            "retry_policy": retry_policy or {},
-            **kwargs,
-        }
-        activity_registry = get_activity_registry()
-        activity_registry.register(actual_name, func, metadata)
-
-        setattr(func, "is_workflow_task", True)
-        setattr(func, "execution_metadata", metadata)
-
-        # TODO: saqadri - determine if we need this
-        # Preserve metadata through partial application
-        # @functools.wraps(func)
-        # async def wrapper(*args: Any, **kwargs: Any) -> R:
-        #     result = await func(*args, **kwargs)
-        #     return cast(R, result)  # Ensure type checking works
-
-        # # Add metadata that survives partial application
-        # wrapper.is_workflow_task = True  # type: ignore
-        # wrapper.execution_metadata = metadata  # type: ignore
-
-        # # Make metadata accessible through partial
-        # def __getattr__(name: str) -> Any:
-        #     if name == "is_workflow_task":
-        #         return True
-        #     if name == "execution_metadata":
-        #         return metadata
-        #     raise AttributeError(f"'{func.__name__}' has no attribute '{name}'")
-
-        # wrapper.__getattr__ = __getattr__  # type: ignore
-
-        # return wrapper
-
-        return func
-
-    return decorator
-
-
-def is_workflow_task(func: Callable[..., Any]) -> bool:
-    """
-    Check if a function is marked as a workflow task.
-    This gets set for functions that are decorated with @workflow_task."""
-    return bool(getattr(func, "is_workflow_task", False))
 
 
 # ############################

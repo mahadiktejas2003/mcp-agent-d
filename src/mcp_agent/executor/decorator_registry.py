@@ -74,10 +74,6 @@ class DecoratorRegistry:
         return self._workflow_run_decorators.get(executor_name)
 
 
-# Global decorator registry
-_global_decorator_registry: DecoratorRegistry | None = None
-
-
 def default_workflow_defn(cls: Type, *args, **kwargs) -> Type:
     """Default no-op workflow definition decorator."""
     return cls
@@ -113,9 +109,6 @@ def register_temporal_decorators(decorator_registry: DecoratorRegistry):
         TEMPORAL_AVAILABLE = False
 
     if not TEMPORAL_AVAILABLE:
-        print(
-            "Temporal SDK is not available. Skipping Temporal decorator registration."
-        )
         return
 
     executor_name = "temporal"
@@ -125,18 +118,3 @@ def register_temporal_decorators(decorator_registry: DecoratorRegistry):
     decorator_registry.register_workflow_run_decorator(
         executor_name, temporal_workflow.run
     )
-
-
-def get_decorator_registry() -> DecoratorRegistry:
-    """
-    Retrieves or initializes the global decorator registry.
-
-    :return: The global instance of DecoratorRegistry.
-    """
-    global _global_decorator_registry
-    if _global_decorator_registry is None:
-        _global_decorator_registry = DecoratorRegistry()
-        register_asyncio_decorators(_global_decorator_registry)
-        register_temporal_decorators(_global_decorator_registry)
-
-    return _global_decorator_registry

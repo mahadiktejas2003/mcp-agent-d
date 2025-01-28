@@ -1,9 +1,9 @@
 import asyncio
 import os
 
-from mcp_agent.context import get_current_context
-from mcp_agent.logging.logger import get_logger
+from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
+from mcp_agent.workflows.llm.augmented_llm import RequestParams
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 
 # from mcp_agent.workflows.parallel.fan_in import FanIn
@@ -36,56 +36,60 @@ However, not all was as it seemed. The Glimmerstones true power was never confir
 and whispers of a hidden agenda linger among the villagers.
 """
 
+app = MCPApp(name="mcp_parallel_workflow")
+
 
 async def example_usage():
-    logger = get_logger("workflow_parallel.example_usage")
+    async with app.run() as short_story_grader:
+        logger = short_story_grader.logger
 
-    context = get_current_context()
-    logger.info("Current config:", data=context.config.model_dump())
+        context = short_story_grader.context
+        logger.info("Current config:", data=context.config.model_dump())
 
-    # Add the current directory to the filesystem server's args
-    context.config.mcp.servers["filesystem"].args.extend([os.getcwd()])
+        # Add the current directory to the filesystem server's args
+        context.config.mcp.servers["filesystem"].args.extend([os.getcwd()])
 
-    proofreader = Agent(
-        name="proofreader",
-        instruction=""""Review the short story for grammar, spelling, and punctuation errors.
-        Identify any awkward phrasing or structural issues that could improve clarity. 
-        Provide detailed feedback on corrections.""",
-    )
+        proofreader = Agent(
+            name="proofreader",
+            instruction=""""Review the short story for grammar, spelling, and punctuation errors.
+            Identify any awkward phrasing or structural issues that could improve clarity. 
+            Provide detailed feedback on corrections.""",
+        )
 
-    fact_checker = Agent(
-        name="fact_checker",
-        instruction="""Verify the factual consistency within the story. Identify any contradictions,
-        logical inconsistencies, or inaccuracies in the plot, character actions, or setting. 
-        Highlight potential issues with reasoning or coherence.""",
-    )
+        fact_checker = Agent(
+            name="fact_checker",
+            instruction="""Verify the factual consistency within the story. Identify any contradictions,
+            logical inconsistencies, or inaccuracies in the plot, character actions, or setting. 
+            Highlight potential issues with reasoning or coherence.""",
+        )
 
-    style_enforcer = Agent(
-        name="style_enforcer",
-        instruction="""Analyze the story for adherence to style guidelines.
-        Evaluate the narrative flow, clarity of expression, and tone. Suggest improvements to 
-        enhance storytelling, readability, and engagement.""",
-    )
+        style_enforcer = Agent(
+            name="style_enforcer",
+            instruction="""Analyze the story for adherence to style guidelines.
+            Evaluate the narrative flow, clarity of expression, and tone. Suggest improvements to 
+            enhance storytelling, readability, and engagement.""",
+        )
 
-    grader = Agent(
-        name="grader",
-        instruction="""Compile the feedback from the Proofreader, Fact Checker, and Style Enforcer
-        into a structured report. Summarize key issues and categorize them by type. 
-        Provide actionable recommendations for improving the story, 
-        and give an overall grade based on the feedback.""",
-    )
+        grader = Agent(
+            name="grader",
+            instruction="""Compile the feedback from the Proofreader, Fact Checker, and Style Enforcer
+            into a structured report. Summarize key issues and categorize them by type. 
+            Provide actionable recommendations for improving the story, 
+            and give an overall grade based on the feedback.""",
+        )
 
-    parallel = ParallelLLM(
-        fan_in_agent=grader,
-        fan_out_agents=[proofreader, fact_checker, style_enforcer],
-        llm_factory=OpenAIAugmentedLLM,
-    )
+        parallel = ParallelLLM(
+            fan_in_agent=grader,
+            fan_out_agents=[proofreader, fact_checker, style_enforcer],
+            llm_factory=OpenAIAugmentedLLM,
+        )
 
-    result = await parallel.generate_str(
-        message=f"Student short story submission: {SHORT_STORY}", model="gpt-4o"
-    )
+        result = await parallel.generate_str(
+            message=f"Student short story submission: {SHORT_STORY}",
+            request_params=RequestParams(model="gpt-4o"),
+        )
 
-    logger.info(f"{result}")
+        logger.info(f"{result}")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 import asyncio
 import uuid
-from typing import Callable, Dict, TypeVar
+from typing import Callable, Dict, List, Optional, TypeVar, TYPE_CHECKING
 
 from mcp.server.fastmcp.tools import Tool as FastTool
 from mcp.types import (
@@ -10,7 +10,6 @@ from mcp.types import (
     Tool,
 )
 
-from mcp_agent.executor.executor import Executor, AsyncioExecutor
 from mcp_agent.mcp.mcp_aggregator import MCPAggregator
 from mcp_agent.human_input.types import (
     HumanInputCallback,
@@ -19,8 +18,10 @@ from mcp_agent.human_input.types import (
     HUMAN_INPUT_SIGNAL_NAME,
 )
 from mcp_agent.workflows.llm.augmented_llm import AugmentedLLM
-from mcp_agent.context import get_current_context
 from mcp_agent.logging.logger import get_logger
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 logger = get_logger(__name__)
 
@@ -36,31 +37,36 @@ class Agent(MCPAggregator):
     Each agent should have a purpose defined by its instruction.
     """
 
-    name: str
-    instruction: str | Callable[[Dict], str]
-
     def __init__(
         self,
         name: str,
         instruction: str | Callable[[Dict], str] = "You are a helpful agent.",
-        server_names: list[str] = None,
+        server_names: List[str] = None,
+        functions: List[Callable] = None,
         connection_persistence: bool = True,
         human_input_callback: HumanInputCallback = None,
-        executor: Executor | None = None,
+        context: Optional["Context"] = None,
+        **kwargs,
     ):
         super().__init__(
+            context=context,
             server_names=server_names or [],
             connection_persistence=connection_persistence,
-            name=name,
-            instruction=instruction,
+            **kwargs,
         )
 
-        self.executor = executor or AsyncioExecutor()
+        self.name = name
+        self.instruction = instruction
+        self.functions = functions or []
+        self.executor = self.context.executor
+
+        # Map function names to tools
+        self._function_tool_map: Dict[str, FastTool] = {}
+
         self.human_input_callback: HumanInputCallback | None = human_input_callback
         if not human_input_callback:
-            ctx = get_current_context()
-            if ctx.human_input_handler:
-                self.human_input_callback = ctx.human_input_handler
+            if self.context.human_input_handler:
+                self.human_input_callback = self.context.human_input_handler
 
     async def initialize(self):
         """
@@ -70,6 +76,10 @@ class Agent(MCPAggregator):
         await (
             self.__aenter__()
         )  # This initializes the connection manager and loads the servers
+
+        for function in self.functions:
+            tool: FastTool = FastTool.from_function(function)
+            self._function_tool_map[tool.name] = tool
 
     async def attach_llm(self, llm_factory: Callable[..., LLM]) -> LLM:
         """
@@ -150,6 +160,17 @@ class Agent(MCPAggregator):
 
         result = await super().list_tools()
 
+        # Add function tools
+        for tool in self._function_tool_map.values():
+            result.tools.append(
+                Tool(
+                    name=tool.name,
+                    description=tool.description,
+                    inputSchema=tool.parameters,
+                )
+            )
+
+        # Add a human_input_callback as a tool
         if not self.human_input_callback:
             logger.debug("Human input callback not set")
             return result
@@ -169,9 +190,20 @@ class Agent(MCPAggregator):
     async def call_tool(
         self, name: str, arguments: dict | None = None
     ) -> CallToolResult:
-        if name != HUMAN_INPUT_TOOL_NAME:
+        if name == HUMAN_INPUT_TOOL_NAME:
+            # Call the human input tool
+            return await self._call_human_input_tool(arguments)
+        elif name in self._function_tool_map:
+            # Call local function and return the result as a text response
+            tool = self._function_tool_map[name]
+            result = await tool.run(arguments)
+            return CallToolResult(content=[TextContent(type="text", text=str(result))])
+        else:
             return await super().call_tool(name, arguments)
 
+    async def _call_human_input_tool(
+        self, arguments: dict | None = None
+    ) -> CallToolResult:
         # Handle human input request
         try:
             request = HumanInputRequest(**arguments["request"])

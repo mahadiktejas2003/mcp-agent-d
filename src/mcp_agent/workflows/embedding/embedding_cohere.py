@@ -1,17 +1,25 @@
-from typing import List
+from typing import List, Optional, TYPE_CHECKING
 
 from cohere import Client
 from numpy import array, float32
 
-from mcp_agent.context import get_current_config
 from mcp_agent.workflows.embedding.embedding_base import EmbeddingModel, FloatArray
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 
 class CohereEmbeddingModel(EmbeddingModel):
     """Cohere embedding model implementation"""
 
-    def __init__(self, model: str = "embed-multilingual-v3.0"):
-        self.client = Client(api_key=get_current_config().cohere.api_key)
+    def __init__(
+        self,
+        model: str = "embed-multilingual-v3.0",
+        context: Optional["Context"] = None,
+        **kwargs,
+    ):
+        super().__init__(context=context, **kwargs)
+        self.client = Client(api_key=self.context.config.cohere.api_key)
         self.model = model
         # Cache the dimension since it's fixed per model
         # https://docs.cohere.com/v2/docs/cohere-embed

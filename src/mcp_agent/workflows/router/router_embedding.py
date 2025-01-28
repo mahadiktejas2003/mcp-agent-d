@@ -1,9 +1,8 @@
-from typing import Callable, List
+from typing import Callable, List, Optional, TYPE_CHECKING
 
 from numpy import mean
 
 from mcp_agent.agents.agent import Agent
-from mcp_agent.mcp_server_registry import ServerRegistry
 from mcp_agent.workflows.embedding.embedding_base import (
     EmbeddingModel,
     FloatArray,
@@ -15,6 +14,9 @@ from mcp_agent.workflows.router.router_base import (
     RouterCategory,
     RouterResult,
 )
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 
 class EmbeddingRouterCategory(RouterCategory):
@@ -49,16 +51,18 @@ class EmbeddingRouter(Router):
     def __init__(
         self,
         embedding_model: EmbeddingModel,
-        mcp_servers_names: List[str] | None = None,
+        server_names: List[str] | None = None,
         agents: List[Agent] | None = None,
         functions: List[Callable] | None = None,
-        server_registry: ServerRegistry | None = None,
+        context: Optional["Context"] = None,
+        **kwargs,
     ):
         super().__init__(
-            mcp_servers_names=mcp_servers_names,
+            server_names=server_names,
             agents=agents,
             functions=functions,
-            server_registry=server_registry,
+            context=context,
+            **kwargs,
         )
 
         self.embedding_model = embedding_model
@@ -67,10 +71,10 @@ class EmbeddingRouter(Router):
     async def create(
         cls,
         embedding_model: EmbeddingModel,
-        mcp_servers_names: List[str] | None = None,
+        server_names: List[str] | None = None,
         agents: List[Agent] | None = None,
         functions: List[Callable] | None = None,
-        server_registry: ServerRegistry | None = None,
+        context: Optional["Context"] = None,
     ) -> "EmbeddingRouter":
         """
         Factory method to create and initialize a router.
@@ -78,10 +82,10 @@ class EmbeddingRouter(Router):
         """
         instance = cls(
             embedding_model=embedding_model,
-            mcp_servers_names=mcp_servers_names,
+            server_names=server_names,
             agents=agents,
             functions=functions,
-            server_registry=server_registry,
+            context=context,
         )
         await instance.initialize()
         return instance

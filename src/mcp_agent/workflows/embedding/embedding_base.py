@@ -5,11 +5,13 @@ from numpy import float32
 from numpy.typing import NDArray
 from sklearn.metrics.pairwise import cosine_similarity
 
+from mcp_agent.context_dependent import ContextDependent
+
 
 FloatArray = NDArray[float32]
 
 
-class EmbeddingModel(ABC):
+class EmbeddingModel(ABC, ContextDependent):
     """Abstract interface for embedding models"""
 
     @abstractmethod

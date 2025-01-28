@@ -1,12 +1,14 @@
-from typing import Callable, List, Literal
+from typing import Callable, List, Literal, Optional, TYPE_CHECKING
 
 from pydantic import BaseModel
 
 from mcp_agent.agents.agent import Agent
-from mcp_agent.mcp_server_registry import ServerRegistry
 from mcp_agent.workflows.llm.augmented_llm import AugmentedLLM
 from mcp_agent.workflows.router.router_base import ResultT, Router, RouterResult
 from mcp_agent.logging.logger import get_logger
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 logger = get_logger(__name__)
 
@@ -82,18 +84,20 @@ class LLMRouter(Router):
     def __init__(
         self,
         llm: AugmentedLLM,
-        mcp_servers_names: List[str] | None = None,
+        server_names: List[str] | None = None,
         agents: List[Agent] | None = None,
         functions: List[Callable] | None = None,
         routing_instruction: str | None = None,
-        server_registry: ServerRegistry | None = None,
+        context: Optional["Context"] = None,
+        **kwargs,
     ):
         super().__init__(
-            mcp_servers_names=mcp_servers_names,
+            server_names=server_names,
             agents=agents,
             functions=functions,
             routing_instruction=routing_instruction,
-            server_registry=server_registry,
+            context=context,
+            **kwargs,
         )
 
         self.llm = llm
@@ -102,11 +106,11 @@ class LLMRouter(Router):
     async def create(
         cls,
         llm: AugmentedLLM,
-        mcp_servers_names: List[str] | None = None,
+        server_names: List[str] | None = None,
         agents: List[Agent] | None = None,
         functions: List[Callable] | None = None,
         routing_instruction: str | None = None,
-        server_registry: ServerRegistry | None = None,
+        context: Optional["Context"] = None,
     ) -> "LLMRouter":
         """
         Factory method to create and initialize a router.
@@ -114,11 +118,11 @@ class LLMRouter(Router):
         """
         instance = cls(
             llm=llm,
-            mcp_servers_names=mcp_servers_names,
+            server_names=server_names,
             agents=agents,
             functions=functions,
             routing_instruction=routing_instruction,
-            server_registry=server_registry,
+            context=context,
         )
         await instance.initialize()
         return instance

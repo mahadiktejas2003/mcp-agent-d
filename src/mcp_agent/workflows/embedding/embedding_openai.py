@@ -1,17 +1,22 @@
-from typing import List
+from typing import List, Optional, TYPE_CHECKING
 
 from numpy import array, float32, stack
 from openai import OpenAI
 
-from mcp_agent.context import get_current_config
 from mcp_agent.workflows.embedding.embedding_base import EmbeddingModel, FloatArray
+
+if TYPE_CHECKING:
+    from mcp_agent.context import Context
 
 
 class OpenAIEmbeddingModel(EmbeddingModel):
     """OpenAI embedding model implementation"""
 
-    def __init__(self, model: str = "text-embedding-3-small"):
-        self.client = OpenAI(api_key=get_current_config().openai.api_key)
+    def __init__(
+        self, model: str = "text-embedding-3-small", context: Optional["Context"] = None
+    ):
+        super().__init__(context=context)
+        self.client = OpenAI(api_key=self.context.config.openai.api_key)
         self.model = model
         # Cache the dimension since it's fixed per model
         self._embedding_dim = {

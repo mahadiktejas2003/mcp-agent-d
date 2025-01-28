@@ -48,6 +48,7 @@
           "enum": [
             "none",
             "console",
+            "file",
             "http"
           ],
           "title": "Type",
@@ -64,6 +65,12 @@
           "title": "Level",
           "type": "string",
           "description": "Minimum logging level"
+        },
+        "path": {
+          "default": "mcp-agent.log",
+          "title": "Path",
+          "type": "string",
+          "description": "Path to log file, if logger 'type' is 'file'."
         },
         "batch_size": {
           "default": 100,
@@ -517,6 +524,7 @@
       "default": {
         "type": "console",
         "level": "info",
+        "path": "mcp-agent.log",
         "batch_size": 100,
         "flush_interval": 2.0,
         "max_queue_size": 2048,
