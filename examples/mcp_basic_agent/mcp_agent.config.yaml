@@ -14,16 +14,20 @@ logger:
 mcp:
   servers:
     curl:
-      command: "node"
+      command: "npx"
       args:
         [
-          "C:\\Program Files\\nodejs\\node_modules\\@mcp-get-community\\server-curl\\dist\\index.js",
+#          "C:\\Program Files\\nodejs\\node_modules\\@mcp-get-community\\server-curl\\dist\\index.js",
+          "-y"
+          "@mcp-get-community/server-curl"
         ]
     filesystem:
-      command: "node"
+      command: "npx"
       args:
         [
-          "C:\\Program Files\\nodejs\\node_modules\\@modelcontextprotocol\\server-filesystem\\dist\\index.js",
+ #         "C:\\Program Files\\nodejs\\node_modules\\@modelcontextprotocol\\server-filesystem\\dist\\index.js",
+          "-y"
+          "@modelcontextprotocol/server-filesystem"
         ]
 
 openai:
