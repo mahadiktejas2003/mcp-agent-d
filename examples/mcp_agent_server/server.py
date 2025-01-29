@@ -132,7 +132,7 @@ async def handle_list_tools() -> list[types.Tool]:
         ),
         types.Tool(
             name="router_workflow",
-            description="Given an input, route to the top_k most relevant agents. These agents will generate a response.",
+            description="Given an input, find the most relevant agent.",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -328,11 +328,11 @@ async def run_router_workflow(arguments: dict) -> list[types.TextContent]:
     ]
 
     router = LLMRouter(llm=OpenAIAugmentedLLM, agents=agents)
-    responses = await router.route(message, top_k)
+    responses = await router.route_to_agent(message, top_k)
 
     result = "\n\n---\n\n".join(
         [
-            f"Response: {response.result}\nConfidence: {response.confidence}"
+            f"Agent: {response.result.name}\nConfidence: {response.confidence}\nReasoning: {response.reasoning}"
             for response in responses
         ]
     )
