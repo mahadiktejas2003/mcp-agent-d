@@ -158,12 +158,12 @@ openai:
 - [Why use mcp-agent?](#why-use-mcp-agent)
 - [Example Applications](#examples)
   - [Claude Desktop](#claude-desktop)
-  - [Streamlit]()
-    - [Gmail Agent]()
-    - [RAG]()
-  - [Marimo]()
-  - [CLI]()
-    - [Swarm]()
+  - [Streamlit](#streamlit)
+    - [Gmail Agent](#gmail-agent)
+    - [RAG](#simple-rag-chatbot)
+  - [Marimo](#marimo)
+  - [Python](#python)
+    - [Swarm (CLI)](#swarm)
 - [Workflows Patterns]()
   - [Augmented LLM]()
   - [Parallel]()
@@ -202,9 +202,7 @@ You can integrate mcp-agent apps into MCP clients like Claude Desktop.
 This app wraps an mcp-agent application inside an MCP server, and exposes that server to Claude Desktop.
 The app exposes agents and workflows that Claude Desktop can invoke to service of the user's request.
 
-<video controls width="560" height="315">
-<source src="https://github.com/user-attachments/assets/7807cffd-dba7-4f0c-9c70-9482fd7e0699" type="video/mp4">
-</video>
+https://github.com/user-attachments/assets/7807cffd-dba7-4f0c-9c70-9482fd7e0699
 
 This demo shows a multi-agent evaluation task where each agent evaluates aspects of an input poem, and
 then an aggregator summarizes their findings into a final response.
@@ -229,9 +227,7 @@ You can deploy mcp-agent apps using Streamlit.
 This app is able to perform read and write actions on gmail using text prompts -- i.e. read, delete, send emails, mark as read/unread, etc.
 It uses an MCP server for Gmail.
 
-<video controls width="560" height="315">
-<source src="https://github.com/user-attachments/assets/54899cac-de24-4102-bd7e-4b2022c956e3" type="video/mp4">
-</video>
+https://github.com/user-attachments/assets/54899cac-de24-4102-bd7e-4b2022c956e3
 
 **Link to code**: [gmail-mcp-server](https://github.com/jasonsum/gmail-mcp-server/blob/add-mcp-agent-streamlit/streamlit_app.py)
 
@@ -243,10 +239,7 @@ It uses an MCP server for Gmail.
 
 This app uses a Qdrant vector database (via an MCP server) to do Q&A over a corpus of text.
 
-<video controls width="560" height="315">
-<source src="https://github.com/user-attachments/assets/f4dcd227-cae9-4a59-aa9e-0eceeb4acaf4
-" type="video/mp4">
-</video>
+https://github.com/user-attachments/assets/f4dcd227-cae9-4a59-aa9e-0eceeb4acaf4
 
 **Link to code**: [examples/streamlit_mcp_rag_agent](./examples/streamlit_mcp_rag_agent/)
 
@@ -266,6 +259,18 @@ Here's the same file "finder" agent from [Quickstart](#quickstart) implemented i
 > [!NOTE]
 > Huge thanks to [Akshay Agrawal (@akshayka)](https://github.com/akshayka)
 > for developing and contributing this example!
+
+### Python
+
+You can write mcp-agent apps as Python scripts or Jupyter notebooks.
+
+#### Swarm
+
+This example demonstrates a multi-agent setup for handling different customer service requests in an airline context using the Swarm workflow pattern. The agents can triage requests, handle flight modifications, cancellations, and lost baggage cases.
+
+https://github.com/user-attachments/assets/b314d75d-7945-4de6-965b-7f21eb14a8bd
+
+**Link to code**: [examples/workflow_swarm](./examples/workflow_swarm/)
 
 ## Core Components
 
