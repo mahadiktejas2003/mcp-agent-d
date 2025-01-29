@@ -259,7 +259,7 @@ Here's the "file finder" agent from [Quickstart](#quickstart) implemented in Mar
 
 <img src="https://github.com/user-attachments/assets/139a95a5-e3ac-4ea7-9c8f-bad6577e8597" width="400"/>
 
-**Link to code**: [examples/streamlit_mcp_rag_agent](./examples/streamlit_mcp_rag_agent/)
+**Link to code**: [examples/marimo_mcp_basic_agent](./examples/marimo_mcp_basic_agent/)
 
 > [!NOTE]
 > Huge thanks to [Akshay Agrawal (@akshayka)](https://github.com/akshayka)
