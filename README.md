@@ -81,9 +81,8 @@ from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 app = MCPApp(name="hello_world_agent")
 
 async def example_usage():
-async with app.run() as mcp_agent_app:
-logger = agent_app.logger
-
+    async with app.run() as mcp_agent_app:
+        logger = agent_app.logger
         # This agent can read the filesystem or fetch URLs
         finder_agent = Agent(
             name="finder",
@@ -116,8 +115,8 @@ logger = agent_app.logger
             result = await llm.generate_str("Summarize that in a 128-char tweet")
             logger.info(f"Tweet: {result}")
 
-if **name** == "**main**":
-asyncio.run(example_usage())
+if __name__ == "main":
+    asyncio.run(example_usage())
 
 ```
 
@@ -538,7 +537,7 @@ orchestrator = Orchestrator(
 
 </details>
 
-## Signaling and Human Input
+### Signaling and Human Input
 
 **Signaling**: The framework can pause/resume tasks. The agent or LLM might “signal” that it needs user input, so the workflow awaits. A developer may signal during a workflow to seek approval or review before continuing with a workflow.
 
