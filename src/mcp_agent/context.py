@@ -34,6 +34,8 @@ from mcp_agent.logging.logger import LoggingConfig
 from mcp_agent.logging.transport import create_transport
 from mcp_agent.mcp_server_registry import ServerRegistry
 from mcp_agent.workflows.llm.llm_selector import ModelSelector
+from mcp_agent.logging.logger import get_logger
+
 
 if TYPE_CHECKING:
     from mcp_agent.human_input.types import HumanInputCallback
@@ -42,6 +44,8 @@ else:
     # Runtime placeholders for the types
     HumanInputCallback = Any
     SignalWaitCallback = Any
+
+logger = get_logger(__name__)
 
 
 class Context(BaseModel):
@@ -123,7 +127,7 @@ async def configure_logger(config: "Settings"):
     Configure logging and tracing based on the application config.
     """
     event_filter: EventFilter = EventFilter(min_level=config.logger.level)
-    print(f"Configuring logger with level: {config.logger.level}")
+    logger.info(f"Configuring logger with level: {config.logger.level}")
     transport = create_transport(settings=config.logger, event_filter=event_filter)
     await LoggingConfig.configure(
         event_filter=event_filter,
