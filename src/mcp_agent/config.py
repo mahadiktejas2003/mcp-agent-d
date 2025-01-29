@@ -137,10 +137,13 @@ class LoggerSettings(BaseModel):
     Logger settings for the MCP Agent application.
     """
 
-    type: Literal["none", "console", "http"] = "console"
+    type: Literal["none", "console", "file", "http"] = "console"
 
     level: Literal["debug", "info", "warning", "error"] = "info"
     """Minimum logging level"""
+
+    path: str = "mcp-agent.log"
+    """Path to log file, if logger 'type' is 'file'."""
 
     batch_size: int = 100
     """Number of events to accumulate before processing"""

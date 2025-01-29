@@ -3,6 +3,7 @@ import os
 
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
+from mcp_agent.workflows.llm.augmented_llm import RequestParams
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 from mcp_agent.workflows.orchestrator.orchestrator import Orchestrator
 
@@ -158,7 +159,9 @@ async def example_usage():
             plan_type="full",
         )
 
-        result = await orchestrator.generate_str(message=task, model="gpt-4o")
+        result = await orchestrator.generate_str(
+            message=task, request_params=RequestParams(model="gpt-4o")
+        )
         logger.info(f"{result}")
 
 

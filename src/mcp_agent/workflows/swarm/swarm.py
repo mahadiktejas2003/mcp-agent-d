@@ -283,7 +283,7 @@ class Swarm(AugmentedLLM[MessageParamT, MessageT], Generic[MessageParamT, Messag
         # Initialize the new agent (if it's not None)
         self.aggregator = agent
 
-        if not self.aggregator:
+        if not self.aggregator or isinstance(self.aggregator, DoneAgent):
             self.instruction = None
             return
 
@@ -292,4 +292,29 @@ class Swarm(AugmentedLLM[MessageParamT, MessageT], Generic[MessageParamT, Messag
             agent.instruction(self.context_variables)
             if callable(agent.instruction)
             else agent.instruction
+        )
+
+    def should_continue(self) -> bool:
+        """
+        Returns True if the workflow should continue, False otherwise.
+        """
+        if not self.aggregator or isinstance(self.aggregator, DoneAgent):
+            return False
+
+        return True
+
+
+class DoneAgent(SwarmAgent):
+    """
+    A special agent that represents the end of a Swarm workflow.
+    """
+
+    def __init__(self):
+        super().__init__(name="__done__", instruction="Swarm Workflow is complete.")
+
+    async def call_tool(
+        self, _name: str, _arguments: dict | None = None
+    ) -> CallToolResult:
+        return CallToolResult(
+            content=[TextContent(type="text", text="Workflow is complete.")]
         )

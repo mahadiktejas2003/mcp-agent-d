@@ -6,6 +6,7 @@ from mcp_agent.workflows.llm.augmented_llm import (
     MessageParamT,
     MessageT,
     ModelT,
+    RequestParams,
 )
 from mcp_agent.workflows.parallel.fan_in import FanInInput, FanIn
 from mcp_agent.workflows.parallel.fan_out import FanOut
@@ -88,22 +89,12 @@ class ParallelLLM(AugmentedLLM[MessageParamT, MessageT]):
     async def generate(
         self,
         message: str | MessageParamT | List[MessageParamT],
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> List[MessageT] | Any:
         # First, we fan-out
         responses = await self.fan_out.generate(
             message=message,
-            use_history=use_history,
-            max_iterations=max_iterations,
-            model=model,
-            stop_sequences=stop_sequences,
-            max_tokens=max_tokens,
-            parallel_tool_calls=parallel_tool_calls,
+            request_params=request_params,
         )
 
         # Then, we fan-in
@@ -112,12 +103,7 @@ class ParallelLLM(AugmentedLLM[MessageParamT, MessageT]):
         else:
             result = await self.fan_in.generate(
                 messages=responses,
-                use_history=use_history,
-                max_iterations=max_iterations,
-                model=model,
-                stop_sequences=stop_sequences,
-                max_tokens=max_tokens,
-                parallel_tool_calls=parallel_tool_calls,
+                request_params=request_params,
             )
 
         return result
@@ -125,24 +111,14 @@ class ParallelLLM(AugmentedLLM[MessageParamT, MessageT]):
     async def generate_str(
         self,
         message: str | MessageParamT | List[MessageParamT],
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> str:
         """Request an LLM generation and return the string representation of the result"""
 
         # First, we fan-out
         responses = await self.fan_out.generate(
             message=message,
-            use_history=use_history,
-            max_iterations=max_iterations,
-            model=model,
-            stop_sequences=stop_sequences,
-            max_tokens=max_tokens,
-            parallel_tool_calls=parallel_tool_calls,
+            request_params=request_params,
         )
 
         # Then, we fan-in
@@ -151,12 +127,7 @@ class ParallelLLM(AugmentedLLM[MessageParamT, MessageT]):
         else:
             result = await self.fan_in.generate_str(
                 messages=responses,
-                use_history=use_history,
-                max_iterations=max_iterations,
-                model=model,
-                stop_sequences=stop_sequences,
-                max_tokens=max_tokens,
-                parallel_tool_calls=parallel_tool_calls,
+                request_params=request_params,
             )
         return result
 
@@ -164,23 +135,13 @@ class ParallelLLM(AugmentedLLM[MessageParamT, MessageT]):
         self,
         message: str | MessageParamT | List[MessageParamT],
         response_model: Type[ModelT],
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> ModelT:
         """Request a structured LLM generation and return the result as a Pydantic model."""
         # First, we fan-out
         responses = await self.fan_out.generate(
             message=message,
-            use_history=use_history,
-            max_iterations=max_iterations,
-            model=model,
-            stop_sequences=stop_sequences,
-            max_tokens=max_tokens,
-            parallel_tool_calls=parallel_tool_calls,
+            request_params=request_params,
         )
 
         # Then, we fan-in
@@ -190,11 +151,6 @@ class ParallelLLM(AugmentedLLM[MessageParamT, MessageT]):
             result = await self.fan_in.generate_structured(
                 messages=responses,
                 response_model=response_model,
-                use_history=use_history,
-                max_iterations=max_iterations,
-                model=model,
-                stop_sequences=stop_sequences,
-                max_tokens=max_tokens,
-                parallel_tool_calls=parallel_tool_calls,
+                request_params=request_params,
             )
         return result

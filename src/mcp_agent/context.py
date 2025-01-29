@@ -33,6 +33,7 @@ from mcp_agent.logging.events import EventFilter
 from mcp_agent.logging.logger import LoggingConfig
 from mcp_agent.logging.transport import create_transport
 from mcp_agent.mcp_server_registry import ServerRegistry
+from mcp_agent.workflows.llm.llm_selector import ModelSelector
 
 if TYPE_CHECKING:
     from mcp_agent.human_input.types import HumanInputCallback
@@ -54,6 +55,7 @@ class Context(BaseModel):
     human_input_handler: Optional[HumanInputCallback] = None
     signal_notification: Optional[SignalWaitCallback] = None
     upstream_session: Optional[ServerSession] = None  # TODO: saqadri - figure this out
+    model_selector: Optional[ModelSelector] = None
 
     # Registries
     server_registry: Optional[ServerRegistry] = None

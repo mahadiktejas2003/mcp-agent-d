@@ -5,8 +5,10 @@ Transports for the Logger module for MCP Agent, including:
 """
 
 import asyncio
+import json
 from abc import ABC, abstractmethod
 from typing import Dict, List, Protocol
+from pathlib import Path
 
 import aiohttp
 from opentelemetry import trace
@@ -95,6 +97,74 @@ class ConsoleTransport(FilteredEventTransport):
         if event.data:
             serialized_data = self._serializer(event.data)
             self.console.print(JSON.from_data(serialized_data))
+
+
+class FileTransport(FilteredEventTransport):
+    """Transport that writes events to a file with proper formatting."""
+
+    def __init__(
+        self,
+        filepath: str | Path,
+        event_filter: EventFilter | None = None,
+        mode: str = "a",
+        encoding: str = "utf-8",
+    ):
+        """Initialize FileTransport.
+
+        Args:
+            filepath: Path to the log file. If relative, the current working directory will be used
+            event_filter: Optional filter for events
+            mode: File open mode ('a' for append, 'w' for write)
+            encoding: File encoding to use
+        """
+        super().__init__(event_filter=event_filter)
+        self.filepath = Path(filepath)
+        self.mode = mode
+        self.encoding = encoding
+        self._serializer = JSONSerializer()
+
+        # Create directory if it doesn't exist
+        self.filepath.parent.mkdir(parents=True, exist_ok=True)
+
+    async def send_matched_event(self, event: Event) -> None:
+        """Write matched event to log file asynchronously.
+
+        Args:
+            event: Event to write to file
+        """
+        # Format the log entry
+        namespace = event.namespace
+        if event.name:
+            namespace = f"{namespace}.{event.name}"
+
+        log_entry = {
+            "level": event.type.upper(),
+            "timestamp": event.timestamp.isoformat(),
+            "namespace": namespace,
+            "message": event.message,
+        }
+
+        # Add event data if present
+        if event.data:
+            log_entry["data"] = self._serializer(event.data)
+
+        try:
+            with open(self.filepath, mode=self.mode, encoding=self.encoding) as f:
+                # Write the log entry as JSON with newline
+                f.write(json.dumps(log_entry, indent=2) + "\n")
+                f.flush()  # Ensure writing to disk
+        except IOError as e:
+            # Log error without recursion
+            print(f"Error writing to log file {self.filepath}: {e}")
+
+    async def close(self) -> None:
+        """Clean up resources if needed."""
+        pass  # File handles are automatically closed after each write
+
+    @property
+    def is_closed(self) -> bool:
+        """Check if transport is closed."""
+        return False  # Since we open/close per write
 
 
 class HTTPTransport(FilteredEventTransport):
@@ -361,6 +431,13 @@ def create_transport(
         return NoOpTransport(event_filter=event_filter)
     elif settings.type == "console":
         return ConsoleTransport(event_filter=event_filter)
+    elif settings.type == "file":
+        if not settings.path:
+            raise ValueError("File path required for file transport")
+        return FileTransport(
+            filepath=settings.path,
+            event_filter=event_filter,
+        )
     elif settings.type == "http":
         if not settings.http_endpoint:
             raise ValueError("HTTP endpoint required for HTTP transport")

@@ -90,7 +90,6 @@ async def example_usage():
             arguments={"url": "https://jsonplaceholder.typicode.com/todos/1"},
         )
         logger.info(f"fetch result: {str(result)}")
-        await asyncio.sleep(5)
     except Exception as e:
         logger.error("Error in example_usage:", data=e)
     finally:

@@ -3,6 +3,7 @@ import streamlit as st
 import asyncio
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
+from mcp_agent.workflows.llm.augmented_llm import RequestParams
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 
 
@@ -52,7 +53,9 @@ async def main():
         with st.chat_message("assistant"):
             response = ""
             with st.spinner("Thinking..."):
-                response = await llm.generate_str(message=prompt, use_history=True)
+                response = await llm.generate_str(
+                    message=prompt, request_params=RequestParams(use_history=True)
+                )
             st.markdown(response)
 
         st.session_state["messages"].append({"role": "assistant", "content": response})

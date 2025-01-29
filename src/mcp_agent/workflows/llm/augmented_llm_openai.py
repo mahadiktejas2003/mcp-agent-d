@@ -1,11 +1,13 @@
 import json
-from typing import List, Type
+from typing import Iterable, List, Type
 
 import instructor
 from openai import OpenAI
 from openai.types.chat import (
     ChatCompletionAssistantMessageParam,
+    ChatCompletionContentPartParam,
     ChatCompletionContentPartTextParam,
+    ChatCompletionContentPartRefusalParam,
     ChatCompletionMessage,
     ChatCompletionMessageParam,
     ChatCompletionSystemMessageParam,
@@ -19,11 +21,19 @@ from mcp.types import (
     CallToolResult,
     EmbeddedResource,
     ImageContent,
+    ModelPreferences,
     TextContent,
     TextResourceContents,
 )
 
-from mcp_agent.workflows.llm.augmented_llm import AugmentedLLM, ModelT
+from mcp_agent.workflows.llm.augmented_llm import (
+    AugmentedLLM,
+    ModelT,
+    MCPMessageParam,
+    MCPMessageResult,
+    ProviderToMCPConverter,
+    RequestParams,
+)
 from mcp_agent.logging.logger import get_logger
 
 logger = get_logger(__name__)
@@ -38,8 +48,28 @@ class OpenAIAugmentedLLM(
     This implementation uses OpenAI's ChatCompletion as the LLM.
     """
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, type_converter=MCPOpenAITypeConverter, **kwargs)
+
+        self.provider = "OpenAI"
+
+        self.model_preferences = self.model_preferences or ModelPreferences(
+            costPriority=0.3,
+            speedPriority=0.4,
+            intelligencePriority=0.3,
+        )
+        self.default_request_params = self.default_request_params or RequestParams(
+            model="gpt-4o",
+            modelPreferences=self.model_preferences,
+            maxTokens=2048,
+            systemPrompt=self.instruction,
+            parallel_tool_calls=True,
+            max_iterations=10,
+            use_history=True,
+        )
+
     @classmethod
-    async def convert_message_to_message_param(
+    def convert_message_to_message_param(
         cls, message: ChatCompletionMessage, **kwargs
     ) -> ChatCompletionMessageParam:
         """Convert a response object to an input parameter object to allow LLM calls to be chained."""
@@ -52,16 +82,7 @@ class OpenAIAugmentedLLM(
             **kwargs,
         )
 
-    async def generate(
-        self,
-        message,
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = "gpt-4o",
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
-    ):
+    async def generate(self, message, request_params: RequestParams | None = None):
         """
         Process a query using an LLM and available tools.
         The default implementation uses OpenAI's ChatCompletion as the LLM.
@@ -70,15 +91,15 @@ class OpenAIAugmentedLLM(
         config = self.context.config
         openai_client = OpenAI(api_key=config.openai.api_key)
         messages: List[ChatCompletionMessageParam] = []
+        params = self.get_request_params(request_params)
 
-        if self.instruction:
+        system_prompt = self.instruction or params.systemPrompt
+        if system_prompt:
             messages.append(
-                ChatCompletionSystemMessageParam(
-                    role="system", content=self.instruction
-                )
+                ChatCompletionSystemMessageParam(role="system", content=system_prompt)
             )
 
-        if use_history:
+        if params.use_history:
             messages.extend(self.history.get())
 
         if isinstance(message, str):
@@ -107,19 +128,23 @@ class OpenAIAugmentedLLM(
             available_tools = None
 
         responses: List[ChatCompletionMessage] = []
+        model = await self.select_model(params)
 
-        for i in range(max_iterations):
+        for i in range(params.max_iterations):
             arguments = {
                 "model": model,
                 "messages": messages,
-                "stop": stop_sequences,
+                "stop": params.stopSequences,
                 "tools": available_tools,
-                "max_tokens": max_tokens,
+                "max_tokens": params.maxTokens,
             }
 
             if available_tools:
                 arguments["tools"] = available_tools
-                arguments["parallel_tool_calls"] = parallel_tool_calls
+                arguments["parallel_tool_calls"] = params.parallel_tool_calls
+
+            if params.metadata:
+                arguments = {**arguments, **params.metadata}
 
             logger.debug(
                 f"Iteration {i}: Calling OpenAI ChatCompletion with messages:",
@@ -196,7 +221,7 @@ class OpenAIAugmentedLLM(
                             continue
                         if result is not None:
                             messages.append(result)
-        if use_history:
+        if params.use_history:
             self.history.set(messages)
 
         return responses
@@ -204,12 +229,7 @@ class OpenAIAugmentedLLM(
     async def generate_str(
         self,
         message,
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = "gpt-4o",
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ):
         """
         Process a query using an LLM and available tools.
@@ -218,12 +238,7 @@ class OpenAIAugmentedLLM(
         """
         responses = await self.generate(
             message=message,
-            use_history=use_history,
-            max_iterations=max_iterations,
-            model=model,
-            stop_sequences=stop_sequences,
-            max_tokens=max_tokens,
-            parallel_tool_calls=parallel_tool_calls,
+            request_params=request_params,
         )
 
         final_text: List[str] = []
@@ -243,12 +258,7 @@ class OpenAIAugmentedLLM(
         self,
         message,
         response_model: Type[ModelT],
-        use_history: bool = True,
-        max_iterations: int = 10,
-        model: str = None,
-        stop_sequences: List[str] = None,
-        max_tokens: int = 2048,
-        parallel_tool_calls: bool = True,
+        request_params: RequestParams | None = None,
     ) -> ModelT:
         # First we invoke the LLM to generate a string response
         # We need to do this in a two-step process because Instructor doesn't
@@ -256,12 +266,7 @@ class OpenAIAugmentedLLM(
         # processing first and then pass the final response through Instructor
         response = await self.generate_str(
             message=message,
-            use_history=use_history,
-            max_iterations=max_iterations,
-            model=model or "gpt-4o",
-            stop_sequences=stop_sequences,
-            max_tokens=max_tokens,
-            parallel_tool_calls=parallel_tool_calls,
+            request_params=request_params,
         )
 
         # Next we pass the text through instructor to extract structured data
@@ -269,6 +274,9 @@ class OpenAIAugmentedLLM(
             OpenAI(api_key=self.context.config.openai.api_key),
             mode=instructor.Mode.TOOLS_STRICT,
         )
+
+        params = self.get_request_params(request_params)
+        model = await self.select_model(params)
 
         # Extract structured data from natural language
         structured_response = client.chat.completions.create(
@@ -358,6 +366,115 @@ class OpenAIAugmentedLLM(
         return str(message)
 
 
+class MCPOpenAITypeConverter(
+    ProviderToMCPConverter[ChatCompletionMessageParam, ChatCompletionMessage]
+):
+    """
+    Convert between OpenAI and MCP types.
+    """
+
+    @classmethod
+    def from_mcp_message_result(cls, result: MCPMessageResult) -> ChatCompletionMessage:
+        # MCPMessageResult -> ChatCompletionMessage
+        if result.role != "assistant":
+            raise ValueError(
+                f"Expected role to be 'assistant' but got '{result.role}' instead."
+            )
+
+        return ChatCompletionMessage(
+            role="assistant",
+            content=result.content.text or str(result.context),
+            # Lossy conversion for the following fields:
+            # result.model
+            # result.stopReason
+        )
+
+    @classmethod
+    def to_mcp_message_result(cls, result: ChatCompletionMessage) -> MCPMessageResult:
+        # ChatCompletionMessage -> MCPMessageResult
+        return MCPMessageResult(
+            role=result.role,
+            content=TextContent(type="text", text=result.content),
+            model=None,
+            stopReason=None,
+            # extras for ChatCompletionMessage fields
+            **result.model_dump(exclude={"role", "content"}),
+        )
+
+    @classmethod
+    def from_mcp_message_param(
+        cls, param: MCPMessageParam
+    ) -> ChatCompletionMessageParam:
+        # MCPMessageParam -> ChatCompletionMessageParam
+        if param.role == "assistant":
+            extras = param.model_dump(exclude={"role", "content"})
+            return ChatCompletionAssistantMessageParam(
+                role="assistant",
+                content=mcp_content_to_openai_content(param.content),
+                **extras,
+            )
+        elif param.role == "user":
+            extras = param.model_dump(exclude={"role", "content"})
+            return ChatCompletionUserMessageParam(
+                role="user",
+                content=mcp_content_to_openai_content(param.content),
+                **extras,
+            )
+        else:
+            raise ValueError(
+                f"Unexpected role: {param.role}, MCP only supports 'assistant' and 'user'"
+            )
+
+    @classmethod
+    def to_mcp_message_param(cls, param: ChatCompletionMessageParam) -> MCPMessageParam:
+        # ChatCompletionMessage -> MCPMessageParam
+
+        contents = openai_content_to_mcp_content(param.content)
+
+        # TODO: saqadri - the mcp_content can have multiple elements
+        # while sampling message content has a single content element
+        # Right now we error out if there are > 1 elements in mcp_content
+        # We need to handle this case properly going forward
+        if len(contents) > 1:
+            raise NotImplementedError(
+                "Multiple content elements in a single message are not supported"
+            )
+        mcp_content: TextContent | ImageContent | EmbeddedResource = contents[0]
+
+        if param.role == "assistant":
+            return MCPMessageParam(
+                role="assistant",
+                content=mcp_content,
+                **typed_dict_extras(param, ["role", "content"]),
+            )
+        elif param.role == "user":
+            return MCPMessageParam(
+                role="user",
+                content=mcp_content,
+                **typed_dict_extras(param, ["role", "content"]),
+            )
+        elif param.role == "tool":
+            raise NotImplementedError(
+                "Tool messages are not supported in SamplingMessage yet"
+            )
+        elif param.role == "system":
+            raise NotImplementedError(
+                "System messages are not supported in SamplingMessage yet"
+            )
+        elif param.role == "developer":
+            raise NotImplementedError(
+                "Developer messages are not supported in SamplingMessage yet"
+            )
+        elif param.role == "function":
+            raise NotImplementedError(
+                "Function messages are not supported in SamplingMessage yet"
+            )
+        else:
+            raise ValueError(
+                f"Unexpected role: {param.role}, MCP only supports 'assistant', 'user', 'tool', 'system', 'developer', and 'function'"
+            )
+
+
 def mcp_content_to_openai_content(
     content: TextContent | ImageContent | EmbeddedResource,
 ) -> ChatCompletionContentPartTextParam:
@@ -380,3 +497,54 @@ def mcp_content_to_openai_content(
     else:
         # Last effort to convert the content to a string
         return ChatCompletionContentPartTextParam(type="text", text=str(content))
+
+
+def openai_content_to_mcp_content(
+    content: str
+    | Iterable[ChatCompletionContentPartParam | ChatCompletionContentPartRefusalParam],
+) -> Iterable[TextContent | ImageContent | EmbeddedResource]:
+    mcp_content = []
+
+    if isinstance(content, str):
+        mcp_content = [TextContent(type="text", text=content)]
+    else:
+        # TODO: saqadri - this is a best effort conversion, we should handle all possible content types
+        for c in content:
+            if c.type == "text":  # isinstance(c, ChatCompletionContentPartTextParam):
+                mcp_content.append(
+                    TextContent(
+                        type="text", text=c.text, **typed_dict_extras(c, ["text"])
+                    )
+                )
+            elif (
+                c.type == "image_url"
+            ):  # isinstance(c, ChatCompletionContentPartImageParam):
+                raise NotImplementedError("Image content conversion not implemented")
+                # TODO: saqadri - need to download the image into a base64-encoded string
+                # Download image from c.image_url
+                # return ImageContent(
+                #     type="image",
+                #     data=downloaded_image,
+                #     **c
+                # )
+            elif (
+                c.type == "input_audio"
+            ):  # isinstance(c, ChatCompletionContentPartInputAudioParam):
+                raise NotImplementedError("Audio content conversion not implemented")
+            elif (
+                c.type == "refusal"
+            ):  # isinstance(c, ChatCompletionContentPartRefusalParam):
+                mcp_content.append(
+                    TextContent(
+                        type="text", text=c.refusal, **typed_dict_extras(c, ["refusal"])
+                    )
+                )
+            else:
+                raise ValueError(f"Unexpected content type: {c.type}")
+
+    return mcp_content
+
+
+def typed_dict_extras(d: dict, exclude: List[str]):
+    extras = {k: v for k, v in d.items() if k not in exclude}
+    return extras

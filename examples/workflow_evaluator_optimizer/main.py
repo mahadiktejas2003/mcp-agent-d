@@ -2,6 +2,7 @@ import asyncio
 
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
+from mcp_agent.workflows.llm.augmented_llm import RequestParams
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 
 from mcp_agent.workflows.evaluator_optimizer.evaluator_optimizer import (
@@ -76,7 +77,7 @@ async def example_usage():
 
         result = await evaluator_optimizer.generate_str(
             message=f"Write a cover letter for the following job posting: {job_posting}\n\nCandidate Details: {candidate_details}\n\nCompany information: {company_information}",
-            model="gpt-4o",
+            request_params=RequestParams(model="gpt-4o"),
         )
 
         logger.info(f"{result}")

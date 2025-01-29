@@ -2,7 +2,7 @@ import asyncio
 import os
 
 from mcp_agent.app import MCPApp
-from mcp_agent.workflows.swarm.swarm import SwarmAgent
+from mcp_agent.workflows.swarm.swarm import DoneAgent, SwarmAgent
 from mcp_agent.workflows.swarm.swarm_anthropic import AnthropicSwarm
 from mcp_agent.human_input.handler import console_input_callback
 
@@ -41,7 +41,7 @@ def initiate_flight_credits():
 
 def case_resolved():
     """Resolve the case"""
-    return "Case resolved. No further questions."
+    return DoneAgent()
 
 
 # Agents
