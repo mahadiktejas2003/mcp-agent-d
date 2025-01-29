@@ -25,7 +25,7 @@
 
 **`mcp-agent`** is a simple, composable framework to build agents using [Model Context Protocol](https://modelcontextprotocol.io/introduction).
 
-Anthropic announced 2 foundational updates for AI application developers:
+**Inspiration**: Anthropic announced 2 foundational updates for AI application developers:
 
 1. [Model Context Protocol](https://www.anthropic.com/news/model-context-protocol) - a standardized interface to let any software be accessible to AI assistants via MCP servers.
 2. [Building Effective Agents](https://www.anthropic.com/research/building-effective-agents) - a seminal writeup on simple, composable patterns for building production-ready AI agents.
@@ -37,7 +37,7 @@ Anthropic announced 2 foundational updates for AI application developers:
 3. **Bonus**: It implements [OpenAI's Swarm](https://github.com/openai/swarm) pattern for multi-agent orchestration, but in a model-agnostic way.
 
 Altogether, this is the simplest and easiest way to build robust agent applications. Much like MCP, this project is in early development.
-We welcome all kinds of [contributions](/CONTRIBUTING.md), feedback and your help in growing this new standard.
+We welcome all kinds of [contributions](/CONTRIBUTING.md), feedback and your help in growing this to become a new standard.
 
 ## Get Started
 
@@ -55,85 +55,92 @@ pip install mcp-agent
 
 ### Quickstart
 
-The [`examples`](/examples) directory has a number of example applications to get started with.
-To run an example, clone this repo, update, then copy `mcp_agent.secrets.yaml.example` to `mcp_agent.secrets.yaml` and update with your API keys, and then:
+> [!NOTE]
+> The [`examples`](/examples) directory has several example applications to get started with.
+> To run an example, clone this repo, then:
+>
+> ```bash
+> cp mcp_agent.secrets.yaml.example mcp_agent.secrets.yaml # Update API keys
+> cd examples/mcp_basic_agent
+> uv run main.py
+> ```
 
-```bash
-uv run scripts/example.py run mcp_basic_agent # Replace with 'mcp_basic_agent' with any folder name under examples/
-```
-
-Here is a basic "finder" agent that uses the fetch and filesystem servers to look up a file:
-
-1. Configure your application by creating an [mcp_agent.config.yaml](/schema/mcp-agent.config.schema.json)
-
-```yaml
-mcp:
-  servers:
-    fetch:
-      command: "uvx"
-      args: ["mcp-server-fetch"]
-    filesystem:
-      command: "npx"
-      args:
-        [
-          "-y",
-          "@modelcontextprotocol/server-filesystem",
-          "/Users/saqadri/Desktop",
-          "<add other directories to give access to>",
-        ]
-
-anthropic:
-  # Secrets (api_key, etc.) can also be stored in an mcp_agent.secrets.yaml file which can be gitignored
-  api_key: claude-api-key
-
-openai: ...
-```
+Here is a basic "finder" agent that uses the fetch and filesystem servers to look up a file, a blog and write a tweet. [Example link](./examples/mcp_basic_agent/):
 
 ```python
 import asyncio
 import os
 
-from mcp_agent.context import get_current_context
-from mcp_agent.logging.logger import get_logger
+from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 
+app = MCPApp(name="hello_world_agent")
+
 async def example_usage():
-    logger = get_logger("mcp_basic_agent.example_usage")
+    async with app.run() as mcp_agent_app:
+        logger = agent_app.logger
 
-    context = get_current_context()
-    logger.info("Current config:", data=context.config)
-
-    # This agent can read the filesystem or fetch URLs
-    finder_agent = Agent(
-        name="finder",
-        instruction="""You can read local files or fetch URLs.
-            Return the requested information when asked.""",
-        server_names=["fetch", "filesystem"],
-    )
-
-    async with finder_agent:
-        # List tools available to the finder agent
-        tools = await finder_agent.list_tools()
-        logger.info(f"Tools available:", data=tools)
-
-        # Attach an OpenAI-based LLM to the agent
-        llm = await finder_agent.attach_llm(OpenAIAugmentedLLM)
-
-        # Now we can do a prompt that might need the agent's capabilities
-        result = await llm.generate_str(
-            message="Show me what's in README.md verbatim"
+        # This agent can read the filesystem or fetch URLs
+        finder_agent = Agent(
+            name="finder",
+            instruction="""You can read local files or fetch URLs.
+                Return the requested information when asked.""",
+            server_names=["fetch", "filesystem"], # MCP servers this Agent can use
         )
-        logger.info(f"README.md contents: {result}")
 
-        result = await llm.generate_str(
-            message="Print the first two paragraphs from https://www.anthropic.com/research/building-effective-agents"
-        )
-        logger.info(f"Blog intro: {result}")
+        async with finder_agent:
+            # Automatically initializes the MCP servers and adds their tools for LLM use
+            tools = await finder_agent.list_tools()
+            logger.info(f"Tools available:", data=tools)
+
+            # Attach an OpenAI LLM to the agent (defaults to GPT-4o)
+            llm = await finder_agent.attach_llm(OpenAIAugmentedLLM)
+
+            # This will perform a file lookup and read using the filesystem server
+            result = await llm.generate_str(
+                message="Show me what's in README.md verbatim"
+            )
+            logger.info(f"README.md contents: {result}")
+
+            # Uses the fetch server to fetch the content from URL
+            result = await llm.generate_str(
+                message="Print the first two paragraphs from https://www.anthropic.com/research/building-effective-agents"
+            )
+            logger.info(f"Blog intro: {result}")
+
+            # Multi-turn interactions by default
+            result = await llm.generate_str("Summarize that in a 128-char tweet")
+            logger.info(f"Tweet: {result}")
 
 if __name__ == "__main__":
     asyncio.run(example_usage())
 ```
+
+## Table of Contents
+
+- [Value Proposition]()
+- [Example Applications](#examples)
+  - [Claude Desktop]()
+  - [Streamlit]()
+    - [Gmail Agent]()
+    - [RAG]()
+  - [Marimo]()
+  - [CLI]()
+    - [Swarm]()
+- [MCP Server Management]()
+- [Workflows Patterns]()
+  - [Augmented LLM]()
+  - [Parallel]()
+  - [Router]()
+  - [Intent-Classifier]()
+  - [Orchestrator-Workers]()
+  - [Evaluator-Optimizer]()
+  - [OpenAI Swarm]()
+- [Composability]()
+- [Contributing]()
+- [Roadmap]()
+- [Special Mentions]()
 
 ## Preamble
 
