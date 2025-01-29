@@ -360,7 +360,7 @@ async def run_orchestrator_workflow(arguments: dict) -> list[types.TextContent]:
         )
     ]
 
-    orchestrator = Orchestrator(llm=OpenAIAugmentedLLM, agents=agents)
+    orchestrator = Orchestrator(llm_factory=OpenAIAugmentedLLM, available_agents=agents)
     result = await orchestrator.generate_str(message)
 
     return [types.TextContent(type="text", text=result)]
