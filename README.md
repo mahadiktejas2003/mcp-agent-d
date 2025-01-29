@@ -55,17 +55,20 @@ pip install mcp-agent
 
 ### Quickstart
 
-> [!NOTE]
+> [!TIP]
 > The [`examples`](/examples) directory has several example applications to get started with.
 > To run an example, clone this repo, then:
 >
 > ```bash
+> cd examples/mcp_basic_agent # Or any other example
 > cp mcp_agent.secrets.yaml.example mcp_agent.secrets.yaml # Update API keys
-> cd examples/mcp_basic_agent
 > uv run main.py
 > ```
 
-Here is a basic "finder" agent that uses the fetch and filesystem servers to look up a file, a blog and write a tweet. [Example link](./examples/mcp_basic_agent/):
+Here is a basic "finder" agent that uses the fetch and filesystem servers to look up a file, read a blog and write a tweet. [Example link](./examples/mcp_basic_agent/):
+
+<details open>
+<summary>finder_agent.py</summary>
 
 ```python
 import asyncio
@@ -78,8 +81,8 @@ from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 app = MCPApp(name="hello_world_agent")
 
 async def example_usage():
-    async with app.run() as mcp_agent_app:
-        logger = agent_app.logger
+async with app.run() as mcp_agent_app:
+logger = agent_app.logger
 
         # This agent can read the filesystem or fetch URLs
         finder_agent = Agent(
@@ -113,13 +116,46 @@ async def example_usage():
             result = await llm.generate_str("Summarize that in a 128-char tweet")
             logger.info(f"Tweet: {result}")
 
-if __name__ == "__main__":
-    asyncio.run(example_usage())
+if **name** == "**main**":
+asyncio.run(example_usage())
+
 ```
+
+</details>
+
+<details>
+<summary>mcp_agent.config.yaml</summary>
+
+```yaml
+execution_engine: asyncio
+logger:
+  type: console
+  level: debug
+
+mcp:
+  servers:
+    fetch:
+      command: "uvx"
+      args: ["mcp-server-fetch"]
+    filesystem:
+      command: "npx"
+      args:
+        [
+          "-y",
+          "@modelcontextprotocol/server-filesystem",
+          "<add_your_directories>",
+        ]
+
+openai:
+  # Secrets (API keys, etc.) are stored in an mcp_agent.secrets.yaml file which can be gitignored
+  default_model: gpt-4o
+```
+
+</details>
 
 ## Table of Contents
 
-- [Value Proposition]()
+- [Why use mcp-agent?](#why-use-mcp-agent)
 - [Example Applications](#examples)
   - [Claude Desktop]()
   - [Streamlit]()
@@ -128,7 +164,6 @@ if __name__ == "__main__":
   - [Marimo]()
   - [CLI]()
     - [Swarm]()
-- [MCP Server Management]()
 - [Workflows Patterns]()
   - [Augmented LLM]()
   - [Parallel]()
@@ -137,40 +172,49 @@ if __name__ == "__main__":
   - [Orchestrator-Workers]()
   - [Evaluator-Optimizer]()
   - [OpenAI Swarm]()
-- [Composability]()
+- [Advanced]()
+  - [MCP Server Management]()
+  - [Composing multiple workflows]()
+  - [Human-in-the-loop]()
 - [Contributing]()
 - [Roadmap]()
+- [FAQs](#faqs)
 - [Special Mentions]()
 
-## Preamble
+## Why use `mcp-agent`?
 
-### Value Proposition
+There are too many AI frameworks out there already. But `mcp-agent` is the only one that is purpose-built for a shared protocol - [MCP](https://modelcontextprotocol.io/introduction). It is also the most lightweight, and is closer to an agent pattern library than a framework.
 
-This framework provides a streamlined approach to building AI agents using capabilities exposed by **MCP** (Model Context Protocol) servers.
+As [more services become MCP-aware](https://github.com/punkpeye/awesome-mcp-servers), you can use mcp-agent to build robust and controllable AI agents that can leverage those services out-of-the-box.
 
-Simply put, MCP is quite low-level, and this framework handles the mechanics of connecting to servers, working with LLMs, handling external signals (like human input) and supporting persistent state via durable execution. That lets you, the developer, focus on the core business logic of your AI application.
+## Examples
 
-Core benefits:
+Before we go into the core concepts of mcp-agent, let's show what you can build with it.
 
-- **Interoperability**: MCP ensures that tools and servers can seamlessly plug in to your agent, forming a “server-of-servers.”
-- **Composability & Cutstomizability**: Implements well-defined workflows, but in a composable way that enables compound workflows, and allows full customization across model provider, logging, orchestrator, etc.
-- **Programmatic control flow**: Keeps things simple as developers just write code instead of thinking in graphs, nodes and edges. For branching logic, you write `if` statements. For cycles, use `while` loops.
-- **Human Input & Signals**: Supports pausing workflows for external signals, such as human input, which are exposed as tool calls an Agent can make.
-- **Durable Execution**: Supports persistent/long-running workflows (like with [Temporal](https://temporal.io)) for sophisticated async applications.
+In short, you can build any kind of AI application with mcp-agent: multi-agent collaborative workflows, human-in-the-loop workflows, RAG pipelines and more.
 
-### Using with MCP
+### Claude Desktop
 
-#### MCP-Agent Server
+#### mcp-agent server
 
-You can expose mcp-agent applications as MCP servers themselves, allowing MCP clients to interface with sophisticated AI workflows using the standard tools API of MCP servers. This is effectively a server-of-servers.
+> [!NOTE]
+> Huge thanks to [Jerron Lim (@StreetLamb)](https://github.com/StreetLamb)
+> for developing and contributing this example!
 
-#### MCP Client
+This app wraps an mcp-agent application inside an MCP server, and exposes that server to Claude Desktop (an MCP client).
+The app exposes agents and workflows that Claude Desktop can invoke to service of the user's request.
 
-You can embed mcp-agent in an MCP client directly to manage the orchestration across multiple MCP servers.
+This demo shows a multi-agent evaluation task where each agent evaluates aspects of an input poem, and
+then an aggregator summarizes their findings into a final response. All of this is done via the Claude Desktop app.
 
-#### Standalone
+<iframe width="560" height="315" src="https://github.com/user-attachments/assets/7807cffd-dba7-4f0c-9c70-9482fd7e0699" />
 
-You can use mcp-agent applications in a standalone fashion (i.e. they aren't part of an MCP client). The [`examples`](/examples/) are all standalone applications.
+**Details**: Starting from a user's request over text, the application:
+
+- dynamically defines agents to do the job
+- uses the appropriate workflow to orchestrate those agents (in this case the Parallel workflow)
+
+> [!NOTE] **Example codebase link**: [examples/mcp_agent_server](./examples/mcp_agent_server)
 
 ## Core Components
 
@@ -547,3 +591,35 @@ logger = get_logger(__name__)
 ```
 
 This automatically integrates with distributed tracing (see [`@traced`](src/mcp_agent/logging/tracing.py)) as well as configuring custom transports (console, http, etc.).
+
+## FAQs
+
+### What are the core benefits of using mcp-agent?
+
+mcp-agent provides a streamlined approach to building AI agents using capabilities exposed by **MCP** (Model Context Protocol) servers.
+
+Simply put, MCP is quite low-level, and this framework handles the mechanics of connecting to servers, working with LLMs, handling external signals (like human input) and supporting persistent state via durable execution. That lets you, the developer, focus on the core business logic of your AI application.
+
+Core benefits:
+
+- **Interoperability**: ensures that any tool exposed by any number of MCP servers can seamlessly plug in to your agents.
+- **Composability & Cutstomizability**: Implements well-defined workflows, but in a composable way that enables compound workflows, and allows full customization across model provider, logging, orchestrator, etc.
+- **Programmatic control flow**: Keeps things simple as developers just write code instead of thinking in graphs, nodes and edges. For branching logic, you write `if` statements. For cycles, use `while` loops.
+- 🖐️ **Human Input & Signals**: Supports pausing workflows for external signals, such as human input, which are exposed as tool calls an Agent can make.
+
+### Do you need an MCP client to use mcp-agent?
+
+No, you can use mcp-agent anywhere. This allows you to leverage MCP servers outside of MCP clients like Claude Desktop.
+Here's all the ways you can set up your mcp-agent application:
+
+#### MCP-Agent Server
+
+You can expose mcp-agent applications as MCP servers themselves, allowing MCP clients to interface with sophisticated AI workflows using the standard tools API of MCP servers. This is effectively a server-of-servers.
+
+#### MCP Client
+
+You can embed mcp-agent in an MCP client directly to manage the orchestration across multiple MCP servers.
+
+#### Standalone
+
+You can use mcp-agent applications in a standalone fashion (i.e. they aren't part of an MCP client). The [`examples`](/examples/) are all standalone applications.

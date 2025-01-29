@@ -59,6 +59,9 @@ dev = [
 
 [project.scripts]
 mcp-agent = "mcp_agent.cli.__main__:app"
+mcp_agent = "mcp_agent.cli.__main__:app"
+mcpagent = "mcp_agent.cli.__main__:app"
+silsila = "mcp_agent.cli.__main__:app"
 
 [tool.setuptools.packages.find]
 include = ["mcp-agent"]
