@@ -25,7 +25,7 @@ async def example_usage():
             as well as the ability to fetch URLs. Your job is to identify 
             the closest match to a user's request, make the appropriate tool calls, 
             and return the URI and CONTENTS of the closest match.""",
-            server_names=["fetch", "filesystem"],
+            server_names=["curl", "filesystem"],
         )
 
         async with finder_agent:
