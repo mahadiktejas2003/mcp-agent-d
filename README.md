@@ -152,6 +152,11 @@ openai:
 
 </details>
 
+<details>
+<summary>Agent output</summary>
+<img width="2398" alt="Image" src="https://github.com/user-attachments/assets/eaa60fdf-bcc6-460b-926e-6fa8534e9089" />
+</details>
+
 ## Table of Contents
 
 - [Why use mcp-agent?](#why-use-mcp-agent)
