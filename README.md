@@ -157,7 +157,7 @@ openai:
 
 - [Why use mcp-agent?](#why-use-mcp-agent)
 - [Example Applications](#examples)
-  - [Claude Desktop]()
+  - [Claude Desktop](#claude-desktop)
   - [Streamlit]()
     - [Gmail Agent]()
     - [RAG]()
@@ -195,26 +195,77 @@ In short, you can build any kind of AI application with mcp-agent: multi-agent c
 
 ### Claude Desktop
 
+You can integrate mcp-agent apps into MCP clients like Claude Desktop.
+
 #### mcp-agent server
 
-> [!NOTE]
-> Huge thanks to [Jerron Lim (@StreetLamb)](https://github.com/StreetLamb)
-> for developing and contributing this example!
-
-This app wraps an mcp-agent application inside an MCP server, and exposes that server to Claude Desktop (an MCP client).
+This app wraps an mcp-agent application inside an MCP server, and exposes that server to Claude Desktop.
 The app exposes agents and workflows that Claude Desktop can invoke to service of the user's request.
 
-This demo shows a multi-agent evaluation task where each agent evaluates aspects of an input poem, and
-then an aggregator summarizes their findings into a final response. All of this is done via the Claude Desktop app.
+<video controls width="560" height="315">
+<source src="https://github.com/user-attachments/assets/7807cffd-dba7-4f0c-9c70-9482fd7e0699" type="video/mp4">
+</video>
 
-<iframe width="560" height="315" src="https://github.com/user-attachments/assets/7807cffd-dba7-4f0c-9c70-9482fd7e0699" />
+This demo shows a multi-agent evaluation task where each agent evaluates aspects of an input poem, and
+then an aggregator summarizes their findings into a final response.
 
 **Details**: Starting from a user's request over text, the application:
 
 - dynamically defines agents to do the job
 - uses the appropriate workflow to orchestrate those agents (in this case the Parallel workflow)
 
-> [!NOTE] **Example codebase link**: [examples/mcp_agent_server](./examples/mcp_agent_server)
+**Link to code**: [examples/mcp_agent_server](./examples/mcp_agent_server)
+
+> [!NOTE]
+> Huge thanks to [Jerron Lim (@StreetLamb)](https://github.com/StreetLamb)
+> for developing and contributing this example!
+
+### Streamlit
+
+You can deploy mcp-agent apps using Streamlit.
+
+#### Gmail agent
+
+This app is able to perform read and write actions on gmail using text prompts -- i.e. read, delete, send emails, mark as read/unread, etc.
+It uses an MCP server for Gmail.
+
+<video controls width="560" height="315">
+<source src="https://github.com/user-attachments/assets/54899cac-de24-4102-bd7e-4b2022c956e3" type="video/mp4">
+</video>
+
+**Link to code**: [gmail-mcp-server](https://github.com/jasonsum/gmail-mcp-server/blob/add-mcp-agent-streamlit/streamlit_app.py)
+
+> [!NOTE]
+> Huge thanks to [Jason Summer (@jasonsum)](https://github.com/jasonsum)
+> for developing and contributing this example!
+
+#### Simple RAG Chatbot
+
+This app uses a Qdrant vector database (via an MCP server) to do Q&A over a corpus of text.
+
+<video controls width="560" height="315">
+<source src="https://github.com/user-attachments/assets/f4dcd227-cae9-4a59-aa9e-0eceeb4acaf4
+" type="video/mp4">
+</video>
+
+**Link to code**: [examples/streamlit_mcp_rag_agent](./examples/streamlit_mcp_rag_agent/)
+
+> [!NOTE]
+> Huge thanks to [Jerron Lim (@StreetLamb)](https://github.com/StreetLamb)
+> for developing and contributing this example!
+
+### Marimo
+
+[Marimo](https://github.com/marimo-team/marimo) is a reactive Python notebook that replaces Jupyter and Streamlit.
+Here's the same file "finder" agent from [Quickstart](#quickstart) implemented in Marimo:
+
+<img src="https://github.com/user-attachments/assets/139a95a5-e3ac-4ea7-9c8f-bad6577e8597" width="400"/>
+
+**Link to code**: [examples/streamlit_mcp_rag_agent](./examples/streamlit_mcp_rag_agent/)
+
+> [!NOTE]
+> Huge thanks to [Akshay Agrawal (@akshayka)](https://github.com/akshayka)
+> for developing and contributing this example!
 
 ## Core Components
 
