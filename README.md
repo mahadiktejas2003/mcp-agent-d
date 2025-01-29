@@ -21,20 +21,23 @@
 <a href="https://github.com/lastmile-ai/mcp-agent/blob/main/LICENSE"><img src="https://img.shields.io/pypi/l/mcp-agent" /></a>
 </p>
 
-# mcp-agent
+## Overview
 
-**A light, extensible agent framework built on [Model Context Protocol](https://modelcontextprotocol.io/introduction) that enables orchestration of AI workflows and tools in a straightforward, code-first manner.**
+**`mcp-agent`** is a simple, composable framework to build agents using [Model Context Protocol](https://modelcontextprotocol.io/introduction).
 
-This framework supports:
+Anthropic announced 2 foundational updates for AI application developers:
 
-- **MCP** (Model Context Protocol) servers for standardized tool interfaces, prompts, memory, etc.
-- An **Agent** abstraction that can seamlessly attach to multiple MCP servers, handle human input, signals, or additional specialized tasks.
-- Common agent patterns, such as Swarm (by OpenAI), and Evaluator-Optimizer, Orchestrator, Router, and more from [Anthropic’s _Building Effective Agents_ blog](https://www.anthropic.com/research/building-effective-agents), adapted for code-based control flow instead of rigid "graph-based" structures.
-- **Durable Execution** with pluggable backends (e.g., [Temporal](https://temporal.io)) for advanced pause/resume, parallelization, and human-in-the-loop signals.
+1. [Model Context Protocol](https://www.anthropic.com/news/model-context-protocol) - a standardized interface to let any software be accessible to AI assistants via MCP servers.
+2. [Building Effective Agents](https://www.anthropic.com/research/building-effective-agents) - a seminal writeup on simple, composable patterns for building production-ready AI agents.
 
-> **Why code-based control flow?** In many agent frameworks, you must model nodes/edges, which adds an unnecessary layer of complexity. For conditionals, you have to craft subgraphs, or for loops, you must create cyclical edges. In **mcp-agent**, you just write regular Python control flow (loops, if/else conditionals) and let the executor handle concurrency, resiliency and orchestration.
+`mcp-agent` puts these two foundational pieces into an AI application framework:
 
----
+1. It handles the pesky business of managing the lifecycle of MCP server connections so you don't have to.
+2. It implements every pattern described in Building Effective Agents, and does so in a _composable_ way, allowing you to chain these patterns together.
+3. **Bonus**: It implements [OpenAI's Swarm](https://github.com/openai/swarm) pattern for multi-agent orchestration, but in a model-agnostic way.
+
+Altogether, this is the simplest and easiest way to build robust agent applications. Much like MCP, this project is in early development.
+We welcome all kinds of [contributions](/CONTRIBUTING.md), feedback and your help in growing this new standard.
 
 ## Get Started
 
