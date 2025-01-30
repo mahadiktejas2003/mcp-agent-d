@@ -1,3 +1,4 @@
+import os
 from typing import Any, Dict, Iterable, Set
 from datetime import datetime, date
 from decimal import Decimal
@@ -15,15 +16,45 @@ class JSONSerializer:
     different serialization strategies recursively.
     """
 
+    # Fields that are likely to contain sensitive information
+    SENSITIVE_FIELDS = {
+        'api_key',
+        'secret',
+        'password',
+        'token',
+        'auth',
+        'private_key',
+        'client_secret',
+        'access_token',
+        'refresh_token',
+    }
+
     def __init__(self):
         # Set of already processed objects to prevent infinite recursion
         self._processed_objects: Set[int] = set()
+        # Check if secrets should be logged in full
+        self._log_secrets = os.getenv('LOG_SECRETS', '').upper() == 'TRUE'
+
+    def _redact_sensitive_value(self, value: str) -> str:
+        """Redact sensitive values to show only first 10 chars."""
+        if not value or not isinstance(value, str):
+            return value
+        if self._log_secrets:
+            return value
+        if len(value) <= 10:
+            return value + "....."
+        return value[:10] + "....."
 
     def serialize(self, obj: Any) -> Any:
         """Main entry point for serialization."""
         # Reset processed objects for new serialization
         self._processed_objects.clear()
         return self._serialize_object(obj)
+
+    def _is_sensitive_key(self, key: str) -> bool:
+        """Check if a key likely contains sensitive information."""
+        key = str(key).lower()
+        return any(sensitive in key for sensitive in self.SENSITIVE_FIELDS)
 
     def _serialize_object(self, obj: Any) -> Any:
         """Recursively serialize an object using various strategies."""
@@ -76,10 +107,12 @@ class JSONSerializer:
             if hasattr(obj, "to_dict"):
                 return self._serialize_object(obj.to_dict())
 
-            # Handle dictionaries
+            # Handle dictionaries with sensitive data redaction
             if isinstance(obj, Dict):
                 return {
-                    str(key): self._serialize_object(value)
+                    str(key): self._redact_sensitive_value(value) 
+                    if self._is_sensitive_key(key) 
+                    else self._serialize_object(value)
                     for key, value in obj.items()
                 }
 
@@ -94,7 +127,9 @@ class JSONSerializer:
             # Handle objects with attributes
             if inspect.getmembers(obj):
                 return {
-                    name: self._serialize_object(value)
+                    name: self._redact_sensitive_value(value)
+                    if self._is_sensitive_key(name)
+                    else self._serialize_object(value)
                     for name, value in inspect.getmembers(obj)
                     if not name.startswith("_") and not inspect.ismethod(value)
                 }
