@@ -150,8 +150,8 @@ class FileTransport(FilteredEventTransport):
 
         try:
             with open(self.filepath, mode=self.mode, encoding=self.encoding) as f:
-                # Write the log entry as JSON with newline
-                f.write(json.dumps(log_entry, indent=2) + "\n")
+                # Write the log entry as compact JSON (JSONL format)
+                f.write(json.dumps(log_entry, separators=(',', ':')) + "\n")
                 f.flush()  # Ensure writing to disk
         except IOError as e:
             # Log error without recursion
