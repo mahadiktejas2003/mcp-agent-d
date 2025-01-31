@@ -100,8 +100,7 @@ def convert_log_event(event: Dict[str, Any]) -> Optional[ProgressEvent]:
         elif FINAL_RESPONSE_LOG_MESSAGE in message:
             return ProgressEvent(
                 ProgressAction.FINISHED,
-                model,
-                "Final response:"
+                model
             )
 
     return None
