@@ -2,8 +2,9 @@ $schema: ../../schema/mcp-agent.config.schema.json
 
 execution_engine: asyncio
 logger:
-  type: console
+  type: file
   level: info
+  path: "./mcp-agent.log"
   batch_size: 100
   flush_interval: 2
   max_queue_size: 2048
