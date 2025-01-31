@@ -127,6 +127,8 @@ class AnthropicAugmentedLLM(AugmentedLLM[MessageParam, Message]):
             logger.debug(
                 f"Iteration {i}: Calling {model} with messages:",
                 data=messages,
+                model=model,
+                chat_turn=(len(messages)+1)//2
             )
 
             executor_result = await self.executor.execute(

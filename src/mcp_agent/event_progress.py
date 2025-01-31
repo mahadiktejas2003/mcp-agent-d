@@ -68,6 +68,7 @@ def convert_log_event(event: Dict[str, Any]) -> Optional[ProgressEvent]:
     
     # Handle LLM events
     if "augmented_llm" in namespace:
+
         llm_type = "llm_openai" if "openai" in namespace else "llm_anthropic"
         
         if "Calling OpenAI ChatCompletion" in message or "Calling claude" in message:

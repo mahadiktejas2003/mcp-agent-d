@@ -149,6 +149,8 @@ class OpenAIAugmentedLLM(
             logger.debug(
                 f"Iteration {i}: Calling OpenAI ChatCompletion with messages:",
                 data=messages,
+                model=model,
+                chat_turn=len(messages)//2
             )
 
             executor_result = await self.executor.execute(
