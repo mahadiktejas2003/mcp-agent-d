@@ -24,6 +24,8 @@ async def generate_test_events():
             message=f"{mcp_name}: Initializing server session",
             data={}
         )
+        # Simulate some other console output
+        print(f"Debug: Connection established for {mcp_name}")
         await asyncio.sleep(0.5)
         
         # Initialized
@@ -51,6 +53,7 @@ async def generate_test_events():
             # Maybe call a tool
             if random.random() < 0.7:
                 tool = random.choice(tools)
+                print(f"Debug: Executing tool {tool}")  # More debug output
                 yield Event(
                     namespace="mcp_aggregator",
                     type="info",
@@ -69,6 +72,7 @@ async def generate_test_events():
             await asyncio.sleep(0.5)
         
         # Shutdown
+        print(f"Debug: Shutting down {mcp_name}")  # More debug output
         yield Event(
             namespace="mcp_connection_manager",
             type="info",
