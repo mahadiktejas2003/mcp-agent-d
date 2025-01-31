@@ -81,6 +81,10 @@ async def configure_otel(config: "Settings"):
     if not config.otel.enabled:
         return
 
+    # Check if a provider is already set to avoid re-initialization
+    if trace.get_tracer_provider().__class__.__name__ != "NoOpTracerProvider":
+        return
+
     # Set up global textmap propagator first
     set_global_textmap(TraceContextTextMapPropagator())
 
