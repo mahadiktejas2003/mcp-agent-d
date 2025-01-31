@@ -68,18 +68,21 @@ def convert_log_event(event: Dict[str, Any]) -> Optional[ProgressEvent]:
     
     # Handle LLM events
     if "augmented_llm" in namespace:
+        # Access nested data structure for model and chat_turn
+        data = event.get("data", {}).get("data", {})
+        if isinstance(data, list):
+            # This is a messages array, get the data from the event.data instead
+            data = event.get("data", {})
+            
+        model = data.get("model", "")
+        chat_turn = data.get("chat_turn")
 
-        llm_type = "llm_openai" if "openai" in namespace else "llm_anthropic"
-        
-        if "Calling OpenAI ChatCompletion" in message or "Calling claude" in message:
-            try:
-                iteration = message.split("Iteration")[1].split(":")[0].strip()
-                turn = int(iteration)
-                return ProgressEvent(ProgressAction.CHATTING, llm_type, f"Iteration {turn}")
-            except (ValueError, IndexError):
-                return ProgressEvent(ProgressAction.CHATTING, llm_type)
+        if "Calling " in message:
+            if chat_turn is not None:
+                return ProgressEvent(ProgressAction.CHATTING, model, f"Turn {chat_turn}")
+            return ProgressEvent(ProgressAction.CHATTING, model)
 
-        elif "Finished processing" in message or "Completed request" in message:
-            return ProgressEvent(ProgressAction.FINISHED, llm_type, message)
+        elif "Finished processing" in message or "Completed request" in message:  
+            return ProgressEvent(ProgressAction.FINISHED, model, message)
     
     return None
