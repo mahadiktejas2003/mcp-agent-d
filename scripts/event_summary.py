@@ -12,7 +12,7 @@ from rich.table import Table
 from rich.panel import Panel
 from rich.text import Text
 
-from mcp_agent.event_progress import convert_log_event, ProgressEvent
+from mcp_agent.event_progress import convert_log_event, ProgressEvent, ProgressAction
 
 
 def load_events(path: Path) -> list:
@@ -39,7 +39,7 @@ def create_event_table(events: list) -> Table:
     table = Table(show_header=True, header_style="bold", show_lines=True)
     table.add_column("Action", style="cyan", width=12)
     table.add_column("Target", style="green", width=30)
-    table.add_column("Details", style="magenta")
+    table.add_column("Details", style="magenta", width=30)
     
     # Add events
     for event in progress_events:
@@ -71,9 +71,9 @@ def create_summary_panel(events: list) -> Panel:
                     
         progress_event = convert_log_event(event)
         if progress_event:
-            if progress_event.action.value == "Chatting":
+            if progress_event.action == ProgressAction.CHATTING:
                 chatting += 1
-            elif progress_event.action.value == "Calling Tool":
+            elif progress_event.action == ProgressAction.CALLING_TOOL:
                 tool_calls += 1
     
     text.append("Summary:\n\n", style="bold")

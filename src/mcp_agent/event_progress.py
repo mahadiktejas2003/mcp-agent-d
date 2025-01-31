@@ -3,30 +3,35 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, Optional
+from mcp_agent.workflows.llm.llm_constants import FINAL_RESPONSE_LOG_MESSAGE
 
 
 class ProgressAction(str, Enum):
     """Progress actions available in the system."""
+
     STARTING = "Starting"
     INITIALIZED = "Initialized"
     CHATTING = "Chatting"
     CALLING_TOOL = "Calling Tool"
     FINISHED = "Finished"
     SHUTDOWN = "Shutdown"
-    
+
+
 @dataclass
 class ProgressEvent:
     """Represents a progress event converted from a log event."""
+
     action: ProgressAction
     target: str
     details: Optional[str] = None
-    
+
     def __str__(self) -> str:
         """Format the progress event for display."""
         base = f"{self.action.ljust(11)}. {self.target}"
         if self.details:
             base += f" - {self.details}"
         return base
+
 
 def extract_from_aggregator(message: str) -> Optional[str]:
     """Extract tool information from MCPServerAggregator messages."""
@@ -38,11 +43,12 @@ def extract_from_aggregator(message: str) -> Optional[str]:
             pass
     return None
 
+
 def convert_log_event(event: Dict[str, Any]) -> Optional[ProgressEvent]:
     """Convert a log event to a progress event if applicable."""
     namespace = event.get("namespace", "")
     message = event.get("message", "")
-    
+
     # Handle MCP connection events
     if "mcp_connection_manager" in namespace:
         # Extract MCP name from message prefix if present
@@ -50,7 +56,7 @@ def convert_log_event(event: Dict[str, Any]) -> Optional[ProgressEvent]:
         if ": " in message:
             mcp_name = message.split(": ")[0]
             message = message.split(": ")[1]
-        
+
         # Handle lifecycle events
         if "_lifecycle_task is exiting" in message:
             if mcp_name:
@@ -59,23 +65,23 @@ def convert_log_event(event: Dict[str, Any]) -> Optional[ProgressEvent]:
             return ProgressEvent(ProgressAction.INITIALIZED, f"MCP '{mcp_name}'")
         elif "Initializing server session" in message:
             return ProgressEvent(ProgressAction.STARTING, f"MCP '{mcp_name}'")
-    
+
     # Handle MCPServerAggregator tool calls
     if "mcp_aggregator" in namespace:
         tool_name = extract_from_aggregator(message)
         if tool_name:
             return ProgressEvent(ProgressAction.CALLING_TOOL, tool_name)
-    
+
     # Handle LLM events
     if "augmented_llm" in namespace:
         # Handle non-dict data safely
         data = event.get("data", {})
         if not isinstance(data, dict):
             data = {}  # If data isn't a dict, treat as empty
-            
+
         model = data.get("model", "")
         chat_turn = data.get("chat_turn")
-        
+
         # If not found, try nested data
         nested_data = data.get("data", {})
         if isinstance(nested_data, dict):
@@ -86,10 +92,16 @@ def convert_log_event(event: Dict[str, Any]) -> Optional[ProgressEvent]:
 
         if "Calling " in message:
             if chat_turn is not None:
-                return ProgressEvent(ProgressAction.CHATTING, model, f"Turn {chat_turn}")
+                return ProgressEvent(
+                    ProgressAction.CHATTING, model, f"Turn {chat_turn}"
+                )
             return ProgressEvent(ProgressAction.CHATTING, model)
 
-        elif "Finished processing" in message or "Completed request" in message:  
-            return ProgressEvent(ProgressAction.FINISHED, model, message)
-    
+        elif FINAL_RESPONSE_LOG_MESSAGE in message:
+            return ProgressEvent(
+                ProgressAction.FINISHED,
+                model,
+                "Final response:"
+            )
+
     return None

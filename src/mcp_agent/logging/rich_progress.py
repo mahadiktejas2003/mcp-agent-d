@@ -53,8 +53,8 @@ class RichProgressDisplay:
             ProgressAction.STARTING: "yellow",
             ProgressAction.INITIALIZED: "green",
             ProgressAction.CHATTING: "blue",
-            ProgressAction.CALLING_TOOL: "magenta",
-            ProgressAction.FINISHED: "green",
+            ProgressAction.CALLING_TOOL: "magenta", 
+            ProgressAction.FINISHED: "cyan bold", # Made more prominent
             ProgressAction.SHUTDOWN: "red"
         }.get(action, "white")
         
@@ -63,8 +63,7 @@ class RichProgressDisplay:
         text = Text()
         
         # Action field (padded to ACTION_WIDTH)
-        action_text = event.action
-        text.append(action_text.ljust(self.ACTION_WIDTH), style=self._get_action_style(event.action))
+        text.append(event.action.value.ljust(self.ACTION_WIDTH), style=self._get_action_style(event.action))
         
         # Target
         text.append(f"{event.target}", style="bold")
