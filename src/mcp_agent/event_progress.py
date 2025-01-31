@@ -68,14 +68,21 @@ def convert_log_event(event: Dict[str, Any]) -> Optional[ProgressEvent]:
     
     # Handle LLM events
     if "augmented_llm" in namespace:
-        # Access nested data structure for model and chat_turn
-        data = event.get("data", {}).get("data", {})
-        if isinstance(data, list):
-            # This is a messages array, get the data from the event.data instead
-            data = event.get("data", {})
+        # Handle non-dict data safely
+        data = event.get("data", {})
+        if not isinstance(data, dict):
+            data = {}  # If data isn't a dict, treat as empty
             
         model = data.get("model", "")
         chat_turn = data.get("chat_turn")
+        
+        # If not found, try nested data
+        nested_data = data.get("data", {})
+        if isinstance(nested_data, dict):
+            if not model:
+                model = nested_data.get("model", "")
+            if chat_turn is None:
+                chat_turn = nested_data.get("chat_turn")
 
         if "Calling " in message:
             if chat_turn is not None:

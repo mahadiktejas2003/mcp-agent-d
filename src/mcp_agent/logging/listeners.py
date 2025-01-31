@@ -10,6 +10,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, List
 
 from mcp_agent.logging.events import Event, EventFilter, EventType
+from mcp_agent.event_progress import convert_log_event
 
 
 class EventListener(ABC):
@@ -97,6 +98,28 @@ class LoggingListener(FilteredListener):
                 "event_name": event.name,
             },
         )
+
+
+class ProgressListener(LifecycleAwareListener):
+    """
+    Listens for all events pre-filtering and converts them to progress events
+    for display. By inheriting directly from LifecycleAwareListener instead of
+    FilteredListener, we get events before any filtering occurs.
+    """
+
+    async def handle_event(self, event: Event):
+        """Process an incoming event and display progress if relevant."""
+        # Convert event to dict format expected by convert_log_event
+        event_dict = {
+            "namespace": event.namespace,
+            "message": event.message,
+            "data": event.data
+        }
+        
+        progress_event = convert_log_event(event_dict)
+        if progress_event:
+#             For now just print progress events, we'll add Rich formatting later
+            print(f"Progress: {progress_event}")
 
 
 class BatchingListener(FilteredListener):
