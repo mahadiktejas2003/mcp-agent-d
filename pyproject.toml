@@ -68,3 +68,6 @@ include = ["mcp-agent"]
 
 [tool.setuptools.package-data]
 mcp-agent = ["data/*.json"]
+
+[tool.uv.workspace]
+members = ["examples/streamlit_mcp_basic_agent"]
