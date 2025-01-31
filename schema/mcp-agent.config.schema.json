@@ -66,6 +66,12 @@
           "type": "string",
           "description": "Minimum logging level"
         },
+        "progress_display": {
+          "default": true,
+          "title": "Progress Display",
+          "type": "boolean",
+          "description": "Enable or disable the progress display"
+        },
         "path": {
           "default": "mcp-agent.log",
           "title": "Path",
@@ -524,6 +530,7 @@
       "default": {
         "type": "console",
         "level": "info",
+        "progress_display": true,
         "path": "mcp-agent.log",
         "batch_size": 100,
         "flush_interval": 2.0,

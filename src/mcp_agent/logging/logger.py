@@ -210,8 +210,8 @@ class LoggingConfig:
         if "logging" not in bus.listeners:
             bus.add_listener("logging", LoggingListener(event_filter=event_filter))
 
-        if "progress" not in bus.listeners:
-            # Progress listener gets all events pre-filtering since it inherits from LifecycleAwareListener
+        # Only add progress listener if enabled in settings
+        if "progress" not in bus.listeners and kwargs.get("progress_display", True):
             bus.add_listener("progress", ProgressListener())
 
         if "batching" not in bus.listeners:

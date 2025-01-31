@@ -142,6 +142,9 @@ class LoggerSettings(BaseModel):
     level: Literal["debug", "info", "warning", "error"] = "info"
     """Minimum logging level"""
 
+    progress_display: bool = True
+    """Enable or disable the progress display"""
+
     path: str = "mcp-agent.log"
     """Path to log file, if logger 'type' is 'file'."""
 

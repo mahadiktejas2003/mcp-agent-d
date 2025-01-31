@@ -134,6 +134,7 @@ async def configure_logger(config: "Settings"):
         transport=transport,
         batch_size=config.logger.batch_size,
         flush_interval=config.logger.flush_interval,
+        progress_display=config.logger.progress_display,
     )
 
 
