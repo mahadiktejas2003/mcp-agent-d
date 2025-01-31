@@ -6,13 +6,16 @@ import sys
 import tty
 import termios
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 import typer
 from rich.console import Console
 from rich.live import Live
 from rich.panel import Panel
+from rich.layout import Layout
 from rich.text import Text
+
+from mcp_agent.event_progress import convert_log_event, ProgressEvent
 
 
 def get_key() -> str:
@@ -36,11 +39,20 @@ class EventDisplay:
         self.current_llm: Optional[str] = None
         self.current_iteration: Optional[int] = None
         self.tool_calls = 0
+        self.progress_events: List[ProgressEvent] = []
 
     def next(self) -> None:
         """Move to next event."""
         if self.current < self.total:
-            self._process_event(self.events[self.current])
+            event = self.events[self.current]
+            self._process_event(event)
+            
+            # Convert to progress event if applicable
+            progress_event = convert_log_event(event)
+            if progress_event:
+                if not self.progress_events or str(progress_event) != str(self.progress_events[-1]):
+                    self.progress_events.append(progress_event)
+                
             self.current += 1
 
     def prev(self) -> None:
@@ -50,6 +62,13 @@ class EventDisplay:
             self._reset_state()
             for i in range(self.current - 1):
                 self._process_event(self.events[i])
+                
+                # Rebuild progress events
+                progress_event = convert_log_event(self.events[i])
+                if progress_event:
+                    if not self.progress_events or str(progress_event) != str(self.progress_events[-1]):
+                        self.progress_events.append(progress_event)
+                    
             self.current -= 1
 
     def _reset_state(self) -> None:
@@ -57,6 +76,7 @@ class EventDisplay:
         self.current_llm = None
         self.current_iteration = None
         self.tool_calls = 0
+        self.progress_events = []
 
     def _process_event(self, event: dict) -> None:
         """Update state based on event."""
@@ -84,25 +104,46 @@ class EventDisplay:
 
     def render(self) -> Panel:
         """Render current event state."""
-        text = Text()
+        layout = Layout()
 
-        # Show LLM
-        text.append("Current LLM: ", style="bold")
-        text.append(f"{self.current_llm or 'None'}\n", style="green")
+        # Create the main layout
+        main_layout = Layout()
+        
+        # State section
+        state_text = Text()
+        state_text.append("Current Status:\n", style="bold")
+        state_text.append("LLM: ", style="bold")
+        state_text.append(f"{self.current_llm or 'None'}\n", style="green")
+        state_text.append("Iteration: ", style="bold")
+        state_text.append(f"{self.current_iteration or 'None'}\n", style="blue")
+        state_text.append(f"Event: {self.current}/{self.total}\n", style="cyan")
+        state_text.append(f"Tool Calls: {self.tool_calls}\n", style="magenta")
 
-        # Show Iteration
-        text.append("Iteration: ", style="bold")
-        text.append(f"{self.current_iteration or 'None'}\n", style="blue")
+        # Progress event section
+        if self.progress_events:
+            latest_event = self.progress_events[-1]
+            progress_text = Text("\nLatest Progress Event:\n", style="bold")
+            progress_text.append(f"Action: ", style="bold")
+            progress_text.append(f"{latest_event.action}\n", style="cyan")
+            progress_text.append(f"Target: ", style="bold")
+            progress_text.append(f"{latest_event.target}\n", style="green")
+            if latest_event.details:
+                progress_text.append(f"Details: ", style="bold")
+                progress_text.append(f"{latest_event.details}\n", style="magenta")
+        else:
+            progress_text = Text("\nNo progress events yet\n", style="dim")
 
-        # Show Stats
-        text.append("\nStats:\n", style="bold")
-        text.append(f"Event: {self.current}/{self.total}\n", style="cyan")
-        text.append(f"Tool Calls: {self.tool_calls}\n", style="magenta")
+        # Controls
+        controls_text = Text("\n[h] prev • [l] next • [q] quit", style="dim")
+        
+        # Combine sections into layout
+        main_layout.split(
+            Layout(Panel(state_text, title="Status"), size=8),
+            Layout(Panel(progress_text, title="Progress"), size=8),
+            Layout(Panel(controls_text, title="Controls"), size=6)
+        )
 
-        # Show Controls
-        text.append("\nh/l to move • q to quit", style="dim")
-
-        return Panel(text, title="MCP Event Viewer")
+        return Panel(main_layout, title="MCP Event Viewer")
 
 
 def load_events(path: Path) -> list:
