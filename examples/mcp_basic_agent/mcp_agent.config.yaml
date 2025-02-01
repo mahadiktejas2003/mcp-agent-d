@@ -2,8 +2,8 @@ $schema: ../../schema/mcp-agent.config.schema.json
 
 execution_engine: asyncio
 logger:
-  type: file
-  level: debug
+  type: console
+  level: error
   path: "./mcp-agent.jsonl"
   batch_size: 100
   flush_interval: 2
