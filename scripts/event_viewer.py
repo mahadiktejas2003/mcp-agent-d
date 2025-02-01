@@ -36,7 +36,6 @@ class EventDisplay:
         self.events = events
         self.total = len(events)
         self.current = 0
-        self.current_llm: Optional[str] = None
         self.current_iteration: Optional[int] = None
         self.tool_calls = 0
         self.progress_events: List[ProgressEvent] = []
@@ -46,13 +45,15 @@ class EventDisplay:
         if self.current < self.total:
             event = self.events[self.current]
             self._process_event(event)
-            
+
             # Convert to progress event if applicable
             progress_event = convert_log_event(event)
             if progress_event:
-                if not self.progress_events or str(progress_event) != str(self.progress_events[-1]):
+                if not self.progress_events or str(progress_event) != str(
+                    self.progress_events[-1]
+                ):
                     self.progress_events.append(progress_event)
-                
+
             self.current += 1
 
     def prev(self) -> None:
@@ -62,18 +63,19 @@ class EventDisplay:
             self._reset_state()
             for i in range(self.current - 1):
                 self._process_event(self.events[i])
-                
+
                 # Rebuild progress events
                 progress_event = convert_log_event(self.events[i])
                 if progress_event:
-                    if not self.progress_events or str(progress_event) != str(self.progress_events[-1]):
+                    if not self.progress_events or str(progress_event) != str(
+                        self.progress_events[-1]
+                    ):
                         self.progress_events.append(progress_event)
-                    
+
             self.current -= 1
 
     def _reset_state(self) -> None:
         """Reset state for replay."""
-        self.current_llm = None
         self.current_iteration = None
         self.tool_calls = 0
         self.progress_events = []
@@ -82,12 +84,6 @@ class EventDisplay:
         """Update state based on event."""
         namespace = event.get("namespace", "")
         message = event.get("message", "")
-
-        # Track LLM switches
-        if "augmented_llm_openai" in namespace:
-            self.current_llm = "OpenAI"
-        elif "augmented_llm_anthropic" in namespace:
-            self.current_llm = "Anthropic"
 
         # Track iterations
         if "Iteration" in message:
@@ -108,16 +104,22 @@ class EventDisplay:
 
         # Create the main layout
         main_layout = Layout()
-        
+
         # State section
         state_text = Text()
         state_text.append("Current Status:\n", style="bold")
-        state_text.append("LLM: ", style="bold")
-        state_text.append(f"{self.current_llm or 'None'}\n", style="green")
         state_text.append("Iteration: ", style="bold")
         state_text.append(f"{self.current_iteration or 'None'}\n", style="blue")
         state_text.append(f"Event: {self.current}/{self.total}\n", style="cyan")
         state_text.append(f"Tool Calls: {self.tool_calls}\n", style="magenta")
+        # Add current event JSON line if we have events
+        if self.events and self.current < len(self.events):
+            current_event = json.dumps(self.events[self.current])
+            # Get console width and account for panel borders/padding (approximately 4 chars)
+            max_width = Console().width - 4
+            if len(current_event) > max_width:
+                current_event = current_event[:max_width-3] + "..."
+            state_text.append(current_event + "\n", style="yellow")
 
         # Progress event section
         if self.progress_events:
@@ -134,13 +136,13 @@ class EventDisplay:
             progress_text = Text("\nNo progress events yet\n", style="dim")
 
         # Controls
-        controls_text = Text("\n[h] prev • [l] next • [q] quit", style="dim")
-        
+        controls_text = Text("\n[h] prev • [l] next • [H] prev x10 • [L] next x10 • [q] quit", style="dim")
+
         # Combine sections into layout
         main_layout.split(
             Layout(Panel(state_text, title="Status"), size=8),
             Layout(Panel(progress_text, title="Progress"), size=8),
-            Layout(Panel(controls_text, title="Controls"), size=6)
+            Layout(Panel(controls_text, title="Controls"), size=6),
         )
 
         return Panel(main_layout, title="MCP Event Viewer")
@@ -172,10 +174,16 @@ def main(log_file: str):
         while True:
             key = get_key()
 
-            if key in {"l", "L"}:  # Next
+            if key == "l":  # Next one step
                 display.next()
-            elif key in {"h", "H"}:  # Previous
+            elif key == "L":  # Next ten steps
+                for _ in range(10):
+                    display.next()
+            elif key == "h":  # Previous one step
                 display.prev()
+            elif key == "H":  # Previous ten steps
+                for _ in range(10):
+                    display.prev()
             elif key in {"q", "Q"}:  # Quit
                 break
 
