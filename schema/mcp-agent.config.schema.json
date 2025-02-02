@@ -135,6 +135,48 @@
       "title": "LoggerSettings",
       "type": "object"
     },
+    "MCPRootSettings": {
+      "additionalProperties": true,
+      "description": "Represents a root directory configuration for an MCP server.",
+      "properties": {
+        "uri": {
+          "title": "Uri",
+          "type": "string",
+          "description": "The URI identifying the root. Must start with file://"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name",
+          "description": "Optional name for the root."
+        },
+        "server_uri_alias": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Server Uri Alias",
+          "description": "Optional URI alias for presentation to the server"
+        }
+      },
+      "required": [
+        "uri"
+      ],
+      "title": "MCPRootSettings",
+      "type": "object"
+    },
     "MCPServerAuthSettings": {
       "additionalProperties": true,
       "description": "Represents authentication configuration for a server.",
@@ -260,6 +302,22 @@
           ],
           "default": null,
           "description": "The authentication configuration for the server."
+        },
+        "roots": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/MCPRootSettings"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Roots",
+          "description": "Root directories this server has access to."
         }
       },
       "title": "MCPServerSettings",
