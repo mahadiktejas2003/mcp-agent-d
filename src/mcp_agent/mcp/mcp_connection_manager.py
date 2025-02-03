@@ -120,6 +120,10 @@ class ServerConnection:
         )
 
         session = self._client_session_factory(read_stream, send_stream, read_timeout)
+        
+        # Make the server config available to the session for initialization
+        if hasattr(session, 'server_config'):
+            session.server_config = self.server_config
 
         self.session = session
 

@@ -10,3 +10,6 @@ mcp:
     root-test:
       command: "uv"
       args: ["run", "root_test_server.py"]
+      roots:
+        - uri: "file:///home/ssmith/source/mcp-agent/examples/mcp_root_test/test_data"
+          name: "test_data"
