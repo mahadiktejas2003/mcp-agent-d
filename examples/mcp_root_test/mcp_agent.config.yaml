@@ -16,19 +16,20 @@ mcp:
           server_uri_alias: "file:///home/ssmith/"
     interpreter:
       command: "docker"
-      # args:
-      #   [
-      #     "run",
-      #     "-i",
-      #     "--rm",
-      #     "--pull=always",
-      #     "-v",
-      #     "./test_data:/mnt/data",
-      #     "ghcr.io/evalstate/mcp-python:latest",
-      #   ]
-      command: "uv"
-      args: ["run", "/home/ssmith/source/mcp-python/src/mcp_python/server.py"]
+      args:
+        [
+          "run",
+          "-i",
+          "--rm",
+          "--pull=always",
+          "-v",
+          "./test_data:/mnt/data/",
+          "ghcr.io/evalstate/mcp-python:latest",
+        ]
       roots:
-        - uri: "file:///home/ssmith/"
+        - uri: "file://./test_data/"
           name: "test_data"
-          server_uri_alias: "file:///home/ssmith/"
+          server_uri_alias: "file:///mnt/data/"
+
+      # command: "uv"
+      # args: ["run", "/home/ssmith/source/mcp-python/src/mcp_python/server.py"]

@@ -46,7 +46,7 @@ class MCPAgentClientSession(ClientSession, ContextDependent):
 
     Developers can extend this class to add more custom functionality as needed
     """
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.server_config: Optional[MCPServerSettings] = None
@@ -61,15 +61,15 @@ class MCPAgentClientSession(ClientSession, ContextDependent):
             return await self.handle_sampling_request(request, responder)
         elif isinstance(request, ListRootsRequest):
             # Handle list_roots request by returning configured roots
-            if hasattr(self, 'server_config') and self.server_config.roots:
+            if hasattr(self, "server_config") and self.server_config.roots:
                 roots = [
                     Root(
-                        uri=root.uri,
+                        uri=root.server_uri_alias or root.uri,
                         name=root.name,
-                        uri_alias=root.server_uri_alias
                     )
                     for root in self.server_config.roots
                 ]
+
                 await responder.respond(ListRootsResult(roots=roots))
             else:
                 await responder.respond(ListRootsResult(roots=[]))

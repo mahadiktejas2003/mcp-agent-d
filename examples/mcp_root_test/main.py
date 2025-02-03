@@ -60,6 +60,13 @@ async def example_usage():
         # result = await llm.generate_str("Use the program to reverse 'hello world!!!'")
         logger.info(result)
 
+        result = await llm.generate_str(
+            "There is a CSV file in the current working directory. Write some python code to read "
+            + "and analyse the file. You cannot see the whole file at once, so use python programs to "
+            + "produce a detailed description of the data and any patterns it contains"
+        )
+        logger.info(result)
+
 
 if __name__ == "__main__":
     start = time.time()
