@@ -3,23 +3,32 @@ $schema: ../../schema/mcp-agent.config.schema.json
 execution_engine: asyncio
 logger:
   type: console
-  level: debug
+  level: info
 
 mcp:
   servers:
-    root-test:
+    root_test:
       command: "uv"
       args: ["run", "root_test_server.py"]
       roots:
-        - uri: "file:///."
+        - uri: "file:///home/ssmith/"
           name: "test_data"
+          server_uri_alias: "file:///home/ssmith/"
     interpreter:
       command: "docker"
-      args:
-        [
-          "run",
-          "-i",
-          "--rm",
-          "--pull=always",
-          "ghcr.io/evalstate/mcp-python:latest",
-        ]
+      # args:
+      #   [
+      #     "run",
+      #     "-i",
+      #     "--rm",
+      #     "--pull=always",
+      #     "-v",
+      #     "./test_data:/mnt/data",
+      #     "ghcr.io/evalstate/mcp-python:latest",
+      #   ]
+      command: "uv"
+      args: ["run", "/home/ssmith/source/mcp-python/src/mcp_python/server.py"]
+      roots:
+        - uri: "file:///home/ssmith/"
+          name: "test_data"
+          server_uri_alias: "file:///home/ssmith/"

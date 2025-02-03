@@ -5,8 +5,7 @@ mcp = FastMCP("MCP Root Tester")
 
 @mcp.tool()
 async def show_roots(ctx: Context) -> str:
-    result = await ctx.session.list_roots()
-    return result.roots
+    return await ctx.session.list_roots()
 
 
 if __name__ == "__main__":

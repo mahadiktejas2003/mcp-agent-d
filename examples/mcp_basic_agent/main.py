@@ -1,6 +1,5 @@
 import asyncio
 import os
-from pathlib import Path
 import time
 
 from mcp_agent.app import MCPApp
