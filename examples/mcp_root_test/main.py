@@ -17,63 +17,44 @@ async def example_usage():
 
         logger.info("Current config:", data=context.config.model_dump())
 
-        connection_manager = MCPConnectionManager(context.server_registry)
-        await connection_manager.__aenter__()
+        async with MCPConnectionManager(context.server_registry) as connection_manager:
+            interpreter_agent = Agent(
+                name="analysis",
+                instruction="""You have access to a python interpreter.""",
+                server_names=["root_test", "interpreter"],
+            )
 
-        # root_test = await connection_manager.get_server(
-        #     server_name="root-test", client_session_factory=MCPAgentClientSession
-        # )
-        # logger.info("root-test")
-        # int_test = await connection_manager.get_server(
-        #     server_name="interpreter", client_session_factory=MCPAgentClientSession
-        # )
-        # result = await root_test.session.list_tools()
-        # logger.info("root-test: Tools available:", data=result.model_dump())
+            try:
+                llm = await interpreter_agent.attach_llm(AnthropicAugmentedLLM)
 
-        # result = await root_test.session.call_tool("show_roots")
+                result = await llm.generate_str(
+                    "call the show_roots tool and tell me what the result was"
+                )
+                logger.info(result)
 
-        interpreter_agent = Agent(
-            name="analysis",
-            instruction="""You have access to a python interpreter.""",
-            server_names=["root_test", "interpreter"],
-        )
+                result = await llm.generate_str(
+                    "There is a CSV file in the  /mnt/data/ directory. Use the Python Interpreter to to analyze the file. "
+                    + "Produce a detailed description of the data, and any patterns it contains. "
+                )
+                logger.info(result)
+            finally:
+                # Clean up the agent
+                await interpreter_agent.close()
 
-        llm = await interpreter_agent.attach_llm(AnthropicAugmentedLLM)
-
-        result = await llm.generate_str(
-            "call the show_roots tool and tell me what the result was"
-        )
-        logger.info(result)
-
-        # await llm.generate_str("Write a short python program to reverse a string")
-        # result = await llm.generate_str("Use the program to reverse 'hello world!!!'")
-        # logger.info(result)
-
-        # result = await llm.generate_str(
-        #     "Write a python program to describe the filesystem, run it and show the result."
-        # )
-        # # result = await llm.generate_str("Use the program to reverse 'hello world!!!'")
-        # logger.info(result)
-
-        # result = await llm.generate_str(
-        #     "Write a python program to tell me the current working directory"
-        # )
-        # result = await llm.generate_str("Use the program to reverse 'hello world!!!'")
-        logger.info(result)
-
-        result = await llm.generate_str(
-            "There is a CSV file in the  /mnt/data/ directory. Use the Python Interpreter to to analyze the file. "
-            + "Produce a detailed description of the data, and any patterns it contains. "
-        )
-        logger.info(result)
-
+    # Ensure logging is properly shutdown
     await LoggingConfig.shutdown()
 
 
 if __name__ == "__main__":
     start = time.time()
-    asyncio.run(example_usage())
-    end = time.time()
-    t = end - start
-
-    print(f"Total run time: {t:.2f}s")
+    try:
+        asyncio.run(example_usage())
+    except KeyboardInterrupt:
+        print("\nReceived keyboard interrupt, shutting down gracefully...")
+    except Exception as e:
+        print(f"Error during execution: {e}")
+        raise
+    finally:
+        end = time.time()
+        t = end - start
+        print(f"Total run time: {t:.2f}s")
