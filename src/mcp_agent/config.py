@@ -30,7 +30,7 @@ class MCPRootSettings(BaseModel):
     server_uri_alias: Optional[str] = None
     """Optional URI alias for presentation to the server"""
 
-    @field_validator("uri")
+    @field_validator("uri", "server_uri_alias")
     @classmethod
     def validate_uri(cls, v: str) -> str:
         """Validate that the URI starts with file:// (required by specification 2024-11-05)"""

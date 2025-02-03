@@ -11,5 +11,15 @@ mcp:
       command: "uv"
       args: ["run", "root_test_server.py"]
       roots:
-        - uri: "file:///home/ssmith/source/mcp-agent/examples/mcp_root_test/test_data"
+        - uri: "file:///."
           name: "test_data"
+    interpreter:
+      command: "docker"
+      args:
+        [
+          "run",
+          "-i",
+          "--rm",
+          "--pull=always",
+          "ghcr.io/evalstate/mcp-python:latest",
+        ]

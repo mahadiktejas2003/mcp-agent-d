@@ -9,8 +9,5 @@ async def show_roots(ctx: Context) -> str:
     return result.roots
 
 
-#    return "Number of roots: 0"
-
-
 if __name__ == "__main__":
     mcp.run()

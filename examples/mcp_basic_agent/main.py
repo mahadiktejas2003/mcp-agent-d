@@ -7,15 +7,13 @@ from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
 from mcp_agent.workflows.llm.augmented_llm_anthropic import AnthropicAugmentedLLM
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
-from mcp_agent.logging.events import EventFilter
-from mcp_agent.logging.transport import FileTransport, AsyncEventBus
 from mcp_agent.logging.logger import LoggingConfig
 
 app = MCPApp(name="mcp_basic_agent")
 
-async def example_usage():
 
-   async with app.run() as agent_app:
+async def example_usage():
+    async with app.run() as agent_app:
         logger = agent_app.logger
         context = agent_app.context
 
