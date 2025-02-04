@@ -23,6 +23,7 @@ import rich
 
 from mcp_agent.config import MCPServerSettings
 from mcp_agent.logging.logger import get_logger
+from mcp_agent.mcp import stdio
 from mcp_agent.mcp.stdio import stdio_client_with_rich_stderr
 
 if TYPE_CHECKING:
@@ -218,6 +219,7 @@ class MCPConnectionManager:
                 server_params = StdioServerParameters(
                     command=config.command,
                     args=config.args,
+                    env={**stdio.get_default_environment(), **(config.env or {})},
                 )
                 # Create stdio client config with WARNING level for stderr
                 return stdio_client_with_rich_stderr(server_params)

@@ -3,7 +3,7 @@ $schema: ../../schema/mcp-agent.config.schema.json
 execution_engine: asyncio
 logger:
   type: console
-  level: debug
+  level: info
   path: "./mcp-agent.jsonl"
   batch_size: 100
   flush_interval: 2
@@ -24,4 +24,3 @@ mcp:
 openai:
   # Secrets (API keys, etc.) are stored in an mcp_agent.secrets.yaml file which can be gitignored
   default_model: o3-mini
-  reasoning_effort: "high"

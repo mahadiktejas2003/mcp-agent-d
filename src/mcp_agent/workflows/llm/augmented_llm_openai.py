@@ -36,6 +36,7 @@ from mcp_agent.workflows.llm.augmented_llm import (
 )
 from mcp_agent.logging.logger import get_logger
 from mcp_agent.workflows.llm.llm_constants import FINAL_RESPONSE_LOG_MESSAGE
+from rich import print
 
 logger = get_logger(__name__)
 
@@ -74,6 +75,9 @@ class OpenAIAugmentedLLM(
             logger.info(
                 f"Using reasoning model '{default_model}' with '{self._reasoning_effort}' reasoning effort"
             )
+        print(
+            f"\nUsing reasoning model [white on dark_blue]{default_model}[/white on dark_blue] with [white on dark_green]{self._reasoning_effort}[/white on dark_green] reasoning effort"
+        )
 
         self.default_request_params = self.default_request_params or RequestParams(
             model=default_model,

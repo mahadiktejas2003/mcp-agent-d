@@ -318,6 +318,22 @@
           "default": null,
           "title": "Roots",
           "description": "Root directories this server has access to."
+        },
+        "env": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Env",
+          "description": "Environment variables to pass to the server process."
         }
       },
       "title": "MCPServerSettings",

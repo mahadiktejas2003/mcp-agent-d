@@ -74,6 +74,9 @@ class MCPServerSettings(BaseModel):
 
     roots: Optional[List[MCPRootSettings]] = None
     """Root directories this server has access to."""
+    
+    env: Dict[str, str] | None = None
+    """Environment variables to pass to the server process."""
 
 
 class MCPSettings(BaseModel):
