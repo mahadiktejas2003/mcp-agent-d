@@ -2,7 +2,7 @@ $schema: ../../schema/mcp-agent.config.schema.json
 
 execution_engine: asyncio
 logger:
-  type: file
+  type: console
   level: info
   path: "./mcp-agent.log"
   batch_size: 100
@@ -19,9 +19,4 @@ mcp:
       args: ["mcp-server-fetch"]
     filesystem:
       command: "npx"
-      args:
-        [
-          "-y",
-          "@modelcontextprotocol/server-filesystem",
-          "."
-        ]
+      args: ["-y", "@modelcontextprotocol/server-filesystem", "."]

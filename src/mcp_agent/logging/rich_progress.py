@@ -27,6 +27,7 @@ class RichProgressDisplay:
             self._task1 = self._progress.add_task(
                 "...............", total=None, target="", details=""
             )
+
         self._progress.start()
 
     def stop(self):
