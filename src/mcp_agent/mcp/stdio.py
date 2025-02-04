@@ -5,10 +5,11 @@ Custom implementation of stdio_client that handles stderr through rich console.
 from contextlib import asynccontextmanager
 import subprocess
 import anyio
+from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 from anyio.streams.text import TextReceiveStream
 from mcp.client.stdio import StdioServerParameters, get_default_environment
 import mcp.types as types
-from mcp_agent.logging.logger import get_logger
+from mcp_agent.logging.logger import get_logger, EventContext
 from enum import Enum
 from dataclasses import dataclass
 
@@ -89,8 +90,8 @@ async def stdio_client_with_rich_stderr(
                 errors=server.encoding_error_handler,
             ):
                 if chunk.strip():
-                    log_func = getattr(logger, config.stderr_log_level.value)
-                    log_func(f"[dim][Server stderr] {chunk.rstrip()}[/dim]")
+                    # Use logger.event() directly for proper async event handling
+                    logger.info(f"[MCP Server] : {chunk.rstrip()}")
         except anyio.ClosedResourceError:
             await anyio.lowlevel.checkpoint()
 
