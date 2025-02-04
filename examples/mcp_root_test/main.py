@@ -17,7 +17,7 @@ async def example_usage():
         logger = agent_app.logger
         context = agent_app.context
 
-        logger.info("Current config:", data=context.config.model_dump())
+        #        logger.info("Current config:", data=context.config.model_dump())
 
         async with MCPConnectionManager(context.server_registry) as connection_manager:
             interpreter_agent = Agent(
@@ -27,23 +27,23 @@ async def example_usage():
             )
 
             try:
-                llm = await interpreter_agent.attach_llm(AnthropicAugmentedLLM)
+                llm = await interpreter_agent.attach_llm(OpenAIAugmentedLLM)
 
-                result = await llm.generate_str(
+                await llm.generate_str(
                     "call the show_roots tool and tell me what the result was"
                 )
                 #               logger.info(result)
 
                 # (claude does not need this signpost - this is where 'available files' pattern would be useful)
-                result = await llm.generate_str(
-                    "There is a file named '2024-10-26-test-data.csv' in the current directory. Use the Python Interpreter to to analyze the file. "
+                await llm.generate_str(
+                    "There is a file named '01_Data_Processed.csv' in the current directory. Use the Python Interpreter to to analyze the file. "
                     #                    "There is a CSV file in the current directory. Use the Python Interpreter to to analyze the file. "
                     + "Produce a detailed description of the data, and any patterns it contains. "
                 )
                 #                logger.info(result)
 
                 result = await llm.generate_str(
-                    "Use MatPlotLib to produce some insightful visualisations - save them as .png files "
+                    "Use MatPlotLib to produce insightful visualisations - save them in the current directory as .png file. Be sure to run the code and save the files "
                 )
                 logger.info(result)
 

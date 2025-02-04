@@ -354,6 +354,16 @@
           ],
           "default": null,
           "title": "Api Key"
+        },
+        "reasoning_effort": {
+          "default": "medium",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Reasoning Effort",
+          "type": "string"
         }
       },
       "title": "OpenAISettings",

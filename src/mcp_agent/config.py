@@ -109,6 +109,7 @@ class OpenAISettings(BaseModel):
     """
 
     api_key: str | None = None
+    reasoning_effort: Literal["low", "medium", "high"] = "medium"
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
