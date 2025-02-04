@@ -20,6 +20,7 @@ from mcp_agent.config import LoggerSettings
 from mcp_agent.logging.events import Event, EventFilter
 from mcp_agent.logging.json_serializer import JSONSerializer
 from mcp_agent.logging.listeners import EventListener, LifecycleAwareListener
+from rich import print
 
 
 class EventTransport(Protocol):
@@ -151,7 +152,7 @@ class FileTransport(FilteredEventTransport):
         try:
             with open(self.filepath, mode=self.mode, encoding=self.encoding) as f:
                 # Write the log entry as compact JSON (JSONL format)
-                f.write(json.dumps(log_entry, separators=(',', ':')) + "\n")
+                f.write(json.dumps(log_entry, separators=(",", ":")) + "\n")
                 f.flush()  # Ensure writing to disk
         except IOError as e:
             # Log error without recursion

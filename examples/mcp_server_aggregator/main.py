@@ -5,6 +5,7 @@ from pathlib import Path
 from mcp_agent.app import MCPApp
 from mcp_agent.logging.logger import get_logger
 from mcp_agent.mcp.mcp_aggregator import MCPAggregator
+from rich import print
 
 app = MCPApp(name="mcp_server_aggregator")
 

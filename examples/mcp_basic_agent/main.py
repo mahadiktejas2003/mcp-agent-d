@@ -7,6 +7,7 @@ from mcp_agent.agents.agent import Agent
 from mcp_agent.workflows.llm.augmented_llm_anthropic import AnthropicAugmentedLLM
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 from mcp_agent.logging.logger import LoggingConfig
+from rich import print
 
 app = MCPApp(name="mcp_basic_agent")
 

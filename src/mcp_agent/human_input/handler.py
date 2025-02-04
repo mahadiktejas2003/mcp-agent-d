@@ -4,6 +4,7 @@ from mcp_agent.human_input.types import (
     HumanInputRequest,
     HumanInputResponse,
 )
+from rich import print
 
 
 async def console_input_callback(request: HumanInputRequest) -> HumanInputResponse:

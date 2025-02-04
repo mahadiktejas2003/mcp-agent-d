@@ -1,3 +1,6 @@
+from rich import print
+
+
 def main():
     print("Hello from streamlit-mcp-basic-agent!")
 

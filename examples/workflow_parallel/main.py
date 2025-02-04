@@ -9,7 +9,7 @@ from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 # from mcp_agent.workflows.parallel.fan_in import FanIn
 # from mcp_agent.workflows.parallel.fan_out import FanOut
 from mcp_agent.workflows.parallel.parallel_llm import ParallelLLM
-
+from rich import print
 # To illustrate a parallel workflow, we will build a student assignment grader,
 # which will use a fan-out agent to grade the assignment in parallel using multiple agents,
 # and a fan-in agent to aggregate the results and provide a final grade.

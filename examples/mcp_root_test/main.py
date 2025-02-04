@@ -7,6 +7,7 @@ from mcp_agent.mcp.mcp_connection_manager import MCPConnectionManager
 from mcp_agent.workflows.llm.augmented_llm_anthropic import AnthropicAugmentedLLM
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 from mcp_agent.logging.logger import LoggingConfig
+from rich import print
 
 app = MCPApp(name="mcp_root_test")
 
@@ -36,7 +37,7 @@ async def example_usage():
                 # (claude does not need this signpost - this is where 'available files' pattern would be useful)
                 result = await llm.generate_str(
                     "There is a file named '2024-10-26-test-data.csv' in the current directory. Use the Python Interpreter to to analyze the file. "
-#                    "There is a CSV file in the current directory. Use the Python Interpreter to to analyze the file. "
+                    #                    "There is a CSV file in the current directory. Use the Python Interpreter to to analyze the file. "
                     + "Produce a detailed description of the data, and any patterns it contains. "
                 )
                 logger.info(result)
