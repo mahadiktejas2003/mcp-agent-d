@@ -32,7 +32,7 @@ async def example_usage():
                 result = await llm.generate_str(
                     "call the show_roots tool and tell me what the result was"
                 )
-                logger.info(result)
+                #               logger.info(result)
 
                 # (claude does not need this signpost - this is where 'available files' pattern would be useful)
                 result = await llm.generate_str(
@@ -40,7 +40,7 @@ async def example_usage():
                     #                    "There is a CSV file in the current directory. Use the Python Interpreter to to analyze the file. "
                     + "Produce a detailed description of the data, and any patterns it contains. "
                 )
-                logger.info(result)
+                #                logger.info(result)
 
                 result = await llm.generate_str(
                     "Use MatPlotLib to produce some insightful visualisations - save them as .png files "

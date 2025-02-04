@@ -19,12 +19,14 @@ class RichProgressDisplay:
         with Progress(
             TimeElapsedColumn(),
             *Progress.get_default_columns(),
-            TextColumn(text_format="1234"),
-            TextColumn(text_format="5678"),
+            TextColumn(text_format="{task.fields[target]:<18}", style="Blue"),
+            TextColumn(text_format="{task.fields[details]}"),
             console=self.console,
             transient=False,
         ) as self._progress:
-            self._task1 = self._progress.add_task("...............", total=None)
+            self._task1 = self._progress.add_task(
+                "...............", total=None, target="", details=""
+            )
         self._progress.start()
 
     def stop(self):
@@ -36,8 +38,8 @@ class RichProgressDisplay:
         return {
             ProgressAction.STARTING: "black on yellow",
             ProgressAction.INITIALIZED: "black on green",
-            ProgressAction.CHATTING: "white on blue",
-            ProgressAction.CALLING_TOOL: "white on magenta",
+            ProgressAction.CHATTING: "white on dark_blue",
+            ProgressAction.CALLING_TOOL: "white on dark_magenta",
             ProgressAction.FINISHED: "black on green",
             ProgressAction.SHUTDOWN: "black on red",
         }.get(action, "white")
@@ -58,4 +60,6 @@ class RichProgressDisplay:
         self._progress.update(
             self._task1,
             description=f"[{self._get_action_style(event.action)}]{event.action.value:<15}",
+            target=event.target,
+            details=event.details if event.details else "",
         )
