@@ -68,7 +68,7 @@ async def stdio_client_with_rich_stderr(server: StdioServerParameters):
             ):
                 if chunk.strip():
                     # Let the logging system handle the formatting consistently
-                    logger.event("info", "SERVER_STDERR", chunk.rstrip(), None, {})
+                    logger.event("info", "mcpserver.stderr", chunk.rstrip(), None, {})
         except anyio.ClosedResourceError:
             await anyio.lowlevel.checkpoint()
 

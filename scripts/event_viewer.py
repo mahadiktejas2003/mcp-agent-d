@@ -82,7 +82,6 @@ class EventDisplay:
 
     def _process_event(self, event: dict) -> None:
         """Update state based on event."""
-        namespace = event.get("namespace", "")
         message = event.get("message", "")
 
         # Track iterations
@@ -100,7 +99,6 @@ class EventDisplay:
 
     def render(self) -> Panel:
         """Render current event state."""
-        layout = Layout()
 
         # Create the main layout
         main_layout = Layout()
@@ -118,25 +116,28 @@ class EventDisplay:
             # Get console width and account for panel borders/padding (approximately 4 chars)
             max_width = Console().width - 4
             if len(current_event) > max_width:
-                current_event = current_event[:max_width-3] + "..."
+                current_event = current_event[: max_width - 3] + "..."
             state_text.append(current_event + "\n", style="yellow")
 
         # Progress event section
         if self.progress_events:
             latest_event = self.progress_events[-1]
             progress_text = Text("\nLatest Progress Event:\n", style="bold")
-            progress_text.append(f"Action: ", style="bold")
+            progress_text.append("Action: ", style="bold")
             progress_text.append(f"{latest_event.action}\n", style="cyan")
-            progress_text.append(f"Target: ", style="bold")
+            progress_text.append("Target: ", style="bold")
             progress_text.append(f"{latest_event.target}\n", style="green")
             if latest_event.details:
-                progress_text.append(f"Details: ", style="bold")
+                progress_text.append("Details: ", style="bold")
                 progress_text.append(f"{latest_event.details}\n", style="magenta")
         else:
             progress_text = Text("\nNo progress events yet\n", style="dim")
 
         # Controls
-        controls_text = Text("\n[h] prev • [l] next • [H] prev x10 • [L] next x10 • [q] quit", style="dim")
+        controls_text = Text(
+            "\n[h] prev • [l] next • [H] prev x10 • [L] next x10 • [q] quit",
+            style="dim",
+        )
 
         # Combine sections into layout
         main_layout.split(

@@ -4,7 +4,7 @@ import time
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
 from mcp_agent.mcp.mcp_connection_manager import MCPConnectionManager
-from mcp_agent.workflows.llm.augmented_llm_anthropic import AnthropicAugmentedLLM
+from mcp_agent.workflows.llm.augmented_llm_anthropic import AnthropicAugmentedLLM  # noqa: F401
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 from mcp_agent.logging.logger import LoggingConfig
 from rich import print
@@ -19,7 +19,7 @@ async def example_usage():
 
         #        logger.info("Current config:", data=context.config.model_dump())
 
-        async with MCPConnectionManager(context.server_registry) as connection_manager:
+        async with MCPConnectionManager(context.server_registry):
             interpreter_agent = Agent(
                 name="analysis",
                 instruction="""You have access to a python interpreter.""",

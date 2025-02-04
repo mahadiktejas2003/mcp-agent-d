@@ -87,7 +87,7 @@ class LoggingListener(FilteredListener):
         level = level_map.get(event.type, logging.INFO)
 
         # Check if this is a server stderr message and format accordingly
-        if event.name == "SERVER_STDERR":
+        if event.name == "mcpserver.stderr":
             message = f"MCP Server: {event.message}"
         else:
             message = event.message

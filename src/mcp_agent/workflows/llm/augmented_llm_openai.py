@@ -72,7 +72,7 @@ class OpenAIAugmentedLLM(
         self._reasoning = default_model.startswith("o3")
         if self._reasoning:
             logger.info(
-                f"Using reasoning model [Blue]{default_model} with [Red]{self._reasoning_effort}[/Red] reasoning effort"
+                f"Using reasoning model '{default_model}' with '{self._reasoning_effort}' reasoning effort"
             )
 
         self.default_request_params = self.default_request_params or RequestParams(
