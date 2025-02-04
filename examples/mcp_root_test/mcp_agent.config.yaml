@@ -2,8 +2,8 @@ $schema: ../../schema/mcp-agent.config.schema.json
 
 execution_engine: asyncio
 logger:
-  type: console
-  level: info
+  type: file
+  level: debug
 
 mcp:
   servers:
@@ -33,3 +33,7 @@ mcp:
 
       # command: "uv"
       # args: ["run", "/home/ssmith/source/mcp-python/src/mcp_python/server.py"]
+
+openai:
+  # Secrets (API keys, etc.) are stored in an mcp_agent.secrets.yaml file which can be gitignored
+  default_model: gpt-4o

@@ -33,11 +33,19 @@ async def example_usage():
                 )
                 logger.info(result)
 
+                # (claude does not need this signpost - this is where 'available files' pattern would be useful)
                 result = await llm.generate_str(
-                    "There is a CSV file in the  /mnt/data/ directory. Use the Python Interpreter to to analyze the file. "
+                    "There is a file named '2024-10-26-test-data.csv' in the current directory. Use the Python Interpreter to to analyze the file. "
+#                    "There is a CSV file in the current directory. Use the Python Interpreter to to analyze the file. "
                     + "Produce a detailed description of the data, and any patterns it contains. "
                 )
                 logger.info(result)
+
+                result = await llm.generate_str(
+                    "Use MatPlotLib to produce some insightful visualisations - save them as .png files "
+                )
+                logger.info(result)
+
             finally:
                 # Clean up the agent
                 await interpreter_agent.close()
