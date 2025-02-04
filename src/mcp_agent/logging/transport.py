@@ -91,7 +91,7 @@ class ConsoleTransport(FilteredEventTransport):
 
         log_text = Text.assemble(
             (f"[{event.type.upper()}] ", style),
-            (f"{event.timestamp.isoformat()} ", "cyan"),
+            (f"{event.timestamp.replace(microsecond=0).isoformat()} ", "cyan"),
             (f"{namespace} ", "magenta"),
             (f"- {event.message}", "white"),
         )

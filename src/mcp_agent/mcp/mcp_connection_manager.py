@@ -23,7 +23,7 @@ import rich
 
 from mcp_agent.config import MCPServerSettings
 from mcp_agent.logging.logger import get_logger
-from mcp_agent.mcp.stdio import stdio_client_with_rich_stderr, StdioClientConfig, StderrLogLevel
+from mcp_agent.mcp.stdio import stdio_client_with_rich_stderr
 
 if TYPE_CHECKING:
     from mcp_agent.mcp_server_registry import InitHookCallable, ServerRegistry
@@ -220,13 +220,7 @@ class MCPConnectionManager:
                     args=config.args,
                 )
                 # Create stdio client config with WARNING level for stderr
-                stdio_config = StdioClientConfig(
-                    stderr_log_level=StderrLogLevel.WARNING
-                )
-                return stdio_client_with_rich_stderr(
-                    server_params,
-                    stdio_config
-                )
+                return stdio_client_with_rich_stderr(server_params)
             elif config.transport == "sse":
                 return sse_client(config.url)
             else:

@@ -5,45 +5,22 @@ Custom implementation of stdio_client that handles stderr through rich console.
 from contextlib import asynccontextmanager
 import subprocess
 import anyio
-from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 from anyio.streams.text import TextReceiveStream
 from mcp.client.stdio import StdioServerParameters, get_default_environment
 import mcp.types as types
-from mcp_agent.logging.logger import get_logger, EventContext
-from enum import Enum
-from dataclasses import dataclass
+from mcp_agent.logging.logger import get_logger
 
 logger = get_logger(__name__)
 
 
-class StderrLogLevel(str, Enum):
-    """Log levels that can be used for stderr output."""
-
-    DEBUG = "debug"
-    INFO = "info"
-    WARNING = "warning"
-    ERROR = "error"
-    CRITICAL = "critical"
-
-
-@dataclass
-class StdioClientConfig:
-    """Configuration for stdio client behavior."""
-
-    stderr_log_level: StderrLogLevel = StderrLogLevel.INFO
-
-
 @asynccontextmanager
-async def stdio_client_with_rich_stderr(
-    server: StdioServerParameters, config: StdioClientConfig = StdioClientConfig()
-):
+async def stdio_client_with_rich_stderr(server: StdioServerParameters):
     """
     Modified version of stdio_client that captures stderr and routes it through our rich console.
     Follows the original pattern closely for reliability.
 
     Args:
         server: The server parameters for the stdio connection
-        config: Configuration for the stdio client behavior
     """
     read_stream_writer, read_stream = anyio.create_memory_object_stream(0)
     write_stream, write_stream_reader = anyio.create_memory_object_stream(0)
@@ -90,8 +67,8 @@ async def stdio_client_with_rich_stderr(
                 errors=server.encoding_error_handler,
             ):
                 if chunk.strip():
-                    # Use logger.event() directly for proper async event handling
-                    logger.info(f"[MCP Server] : {chunk.rstrip()}")
+                    # Let the logging system handle the formatting consistently
+                    logger.event("info", "SERVER_STDERR", chunk.rstrip(), None, {})
         except anyio.ClosedResourceError:
             await anyio.lowlevel.checkpoint()
 
