@@ -16,12 +16,15 @@ from anyio.abc import TaskGroup
 from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 
 from mcp import ClientSession
-from mcp.client.stdio import StdioServerParameters, stdio_client
+from mcp.client.stdio import StdioServerParameters
 from mcp.client.sse import sse_client
 from mcp.types import JSONRPCMessage
+import rich
 
 from mcp_agent.config import MCPServerSettings
 from mcp_agent.logging.logger import get_logger
+from mcp_agent.mcp import stdio
+from mcp_agent.mcp.stdio import stdio_client_with_rich_stderr
 
 if TYPE_CHECKING:
     from mcp_agent.mcp_server_registry import InitHookCallable, ServerRegistry
@@ -62,7 +65,7 @@ class ServerConnection:
         self._client_session_factory = client_session_factory
         self._init_hook = init_hook
         self._transport_context_factory = transport_context_factory
-
+        self._console = rich.console.Console()
         # Signal that session is fully up and initialized
         self._initialized_event = Event()
 
@@ -121,6 +124,10 @@ class ServerConnection:
 
         session = self._client_session_factory(read_stream, send_stream, read_timeout)
 
+        # Make the server config available to the session for initialization
+        if hasattr(session, "server_config"):
+            session.server_config = self.server_config
+
         self.session = session
 
         return session
@@ -143,7 +150,7 @@ async def _server_lifecycle_task(server_conn: ServerConnection) -> None:
                 # Initialize the session
                 await server_conn.initialize_session()
 
-                # Wait until we’re asked to shut down
+                # Wait until we're asked to shut down
                 await server_conn.wait_for_shutdown_request()
 
     except Exception as exc:
@@ -212,8 +219,10 @@ class MCPConnectionManager:
                 server_params = StdioServerParameters(
                     command=config.command,
                     args=config.args,
+                    env={**stdio.get_default_environment(), **(config.env or {})},
                 )
-                return stdio_client(server_params)
+                # Create stdio client config with WARNING level for stderr
+                return stdio_client_with_rich_stderr(server_params)
             elif config.transport == "sse":
                 return sse_client(config.url)
             else:

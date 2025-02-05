@@ -1,10 +1,13 @@
 import asyncio
 import os
+import time
 
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
 from mcp_agent.workflows.llm.augmented_llm_anthropic import AnthropicAugmentedLLM
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
+from mcp_agent.logging.logger import LoggingConfig
+from rich import print
 
 app = MCPApp(name="mcp_basic_agent")
 
@@ -55,10 +58,11 @@ async def example_usage():
         # )
         # logger.info(f"Result: {result}")
 
+        # Make sure to shut down logging cleanly
+        await LoggingConfig.shutdown()
+
 
 if __name__ == "__main__":
-    import time
-
     start = time.time()
     asyncio.run(example_usage())
     end = time.time()

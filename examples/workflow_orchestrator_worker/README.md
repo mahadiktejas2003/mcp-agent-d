@@ -10,3 +10,5 @@ This particular example is a student assignment grader, which requires:
 - Using proofreader, fact checker and style enforcer agents to evaluate the quality of the report
 - The style enforcer requires reading style guidelines from the APA website using the MCP fetch server.
 - Writing the graded report to disk (using MCP filesystem server)
+
+<img width="1650" alt="Image" src="https://github.com/user-attachments/assets/12263f81-f2f8-41e2-a758-13d764f782a1" />

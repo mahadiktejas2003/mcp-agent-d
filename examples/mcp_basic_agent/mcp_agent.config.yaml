@@ -4,6 +4,7 @@ execution_engine: asyncio
 logger:
   type: console
   level: info
+  path: "./mcp-agent.jsonl"
   batch_size: 100
   flush_interval: 2
   max_queue_size: 2048
@@ -22,14 +23,9 @@ mcp:
     #    "@mcp-get-community/server-curl"
         ]
     filesystem:
-      command: "node"
-      args:
-        [
-       "C:\\Program Files\\nodejs\\node_modules\\@modelcontextprotocol\\server-filesystem\\dist\\index.js",
- #       "-y",
-  #      "@modelcontextprotocol/server-filesystem"
-        ]
+      command: "npx"
+      args: ["-y", "@modelcontextprotocol/server-filesystem"]
 
 openai:
   # Secrets (API keys, etc.) are stored in an mcp_agent.secrets.yaml file which can be gitignored
-  default_model: gpt-4o
+  default_model: o3-mini

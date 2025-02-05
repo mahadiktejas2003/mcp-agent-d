@@ -1,4 +1,5 @@
 from mcp_agent.config import get_settings
+from rich import print
 
 
 def send_usage_data():

@@ -7,7 +7,7 @@
     "editor.rulers": []
   },
   "yaml.schemas": {
-    "./schema/mcp-agent.config.schema.json": [
+    "https://raw.githubusercontent.com/lastmile-ai/mcp-agent/main/schema/mcp-agent.config.schema.json": [
       "mcp-agent.config.yaml",
       "mcp_agent.config.yaml",
       "mcp-agent.secrets.yaml",

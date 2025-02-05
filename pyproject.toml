@@ -1,7 +1,7 @@
 [project]
 name = "mcp-agent"
-version = "0.0.3"
-description = "Agent framework for Model Context Protocol (MCP)"
+version = "0.0.5"
+description = "Build effective agents with Model Context Protocol (MCP) using simple, composable patterns."
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
@@ -9,14 +9,14 @@ authors = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent"
 ]
 requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.115.6",
     "instructor>=1.7.0",
-    "mcp>=1.2.0",
+    "mcp>=1.2.1",
     "opentelemetry-distro>=0.50b0",
     "opentelemetry-exporter-otlp-proto-http>=1.29.0",
     "pydantic-settings>=2.7.0",
@@ -59,9 +59,15 @@ dev = [
 
 [project.scripts]
 mcp-agent = "mcp_agent.cli.__main__:app"
+mcp_agent = "mcp_agent.cli.__main__:app"
+mcpagent = "mcp_agent.cli.__main__:app"
+silsila = "mcp_agent.cli.__main__:app"
 
 [tool.setuptools.packages.find]
 include = ["mcp-agent"]
 
 [tool.setuptools.package-data]
 mcp-agent = ["data/*.json"]
+
+[tool.uv.workspace]
+members = ["examples/streamlit_mcp_basic_agent"]

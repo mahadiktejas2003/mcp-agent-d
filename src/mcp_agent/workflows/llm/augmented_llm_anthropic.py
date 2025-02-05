@@ -37,6 +37,7 @@ from mcp_agent.workflows.llm.augmented_llm import (
     RequestParams,
 )
 from mcp_agent.logging.logger import get_logger
+from mcp_agent.workflows.llm.llm_constants import FINAL_RESPONSE_LOG_MESSAGE
 
 logger = get_logger(__name__)
 
@@ -127,6 +128,8 @@ class AnthropicAugmentedLLM(AugmentedLLM[MessageParam, Message]):
             logger.debug(
                 f"Iteration {i}: Calling {model} with messages:",
                 data=messages,
+                model=model,
+                chat_turn=(len(messages) + 1) // 2,
             )
 
             executor_result = await self.executor.execute(
@@ -197,7 +200,7 @@ class AnthropicAugmentedLLM(AugmentedLLM[MessageParam, Message]):
         if params.use_history:
             self.history.set(messages)
 
-        logger.debug("Final response:", data=responses)
+        logger.debug(FINAL_RESPONSE_LOG_MESSAGE, data=responses, model=model)
 
         return responses
 

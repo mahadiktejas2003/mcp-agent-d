@@ -35,6 +35,8 @@ from mcp_agent.workflows.llm.augmented_llm import (
     RequestParams,
 )
 from mcp_agent.logging.logger import get_logger
+from mcp_agent.workflows.llm.llm_constants import FINAL_RESPONSE_LOG_MESSAGE
+from rich import print
 
 logger = get_logger(__name__)
 
@@ -58,10 +60,29 @@ class OpenAIAugmentedLLM(
             speedPriority=0.4,
             intelligencePriority=0.3,
         )
+        # Get default model from config if available
+        default_model = "gpt-4o"  # Fallback default
+        self._reasoning_effort = "medium"
+        if self.context and self.context.config and self.context.config.openai:
+            if hasattr(self.context.config.openai, "default_model"):
+                default_model = self.context.config.openai.default_model
+            if hasattr(self.context.config.openai, "reasoning_effort"):
+                self._reasoning_effort = self.context.config.openai.reasoning_effort
+
+        # o1 does not have tool support
+        self._reasoning = default_model.startswith("o3")
+        if self._reasoning:
+            logger.info(
+                f"Using reasoning model '{default_model}' with '{self._reasoning_effort}' reasoning effort"
+            )
+        print(
+            f"\nUsing reasoning model [white on dark_blue]{default_model}[/white on dark_blue] with [white on dark_green]{self._reasoning_effort}[/white on dark_green] reasoning effort"
+        )
+
         self.default_request_params = self.default_request_params or RequestParams(
-            model="gpt-4o",
+            model=default_model,
             modelPreferences=self.model_preferences,
-            maxTokens=2048,
+            maxTokens=4096,
             systemPrompt=self.instruction,
             parallel_tool_calls=True,
             max_iterations=10,
@@ -136,19 +157,27 @@ class OpenAIAugmentedLLM(
                 "messages": messages,
                 "stop": params.stopSequences,
                 "tools": available_tools,
-                "max_tokens": params.maxTokens,
             }
-
-            if available_tools:
-                arguments["tools"] = available_tools
-                arguments["parallel_tool_calls"] = params.parallel_tool_calls
+            if self._reasoning:
+                arguments = {
+                    **arguments,
+                    "max_completion_tokens": params.maxTokens,
+                    "reasoning_effort": self._reasoning_effort,
+                }
+            else:
+                arguments = {**arguments, "max_tokens": params.maxTokens}
+                if available_tools:
+                    arguments["parallel_tool_calls"] = params.parallel_tool_calls
 
             if params.metadata:
                 arguments = {**arguments, **params.metadata}
 
+            logger.debug(f"{arguments}")
             logger.debug(
                 f"Iteration {i}: Calling OpenAI ChatCompletion with messages:",
                 data=messages,
+                model=model,
+                chat_turn=len(messages) // 2,
             )
 
             executor_result = await self.executor.execute(
@@ -221,8 +250,11 @@ class OpenAIAugmentedLLM(
                             continue
                         if result is not None:
                             messages.append(result)
+
         if params.use_history:
             self.history.set(messages)
+
+        logger.debug(FINAL_RESPONSE_LOG_MESSAGE, data=responses, model=model)
 
         return responses
 

@@ -5,7 +5,8 @@ mcp-agent implements [OpenAI's Swarm pattern](https://github.com/openai/swarm) f
 **This example is taken from the [Swarm repo](https://github.com/openai/swarm/blob/main/examples/airline), and shown to work with MCP servers and Anthropic models (and can of course also work with OpenAI models).**
 
 This example demonstrates a multi-agent setup for handling different customer service requests in an airline context using the Swarm framework. The agents can triage requests, handle flight modifications, cancellations, and lost baggage cases.
-This example uses the helper function `run_demo_loop`, which allows us to create an interactive Swarm session.
+
+https://github.com/user-attachments/assets/b314d75d-7945-4de6-965b-7f21eb14a8bd
 
 ## Agents
 
