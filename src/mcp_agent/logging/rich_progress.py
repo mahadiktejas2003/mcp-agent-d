@@ -28,7 +28,7 @@ class RichProgressDisplay:
             transient=False,
         ) as self._progress:
             task_id = self._progress.add_task(
-                "[black on dark_cyan]...mcp-agent...",
+                "[red on white]...mcp-agent...",
                 total=None,
                 target="",
                 details="",
