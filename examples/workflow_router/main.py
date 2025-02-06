@@ -82,7 +82,7 @@ async def example_usage():
             logger.info("Tools available:", data=result.model_dump())
 
             result = await agent.call_tool(
-                name="read_file",
+                tool_name="read_file",
                 arguments={
                     "path": str(os.path.join(os.getcwd(), "mcp_agent.config.yaml"))
                 },

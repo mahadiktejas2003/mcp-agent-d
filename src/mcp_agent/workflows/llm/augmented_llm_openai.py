@@ -61,26 +61,24 @@ class OpenAIAugmentedLLM(
             intelligencePriority=0.3,
         )
         # Get default model from config if available
-        default_model = "gpt-4o"  # Fallback default
+        chosen_model = "gpt-4o"  # Fallback default
+
         self._reasoning_effort = "medium"
         if self.context and self.context.config and self.context.config.openai:
             if hasattr(self.context.config.openai, "default_model"):
-                default_model = self.context.config.openai.default_model
+                chosen_model = self.context.config.openai.default_model
             if hasattr(self.context.config.openai, "reasoning_effort"):
                 self._reasoning_effort = self.context.config.openai.reasoning_effort
 
         # o1 does not have tool support
-        self._reasoning = default_model.startswith("o3")
+        self._reasoning = chosen_model.startswith("o3")
         if self._reasoning:
             self.logger.info(
-                f"Using reasoning model '{default_model}' with '{self._reasoning_effort}' reasoning effort"
-            )
-            print(
-                f"\nUsing reasoning model [white on dark_blue]{default_model}[/white on dark_blue] with [white on dark_green]{self._reasoning_effort}[/white on dark_green] reasoning effort"
+                f"Using reasoning model '{chosen_model}' with '{self._reasoning_effort}' reasoning effort"
             )
 
         self.default_request_params = self.default_request_params or RequestParams(
-            model=default_model,
+            model=chosen_model,
             modelPreferences=self.model_preferences,
             maxTokens=4096,
             systemPrompt=self.instruction,

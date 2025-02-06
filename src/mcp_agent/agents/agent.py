@@ -39,7 +39,7 @@ class Agent(MCPAggregator):
 
     def __init__(
         self,
-        name: str,
+        name: str,  # agent name
         instruction: str | Callable[[Dict], str] = "You are a helpful agent.",
         server_names: List[str] = None,
         functions: List[Callable] = None,
@@ -52,6 +52,7 @@ class Agent(MCPAggregator):
             context=context,
             server_names=server_names or [],
             connection_persistence=connection_persistence,
+            name=name,
             **kwargs,
         )
 
@@ -188,6 +189,7 @@ class Agent(MCPAggregator):
 
         return result
 
+    # todo would prefer to use tool_name to disambiguate agent name
     async def call_tool(
         self, name: str, arguments: dict | None = None
     ) -> CallToolResult:

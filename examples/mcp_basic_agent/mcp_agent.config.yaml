@@ -4,7 +4,7 @@ execution_engine: asyncio
 logger:
   type: console
   level: info
-  path: "./mcp-agent.jsonl"
+  path: "./mcp-agent-4o-mini.jsonl"
   batch_size: 100
   flush_interval: 2
   max_queue_size: 2048
@@ -23,4 +23,5 @@ mcp:
 
 openai:
   # Secrets (API keys, etc.) are stored in an mcp_agent.secrets.yaml file which can be gitignored
-  default_model: o3-mini
+  #  default_model: "o3-mini"
+  default_model: "gpt-4o-mini"

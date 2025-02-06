@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 from mcp_agent.workflows.llm.llm_constants import FINAL_RESPONSE_LOG_MESSAGE
 
 
@@ -51,18 +51,30 @@ def convert_log_event(event: Dict[str, Any]) -> Optional[ProgressEvent]:
     """Convert a log event to a progress event if applicable."""
     namespace = event.get("namespace", "")
     message = event.get("message", "")
+
     # Extract agent name from namespace if present
     agent_name = None
-    parts = namespace.split(".")
-    if len(parts) > 3:
-        if parts[0:3] == ["mcp_agent", "agents", "agent"]:
-            agent_name = parts[3]
-        elif (
-            len(parts) > 4
-            and parts[0:3] == ["mcp_agent", "workflows", "llm"]
-            and parts[3].startswith("augmented_llm")
-        ):
-            agent_name = parts[4]
+
+    # Known class namespaces that may have agent names
+    CLASS_NAMESPACES = [
+        "mcp_agent.agents.agent",  # TODO: Use Agent.__module__
+        ("mcp_agent.workflows.llm", "augmented_llm"),  # Matches augmented_llm_* classes
+        "mcp_agent.mcp.mcp_aggregator",  # TODO: Use Finder.__module__
+    ]
+
+    # Check if namespace starts with any of our class prefixes and has an additional part
+    for class_ns in CLASS_NAMESPACES:
+        if isinstance(class_ns, tuple):
+            # Special case for augmented_llm_* classes
+            base_ns, class_prefix = class_ns
+            parts = namespace[len(base_ns) + 1 :].split(".")  # +1 for the dot
+            if len(parts) >= 2 and parts[0].startswith(class_prefix):
+                agent_name = parts[1]
+                break
+        elif namespace.startswith(class_ns + "."):
+            # Regular case - agent name is after the class namespace
+            agent_name = namespace.split(".")[-1]
+            break
 
     # Handle MCP connection events
     if "mcp_connection_manager" in namespace:
@@ -90,9 +102,10 @@ def convert_log_event(event: Dict[str, Any]) -> Optional[ProgressEvent]:
     # Handle MCPServerAggregator tool calls
     if "mcp_aggregator" in namespace:
         tool_name = extract_from_aggregator(message)
+        target = f"{agent_name} ({tool_name})" if agent_name else tool_name
         if tool_name:
             return ProgressEvent(
-                ProgressAction.CALLING_TOOL, tool_name, agent_name=agent_name
+                ProgressAction.CALLING_TOOL, target, agent_name=agent_name
             )
 
     # Handle LLM events

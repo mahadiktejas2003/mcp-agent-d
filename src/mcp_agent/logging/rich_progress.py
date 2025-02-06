@@ -13,7 +13,7 @@ class RichProgressDisplay:
     def __init__(self, console: Optional[Console] = None):
         """Initialize the progress display."""
         self.console = console or Console()
-        self._taskmap = {"default": None}
+        self._taskmap = {}
         self._progress = None
 
     def start(self):
@@ -27,9 +27,10 @@ class RichProgressDisplay:
             console=self.console,
             transient=False,
         ) as self._progress:
-            self._taskmap["default"] = self._progress.add_task(
+            task_id = self._progress.add_task(
                 "mcp-agent......", total=None, target="", details=""
             )
+            self._taskmap["default"] = task_id
 
         self._progress.start()
 

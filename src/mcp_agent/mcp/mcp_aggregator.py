@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from mcp_agent.context import Context
 
 
-logger = get_logger(__name__)
+logger = get_logger(__name__)  # This will be replaced per-instance when agent_name is available
 
 SEP = "-"
 
@@ -77,6 +77,7 @@ class MCPAggregator(ContextDependent):
         server_names: List[str],
         connection_persistence: bool = False,
         context: Optional["Context"] = None,
+        name: str = None,
         **kwargs,
     ):
         """
@@ -90,8 +91,13 @@ class MCPAggregator(ContextDependent):
 
         self.server_names = server_names
         self.connection_persistence = connection_persistence
-
+        self.agent_name = name
         self._persistent_connection_manager: MCPConnectionManager = None
+
+        # Set up logger with agent name in namespace if available
+        global logger
+        logger_name = f"{__name__}.{name}" if name else __name__
+        logger = get_logger(logger_name)
 
         # Maps namespaced_tool_name -> namespaced tool info
         self._namespaced_tool_map: Dict[str, NamespacedTool] = {}
