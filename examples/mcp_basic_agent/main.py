@@ -28,7 +28,7 @@ async def example_usage():
             as well as the ability to fetch URLs. Your job is to identify 
             the closest match to a user's request, make the appropriate tool calls, 
             and return the URI and CONTENTS of the closest match.""",
-            server_names=["curl", "filesystem"],
+            server_names=["fetch", "filesystem"],
         )
 
         async with finder_agent:
@@ -44,19 +44,17 @@ async def example_usage():
 
             # Let's switch the same agent to a different LLM
             llm = await finder_agent.attach_llm(AnthropicAugmentedLLM)
-        # Let's switch the same agent to a different LLM
-        # llm = await finder_agent.attach_llm(AnthropicAugmentedLLM)
 
-        # result = await llm.generate_str(
-        #     message="Print the first 2 paragraphs of https://www.anthropic.com/research/building-effective-agents",
-        # )
-        # logger.info(f"Result: {result}")
+            result = await llm.generate_str(
+                message="Print the first 2 paragraphs of https://www.anthropic.com/research/building-effective-agents",
+            )
+            logger.info(f"Result: {result}")
 
-        # Multi-turn conversations
-        # result = await llm.generate_str(
-        #     message="Summarize those paragraphs in a 128 character tweet",
-        # )
-        # logger.info(f"Result: {result}")
+            # Multi-turn conversations
+            result = await llm.generate_str(
+                message="Summarize those paragraphs in a 128 character tweet",
+            )
+            logger.info(f"Result: {result}")
 
         # Make sure to shut down logging cleanly
         await LoggingConfig.shutdown()

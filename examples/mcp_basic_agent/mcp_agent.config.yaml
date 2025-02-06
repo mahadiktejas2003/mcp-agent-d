@@ -14,14 +14,9 @@ logger:
 
 mcp:
   servers:
-    curl:
-      command: "node"
-      args:
-        [
-          "C:\\Program Files\\nodejs\\node_modules\\@mcp-get-community\\server-curl\\dist\\index.js",
-   #     "-y",
-    #    "@mcp-get-community/server-curl"
-        ]
+    fetch:
+      command: "uvx"
+      args: ["mcp-server-fetch"]
     filesystem:
       command: "npx"
       args: ["-y", "@modelcontextprotocol/server-filesystem"]
