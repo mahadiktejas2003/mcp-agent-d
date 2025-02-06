@@ -89,7 +89,9 @@ class OpenAIAugmentedLLM(
         Override this method to use a different LLM.
         """
         config = self.context.config
-        openai_client = OpenAI(api_key=config.openai.api_key)
+        openai_client = OpenAI(
+            api_key=config.openai.api_key, base_url=config.openai.base_url
+        )
         messages: List[ChatCompletionMessageParam] = []
         params = self.get_request_params(request_params)
 
@@ -161,7 +163,6 @@ class OpenAIAugmentedLLM(
                 f"Iteration {i}: OpenAI ChatCompletion response:",
                 data=response,
             )
-
             if not response.choices or len(response.choices) == 0:
                 # No response from the model, we're done
                 break
