@@ -163,8 +163,7 @@ class OpenAIAugmentedLLM(
                 f"Iteration {i}: OpenAI ChatCompletion response:",
                 data=response,
             )
-            print(response)
-            if not response or not response.choices or len(response.choices) == 0:
+            if not response.choices or len(response.choices) == 0:
                 # No response from the model, we're done
                 break
 
