@@ -21,6 +21,7 @@ from mcp_agent.logging.events import Event, EventFilter
 from mcp_agent.logging.json_serializer import JSONSerializer
 from mcp_agent.logging.listeners import EventListener, LifecycleAwareListener
 from rich import print
+import traceback
 
 
 class EventTransport(Protocol):
@@ -83,7 +84,7 @@ class ConsoleTransport(FilteredEventTransport):
 
         # Use the appropriate console based on event type
         output_console = error_console if event.type == "error" else console
-        
+
         # Create namespace without None
         namespace = event.namespace
         if event.name:
@@ -401,6 +402,9 @@ class AsyncEventBus:
                     for r in results:
                         if isinstance(r, Exception):
                             print(f"Error in listener: {r}")
+                            print(
+                                f"Stacktrace: {''.join(traceback.format_exception(type(r), r, r.__traceback__))}"
+                            )
 
                 self._queue.task_done()
 

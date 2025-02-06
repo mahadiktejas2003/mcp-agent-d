@@ -38,8 +38,6 @@ from mcp_agent.logging.logger import get_logger
 from mcp_agent.workflows.llm.llm_constants import FINAL_RESPONSE_LOG_MESSAGE
 from rich import print
 
-logger = get_logger(__name__)
-
 
 class OpenAIAugmentedLLM(
     AugmentedLLM[ChatCompletionMessageParam, ChatCompletionMessage]
@@ -54,6 +52,8 @@ class OpenAIAugmentedLLM(
         super().__init__(*args, type_converter=MCPOpenAITypeConverter, **kwargs)
 
         self.provider = "OpenAI"
+        # Initialize logger with name if available
+        self.logger = get_logger(f"{__name__}.{self.name}" if self.name else __name__)
 
         self.model_preferences = self.model_preferences or ModelPreferences(
             costPriority=0.3,
@@ -72,12 +72,12 @@ class OpenAIAugmentedLLM(
         # o1 does not have tool support
         self._reasoning = default_model.startswith("o3")
         if self._reasoning:
-            logger.info(
+            self.logger.info(
                 f"Using reasoning model '{default_model}' with '{self._reasoning_effort}' reasoning effort"
             )
-        print(
-            f"\nUsing reasoning model [white on dark_blue]{default_model}[/white on dark_blue] with [white on dark_green]{self._reasoning_effort}[/white on dark_green] reasoning effort"
-        )
+            print(
+                f"\nUsing reasoning model [white on dark_blue]{default_model}[/white on dark_blue] with [white on dark_green]{self._reasoning_effort}[/white on dark_green] reasoning effort"
+            )
 
         self.default_request_params = self.default_request_params or RequestParams(
             model=default_model,
@@ -172,8 +172,8 @@ class OpenAIAugmentedLLM(
             if params.metadata:
                 arguments = {**arguments, **params.metadata}
 
-            logger.debug(f"{arguments}")
-            logger.debug(
+            self.logger.debug(f"{arguments}")
+            self.logger.debug(
                 f"Iteration {i}: Calling OpenAI ChatCompletion with messages:",
                 data=messages,
                 model=model,
@@ -186,7 +186,7 @@ class OpenAIAugmentedLLM(
 
             response = executor_result[0]
 
-            logger.debug(
+            self.logger.debug(
                 f"Iteration {i}: OpenAI ChatCompletion response:",
                 data=response,
             )
@@ -203,18 +203,20 @@ class OpenAIAugmentedLLM(
 
             if choice.finish_reason == "stop":
                 # We have reached the end of the conversation
-                logger.debug(f"Iteration {i}: Stopping because finish_reason is 'stop'")
+                self.logger.debug(
+                    f"Iteration {i}: Stopping because finish_reason is 'stop'"
+                )
                 break
             elif choice.finish_reason == "length":
                 # We have reached the max tokens limit
-                logger.debug(
+                self.logger.debug(
                     f"Iteration {i}: Stopping because finish_reason is 'length'"
                 )
                 # TODO: saqadri - would be useful to return the reason for stopping to the caller
                 break
             elif choice.finish_reason == "content_filter":
                 # The response was filtered by the content filter
-                logger.debug(
+                self.logger.debug(
                     f"Iteration {i}: Stopping because finish_reason is 'content_filter'"
                 )
                 # TODO: saqadri - would be useful to return the reason for stopping to the caller
@@ -236,7 +238,7 @@ class OpenAIAugmentedLLM(
 
                     # Wait for all tool calls to complete
                     tool_results = await self.executor.execute(*tool_tasks)
-                    logger.debug(
+                    self.logger.debug(
                         f"Iteration {i}: Tool call results: {str(tool_results) if tool_results else 'None'}"
                     )
 
@@ -244,7 +246,7 @@ class OpenAIAugmentedLLM(
                     for result in tool_results:
                         if isinstance(result, BaseException):
                             # Handle any unexpected exceptions during parallel execution
-                            logger.error(
+                            self.logger.error(
                                 f"Warning: Unexpected error during tool execution: {result}. Continuing..."
                             )
                             continue
@@ -254,7 +256,7 @@ class OpenAIAugmentedLLM(
         if params.use_history:
             self.history.set(messages)
 
-        logger.debug(FINAL_RESPONSE_LOG_MESSAGE, data=responses, model=model)
+        self.logger.debug(FINAL_RESPONSE_LOG_MESSAGE, data=responses, model=model)
 
         return responses
 

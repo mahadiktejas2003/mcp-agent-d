@@ -28,20 +28,24 @@ async def example_usage():
                 server_names=["brave", "interpreter", "filesystem", "fetch"],
             )
 
+            research_prompt = """Produce an investment report for the company Vodafone UK. The final report should be saved in the filesystem in markdown format, and
+                contain at least the following: 
+                1 - A brief description of the company
+                2 - Current financial position (find data, create and incorporate charts)
+                3 - A PESTLE analysis
+                4 - An investment thesis for the next 3 years. Include both 'buy side' and 'sell side' arguments, and a final 
+                summary and recommendation.
+                Todays date is 05 February 2025. Include the main data sources consulted in presenting the report."""
+
             try:
-                llm = await interpreter_agent.attach_llm(OpenAIAugmentedLLM)
+                llm_oai = await interpreter_agent.attach_llm(OpenAIAugmentedLLM)
+                llm_anthr = await interpreter_agent.attach_llm(AnthropicAugmentedLLM)
 
-                result = await llm.generate_str(
-                    """Produce an investment report for the company Eutelsat Communications SA. The final report should be saved in the filesystem in markdown format, and
-                    contain at least the following: 
-                    1 - A brief description of the company
-                    2 - Current financial position (find data, create and incorporate charts)
-                    3 - A PESTLE analysis
-                    4 - An investment thesis for the next 3 years
-                    Todays date is 04 February 2025. Include the main data sources consulted in presenting the report."""
-                )
-                #               logger.info(result)
+                #                result = await llm_oai.generate_str(research_prompt)
+                ##               logger.info(result)
 
+                #
+                result = await llm_anthr.generate_str(research_prompt)
                 logger.info(result)
 
             finally:

@@ -46,9 +46,6 @@ async def example_usage():
         context = short_story_grader.context
         logger.info("Current config:", data=context.config.model_dump())
 
-        # Add the current directory to the filesystem server's args
-        context.config.mcp.servers["filesystem"].args.extend([os.getcwd()])
-
         proofreader = Agent(
             name="proofreader",
             instruction=""""Review the short story for grammar, spelling, and punctuation errors.
