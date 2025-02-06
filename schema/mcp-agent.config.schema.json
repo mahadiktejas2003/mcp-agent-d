@@ -290,6 +290,18 @@
           ],
           "default": null,
           "title": "Api Key"
+        },
+        "base_url": {
+          "title": "Base Url",
+          "default": null,
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "title": "OpenAISettings",
