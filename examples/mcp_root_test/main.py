@@ -29,21 +29,16 @@ async def example_usage():
             try:
                 llm = await interpreter_agent.attach_llm(OpenAIAugmentedLLM)
 
-                await llm.generate_str(
-                    "call the show_roots tool and tell me what the result was"
-                )
-                #               logger.info(result)
-
                 # (claude does not need this signpost - this is where 'available files' pattern would be useful)
                 await llm.generate_str(
                     "There is a file named '01_Data_Processed.csv' in the current directory. Use the Python Interpreter to to analyze the file. "
                     #                    "There is a CSV file in the current directory. Use the Python Interpreter to to analyze the file. "
                     + "Produce a detailed description of the data, and any patterns it contains. "
                 )
-                #                logger.info(result)
 
                 result = await llm.generate_str(
-                    "Use MatPlotLib to produce insightful visualisations - save them in the current directory as .png file. Be sure to run the code and save the files "
+                    "Consider the data, and how to usefully group it for presentation to a Human. Find insights, using the Python Interpreter as needed.\n"
+                    + "Use MatPlotLib to produce insightful visualisations. Save them as '.png' files in the current directory. Be sure to run the code and save the files "
                 )
                 logger.info(result)
 

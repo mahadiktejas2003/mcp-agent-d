@@ -22,11 +22,12 @@ async def example_usage():
                 name="research",
                 instruction="""You are a research assistant, with access to internet search (via Brave),
                 website fetch, a python interpreter (you can install packages with uv) and a filesystem.
-                The python interpreter's working directory is the same as the 'filesystem' folder available to you""",
+                The working directory for the Python Interpreter is shared by the 'Filesystem' tool.
+                You can use the working directory to save and create files, and to process them with the Python Interpreter""",
                 server_names=["brave", "interpreter", "filesystem", "fetch"],
             )
 
-            research_prompt = """Produce an investment report for the company Vodafone UK. The final report should be saved in the filesystem in markdown format, and
+            research_prompt = """Produce an investment report for the company Eutelsat. The final report should be saved in the filesystem in markdown format, and
                 contain at least the following: 
                 1 - A brief description of the company
                 2 - Current financial position (find data, create and incorporate charts)
@@ -43,7 +44,7 @@ async def example_usage():
                 ##               logger.info(result)
 
                 #
-                result = await llm_anthr.generate_str(research_prompt)
+                result = await llm_oai.generate_str(research_prompt)
                 logger.info(result)
 
             finally:

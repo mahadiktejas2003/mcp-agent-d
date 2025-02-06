@@ -39,7 +39,7 @@ def main(log_file: str):
             if progress_event:
                 progress.update(progress_event)
                 # Add a small delay to make the replay visible
-                time.sleep(0.3)
+                time.sleep(3)
     except KeyboardInterrupt:
         pass
     finally:
