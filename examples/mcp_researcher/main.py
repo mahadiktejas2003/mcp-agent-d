@@ -17,7 +17,6 @@ async def example_usage():
         logger = agent_app.logger
         context = agent_app.context
 
-        #        logger.info("Current config:", data=context.config.model_dump())
 
         async with MCPConnectionManager(context.server_registry):
             interpreter_agent = Agent(
