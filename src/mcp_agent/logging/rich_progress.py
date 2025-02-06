@@ -28,7 +28,10 @@ class RichProgressDisplay:
             transient=False,
         ) as self._progress:
             task_id = self._progress.add_task(
-                "mcp-agent......", total=None, target="", details=""
+                "[black on dark_cyan]...mcp-agent...",
+                total=None,
+                target="",
+                details="",
             )
             self._taskmap["default"] = task_id
 
@@ -81,6 +84,7 @@ class RichProgressDisplay:
         if event.action == ProgressAction.FINISHED:
             self._progress.update(task_id, total=100, completed=100)
             self._progress.stop_task(task_id)
+            self._taskmap.pop(task_name)
 
         self._progress.update(
             task_id,
