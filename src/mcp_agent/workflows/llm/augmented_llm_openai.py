@@ -179,11 +179,10 @@ class OpenAIAugmentedLLM(
             responses.append(message)
 
             if choice.finish_reason in ["tool_calls", "function_call"]:
-                if message.content:
-                    converted_message = self.convert_message_to_message_param(
-                        choice.message, name=self.name
-                    )
-                    messages.append(converted_message)
+                converted_message = self.convert_message_to_message_param(
+                    choice.message, name=self.name
+                )
+                messages.append(converted_message)
 
                 if message.tool_calls:
                     # Execute all tool calls in parallel.
