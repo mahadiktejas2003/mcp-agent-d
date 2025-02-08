@@ -6,6 +6,7 @@ from rich.text import Text
 from mcp_agent.console import console as default_console
 from mcp_agent.event_progress import ProgressEvent, ProgressAction
 from rich.progress import Progress, BarColumn, TextColumn, TimeElapsedColumn
+from contextlib import contextmanager
 
 
 class RichProgressDisplay:
@@ -24,10 +25,10 @@ class RichProgressDisplay:
             console=self.console,
             transient=False,
         )
+        self._paused = False
 
     def start(self):
         """start"""
-
         task_id = self._progress.add_task(
             "[white]...mcp-agent...",
             total=None,
@@ -42,8 +43,28 @@ class RichProgressDisplay:
         default_task_id = self._taskmap["default"]
         self._progress.update(default_task_id, total=100, completed=100)
         self._progress.stop_task(default_task_id)
-
         self._progress.stop()
+
+    def pause(self):
+        """Pause the progress display."""
+        if not self._paused:
+            self._paused = True
+            self._progress.stop()
+
+    def resume(self):
+        """Resume the progress display."""
+        if self._paused:
+            self._paused = False
+            self._progress.start()
+
+    @contextmanager
+    def paused(self):
+        """Context manager for temporarily pausing the display."""
+        self.pause()
+        try:
+            yield
+        finally:
+            self.resume()
 
     def _get_action_style(self, action: ProgressAction) -> str:
         """Map actions to appropriate styles."""
@@ -69,6 +90,10 @@ class RichProgressDisplay:
         return text
 
     def update(self, event: ProgressEvent) -> None:
+        """Update the progress display with a new event."""
+        if self._paused:
+            return
+
         task_name = event.agent_name or "default"
         if task_name not in self._taskmap:
             task_id = self._progress.add_task(

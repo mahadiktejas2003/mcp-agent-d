@@ -116,12 +116,10 @@ class ProgressListener(LifecycleAwareListener):
     def __init__(self, display=None):
         """Initialize the progress listener.
         Args:
-            display: Optional display handler. If None, a RichProgressDisplay will be used.
+            display: Optional display handler. If None, the shared progress_display will be used.
         """
-        from mcp_agent.logging.rich_progress import RichProgressDisplay
-        from mcp_agent.console import console
-
-        self.display = display or RichProgressDisplay(console)
+        from mcp_agent.progress_display import progress_display
+        self.display = display or progress_display
 
     async def start(self):
         """Start the progress display."""
