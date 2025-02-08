@@ -221,7 +221,7 @@ class MCPConnectionManager:
                     args=config.args,
                     env={**stdio.get_default_environment(), **(config.env or {})},
                 )
-                # Create stdio client config with WARNING level for stderr
+                # Create stdio client config with redirected stderr
                 return stdio_client_with_rich_stderr(server_params)
             elif config.transport == "sse":
                 return sse_client(config.url)

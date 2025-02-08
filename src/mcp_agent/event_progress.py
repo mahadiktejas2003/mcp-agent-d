@@ -15,6 +15,13 @@ class ProgressAction(str, Enum):
     CALLING_TOOL = "Calling Tool"
     FINISHED = "Finished"
     SHUTDOWN = "Shutdown"
+    AGGREGATOR_INITIALIZED = "Running"
+
+
+class ProgressLogMessage(str, Enum):
+    LOG_AGGREGATOR_INITIALIZED = (
+        "MCP Aggregator initialized "  # TODO -- complete, and map LOG->Action
+    )
 
 
 @dataclass
@@ -106,6 +113,12 @@ def convert_log_event(event: Dict[str, Any]) -> Optional[ProgressEvent]:
         if tool_name:
             return ProgressEvent(
                 ProgressAction.CALLING_TOOL, target, agent_name=agent_name
+            )
+
+        if ProgressLogMessage.LOG_AGGREGATOR_INITIALIZED in message:
+            return ProgressEvent(
+                ProgressAction.AGGREGATOR_INITIALIZED,
+                "mcp-agent",
             )
 
     # Handle LLM events

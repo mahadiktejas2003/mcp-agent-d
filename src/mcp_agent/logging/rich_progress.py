@@ -32,8 +32,9 @@ class RichProgressDisplay:
         task_id = self._progress.add_task(
             "[white]...mcp-agent...",
             total=None,
-            target="",
-            details="mcp-agent application",
+            target="mcp-agent app",
+            details="",
+            task_name="default",
         )
         self._taskmap["default"] = task_id
         self._progress.start()
@@ -49,11 +50,16 @@ class RichProgressDisplay:
         """Pause the progress display."""
         if not self._paused:
             self._paused = True
+
+            for task in self._progress.tasks:
+                task.visible = False
             self._progress.stop()
 
     def resume(self):
         """Resume the progress display."""
         if self._paused:
+            for task in self._progress.tasks:
+                task.visible = True
             self._paused = False
             self._progress.start()
 
@@ -75,24 +81,11 @@ class RichProgressDisplay:
             ProgressAction.CALLING_TOOL: "white on dark_magenta",
             ProgressAction.FINISHED: "black on green",
             ProgressAction.SHUTDOWN: "black on red",
+            ProgressAction.AGGREGATOR_INITIALIZED: "black on green",
         }.get(action, "white")
-
-    def _format_event(self, event: ProgressEvent) -> Text:
-        """Format a single event as rich Text."""
-        text = Text()
-        text.append(
-            f" {event.action.value:<14}", style=self._get_action_style(event.action)
-        )
-        text.append(" ")
-        text.append(f"{event.target}", style="white bold")
-        if event.details:
-            text.append(f" ({event.details})", style="blue")
-        return text
 
     def update(self, event: ProgressEvent) -> None:
         """Update the progress display with a new event."""
-        if self._paused:
-            return
 
         task_name = event.agent_name or "default"
         if task_name not in self._taskmap:
@@ -116,4 +109,5 @@ class RichProgressDisplay:
             description=f"[{self._get_action_style(event.action)}]{event.action.value:<15}",
             target=event.target,
             details=event.details if event.details else "",
+            task_name=task_name,
         )

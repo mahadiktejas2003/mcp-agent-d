@@ -11,6 +11,7 @@ from mcp.types import (
     Tool,
 )
 
+from mcp_agent import event_progress
 from mcp_agent.logging.logger import get_logger
 from mcp_agent.mcp.gen_client import gen_client
 
@@ -22,7 +23,9 @@ if TYPE_CHECKING:
     from mcp_agent.context import Context
 
 
-logger = get_logger(__name__)  # This will be replaced per-instance when agent_name is available
+logger = get_logger(
+    __name__
+)  # This will be replaced per-instance when agent_name is available
 
 SEP = "-"
 
@@ -216,7 +219,7 @@ class MCPAggregator(ContextDependent):
 
                 self._namespaced_tool_map[namespaced_tool_name] = namespaced_tool
                 self._server_to_tool_map[server_name].append(namespaced_tool)
-
+        logger.debug(event_progress.ProgressLogMessage.LOG_AGGREGATOR_INITIALIZED)
         self.initialized = True
 
     async def list_servers(self) -> List[str]:
