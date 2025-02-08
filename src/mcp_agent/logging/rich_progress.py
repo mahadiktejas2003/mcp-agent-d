@@ -3,6 +3,7 @@
 from typing import Optional
 from rich.console import Console
 from rich.text import Text
+from mcp_agent.console import console as default_console
 from mcp_agent.event_progress import ProgressEvent, ProgressAction
 from rich.progress import Progress, BarColumn, TextColumn, TimeElapsedColumn
 
@@ -12,13 +13,9 @@ class RichProgressDisplay:
 
     def __init__(self, console: Optional[Console] = None):
         """Initialize the progress display."""
-        self.console = console or Console()
+        self.console = console or default_console
         self._taskmap = {}
-        self._progress = None
-
-    def start(self):
-        """start"""
-        with Progress(
+        self._progress = Progress(
             TimeElapsedColumn(),
             TextColumn("[progress.description]{task.description}"),
             BarColumn(bar_width=15),
@@ -26,15 +23,18 @@ class RichProgressDisplay:
             TextColumn(text_format="{task.fields[details]}"),
             console=self.console,
             transient=False,
-        ) as self._progress:
-            task_id = self._progress.add_task(
-                "[red on white]...mcp-agent...",
-                total=None,
-                target="",
-                details="",
-            )
-            self._taskmap["default"] = task_id
+        )
 
+    def start(self):
+        """start"""
+
+        task_id = self._progress.add_task(
+            "[white]...mcp-agent...",
+            total=None,
+            target="",
+            details="mcp-agent application",
+        )
+        self._taskmap["default"] = task_id
         self._progress.start()
 
     def stop(self):
