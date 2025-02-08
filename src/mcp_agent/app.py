@@ -4,8 +4,7 @@ import asyncio
 from contextlib import asynccontextmanager
 
 from mcp import ServerSession
-import rich
-
+from mcp_agent.console import console
 from mcp_agent.context import Context, initialize_context, cleanup_context
 from mcp_agent.config import Settings
 from mcp_agent.logging.logger import get_logger
@@ -70,7 +69,6 @@ class MCPApp:
         self._logger = None
         self._context: Optional[Context] = None
         self._initialized = False
-        self._console = rich.console.Console()
 
     @property
     def context(self) -> Context:

@@ -19,7 +19,8 @@ from mcp import ClientSession
 from mcp.client.stdio import StdioServerParameters
 from mcp.client.sse import sse_client
 from mcp.types import JSONRPCMessage
-import rich
+
+from mcp_agent.console import console
 
 from mcp_agent.config import MCPServerSettings
 from mcp_agent.logging.logger import get_logger
@@ -65,7 +66,6 @@ class ServerConnection:
         self._client_session_factory = client_session_factory
         self._init_hook = init_hook
         self._transport_context_factory = transport_context_factory
-        self._console = rich.console.Console()
         # Signal that session is fully up and initialized
         self._initialized_event = Event()
 

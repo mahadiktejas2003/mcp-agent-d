@@ -83,7 +83,8 @@ class ConsoleTransport(FilteredEventTransport):
         style = self.log_level_styles.get(event.type, "white")
 
         # Use the appropriate console based on event type
-        output_console = error_console if event.type == "error" else console
+        #        output_console = error_console if event.type == "error" else console
+        output_console = console
 
         # Create namespace without None
         namespace = event.namespace

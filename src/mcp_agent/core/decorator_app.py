@@ -1,118 +1,134 @@
 """
-Decorator-based application class for MCP Agent.
-Provides a clean, pythonic interface for creating MCP agents and workflows.
+Decorator-based interface for MCP Agent applications.
+Provides a simplified way to create and manage agents using decorators.
 """
 
-import asyncio
-import functools
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+import os
+from typing import List, Optional, Any, Dict, Callable
+import yaml
+from contextlib import asynccontextmanager
 
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
-from mcp_agent.workflows.llm.augmented_llm import AugmentedLLM
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 from mcp_agent.config import Settings
 
 
 class MCPAgentDecorator:
     """
-    A decorator-based interface for creating MCP agents and workflows.
-    Provides a clean, pythonic way to define agents and their behaviors.
+    A decorator-based interface for MCP Agent applications.
+    Provides a simplified way to create and manage agents using decorators.
     """
-    
+
     def __init__(self, name: str, config_path: Optional[str] = None):
         """
-        Initialize the MCP Agent application.
-        
+        Initialize the decorator interface.
+
         Args:
             name: Name of the application
-            config_path: Optional path to configuration file
+            config_path: Optional path to config file
         """
         self.name = name
         self.config_path = config_path
-        settings = Settings(_env_file=config_path) if config_path else None
-        self.app = MCPApp(name=name, settings=settings)
+        self._load_config()
+        self.app = MCPApp(
+            name=name,
+            settings=Settings(**self.config) if hasattr(self, "config") else None,
+        )
         self.agents: Dict[str, Dict[str, Any]] = {}
-        self.workflows: List[Dict[str, Any]] = []
-        self._default_llm = OpenAIAugmentedLLM
 
-    def agent(
-        self, 
-        name: str, 
-        servers: Optional[List[str]] = None,
-        instruction: Optional[str] = None,
-        llm_class: Optional[Type[AugmentedLLM]] = None
-    ):
+    def _load_config(self):
+        """Load configuration, properly handling YAML without dotenv processing"""
+        if self.config_path:
+            with open(self.config_path) as f:
+                self.config = yaml.safe_load(f)
+
+    def agent(self, name: str, instruction: str, servers: List[str]) -> Callable:
         """
-        Decorator to create an agent.
-        
+        Decorator to create and register an agent.
+
         Args:
             name: Name of the agent
-            servers: List of server names the agent can access
-            instruction: Agent's instruction/system prompt
-            llm_class: Optional LLM class to use (defaults to OpenAI)
+            instruction: Base instruction for the agent
+            servers: List of server names the agent should connect to
         """
-        def decorator(func: Callable):
-            self.agents[name] = {
-                "function": func,
-                "servers": servers or [],
-                "instruction": instruction or func.__doc__ or "",
-                "llm": llm_class or self._default_llm
-            }
-            
-            @functools.wraps(func)
+
+        def decorator(func: Callable) -> Callable:
+            # Store the agent configuration for later instantiation
+            self.agents[name] = {"instruction": instruction, "servers": servers}
+
             async def wrapper(*args, **kwargs):
                 return await func(*args, **kwargs)
+
             return wrapper
+
         return decorator
 
-    def llm(self, llm_class: Type[AugmentedLLM]):
+    @asynccontextmanager
+    async def run(self):
         """
-        Decorator to specify LLM for an agent.
-        
-        Args:
-            llm_class: The LLM class to use for this agent
+        Context manager for running the application.
+        Handles setup and teardown of the app and agents.
         """
-        def decorator(func: Callable):
-            agent_name = func.__name__
-            if agent_name in self.agents:
-                self.agents[agent_name]["llm"] = llm_class
-            
-            @functools.wraps(func)
-            async def wrapper(*args, **kwargs):
-                return await func(*args, **kwargs)
-            return wrapper
-        return decorator
+        async with self.app.run() as agent_app:
+            active_agents = {}
 
-    async def run_agent(self, agent_name: str, *args, **kwargs) -> Any:
+            # Create and initialize all registered agents with proper context
+            for name, config in self.agents.items():
+                agent = Agent(
+                    name=name,
+                    instruction=config["instruction"],
+                    server_names=config["servers"],
+                    context=agent_app.context,
+                )
+                active_agents[name] = agent
+
+            # Start all agents within their context managers
+            agent_contexts = []
+            for name, agent in active_agents.items():
+                ctx = await agent.__aenter__()
+                agent_contexts.append((agent, ctx))
+
+                # Attach LLM to each agent
+                llm = await agent.attach_llm(OpenAIAugmentedLLM)
+                # Store LLM reference on agent
+                agent._llm = llm
+
+            # Create a wrapper object with simplified interface
+            wrapper = AgentAppWrapper(agent_app, active_agents)
+            try:
+                yield wrapper
+            finally:
+                # Cleanup agents
+                for agent, _ in agent_contexts:
+                    await agent.__aexit__(None, None, None)
+
+
+class AgentAppWrapper:
+    """
+    Wrapper class providing a simplified interface to the agent application.
+    """
+
+    def __init__(self, app: MCPApp, agents: Dict[str, Agent]):
+        self.app = app
+        self.agents = agents
+
+    async def send(self, agent_name: str, message: str) -> Any:
         """
-        Run a specific agent.
-        
+        Send a message to a specific agent and get the response.
+
         Args:
-            agent_name: Name of the agent to run
-            *args: Arguments to pass to the agent
-            **kwargs: Keyword arguments to pass to the agent
-        
+            agent_name: Name of the agent to send message to
+            message: Message to send
+
         Returns:
-            The result of the agent's execution
+            Agent's response
         """
         if agent_name not in self.agents:
             raise ValueError(f"Agent {agent_name} not found")
 
-        agent_config = self.agents[agent_name]
-        
-        agent = Agent(
-            name=agent_name,
-            instruction=agent_config["instruction"],
-            server_names=agent_config["servers"]
-        )
-
-        async with agent:
-            llm_class = agent_config.get("llm", self._default_llm)
-            llm = await agent.attach_llm(llm_class)
-            result = await agent_config["function"](llm, *args, **kwargs)
-            return result
-
-    def run(self):
-        """Get the application context manager for running the app"""
-        return self.app.run()
+        agent = self.agents[agent_name]
+        if not hasattr(agent, "_llm") or agent._llm is None:
+            raise RuntimeError(f"Agent {agent_name} has no LLM attached")
+        result = await agent._llm.generate_str(message)
+        return result
