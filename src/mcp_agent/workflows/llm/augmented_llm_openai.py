@@ -163,6 +163,11 @@ class OpenAIAugmentedLLM(
                 f"Iteration {i}: OpenAI ChatCompletion response:",
                 data=response,
             )
+
+            if isinstance(response, BaseException):
+                logger.error(f"Error: {response}")
+                break
+
             if not response.choices or len(response.choices) == 0:
                 # No response from the model, we're done
                 break
