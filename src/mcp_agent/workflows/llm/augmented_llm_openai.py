@@ -205,11 +205,6 @@ class OpenAIAugmentedLLM(
                             continue
                         if result is not None:
                             messages.append(result)
-            elif choice.finish_reason == "stop":
-                # We have reached the end of the conversation
-                messages.append(message)
-                logger.debug(f"Iteration {i}: Stopping because finish_reason is 'stop'")
-                break
             elif choice.finish_reason == "length":
                 # We have reached the max tokens limit
                 logger.debug(
@@ -223,6 +218,11 @@ class OpenAIAugmentedLLM(
                     f"Iteration {i}: Stopping because finish_reason is 'content_filter'"
                 )
                 # TODO: saqadri - would be useful to return the reason for stopping to the caller
+                break
+            else:  # choice.finish_reason == "stop"
+                # We have reached the end of the conversation
+                messages.append(message)
+                logger.debug(f"Iteration {i}: Stopping because finish_reason is 'stop'")
                 break
 
         if params.use_history:
