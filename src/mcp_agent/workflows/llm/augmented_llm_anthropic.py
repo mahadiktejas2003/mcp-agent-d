@@ -40,8 +40,6 @@ from mcp_agent.logging.logger import get_logger
 from mcp_agent.workflows.llm.llm_constants import FINAL_RESPONSE_LOG_MESSAGE
 
 
-
-
 class AnthropicAugmentedLLM(AugmentedLLM[MessageParam, Message]):
     """
     The basic building block of agentic systems is an LLM enhanced with augmentations
