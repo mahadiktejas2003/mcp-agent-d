@@ -60,7 +60,7 @@ def convert_log_event(event: Dict[str, Any]) -> Optional[ProgressEvent]:
     message = event.get("message", "")
 
     # Extract agent name from namespace if present
-    agent_name = None
+    agent_name = "default"
 
     # Known class namespaces that may have agent names
     CLASS_NAMESPACES = [

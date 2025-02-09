@@ -7,8 +7,6 @@ from mcp_agent.human_input.types import (
     HumanInputResponse,
 )
 from mcp_agent.progress_display import progress_display
-from mcp_agent.logging import logger
-from rich.live import Live
 
 
 async def console_input_callback(request: HumanInputRequest) -> HumanInputResponse:
