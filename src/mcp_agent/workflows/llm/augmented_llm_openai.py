@@ -178,32 +178,34 @@ class OpenAIAugmentedLLM(
             message = choice.message
             responses.append(message)
 
-            if choice.finish_reason in ["tool_calls", "function_call"]:
-                converted_message = self.convert_message_to_message_param(
-                    choice.message, name=self.name
-                )
-                messages.append(converted_message)
+            converted_message = self.convert_message_to_message_param(
+                message, name=self.name
+            )
+            messages.append(converted_message)
 
-                if message.tool_calls:
-                    # Execute all tool calls in parallel.
-                    tool_tasks = [
-                        self.execute_tool_call(tool_call)
-                        for tool_call in choice.message.tool_calls
-                    ]
-                    # Wait for all tool calls to complete.
-                    tool_results = await self.executor.execute(*tool_tasks)
-                    logger.debug(
-                        f"Iteration {i}: Tool call results: {str(tool_results) if tool_results else 'None'}"
-                    )
-                    # Add non-None results to messages.
-                    for result in tool_results:
-                        if isinstance(result, BaseException):
-                            logger.error(
-                                f"Warning: Unexpected error during tool execution: {result}. Continuing..."
-                            )
-                            continue
-                        if result is not None:
-                            messages.append(result)
+            if (
+                choice.finish_reason in ["tool_calls", "function_call"]
+                and message.tool_calls
+            ):
+                # Execute all tool calls in parallel.
+                tool_tasks = [
+                    self.execute_tool_call(tool_call)
+                    for tool_call in message.tool_calls
+                ]
+                # Wait for all tool calls to complete.
+                tool_results = await self.executor.execute(*tool_tasks)
+                logger.debug(
+                    f"Iteration {i}: Tool call results: {str(tool_results) if tool_results else 'None'}"
+                )
+                # Add non-None results to messages.
+                for result in tool_results:
+                    if isinstance(result, BaseException):
+                        logger.error(
+                            f"Warning: Unexpected error during tool execution: {result}. Continuing..."
+                        )
+                        continue
+                    if result is not None:
+                        messages.append(result)
             elif choice.finish_reason == "length":
                 # We have reached the max tokens limit
                 logger.debug(
@@ -218,9 +220,7 @@ class OpenAIAugmentedLLM(
                 )
                 # TODO: saqadri - would be useful to return the reason for stopping to the caller
                 break
-            else:  # choice.finish_reason == "stop"
-                # We have reached the end of the conversation
-                messages.append(message)
+            elif choice.finish_reason == "stop":
                 logger.debug(f"Iteration {i}: Stopping because finish_reason is 'stop'")
                 break
 
