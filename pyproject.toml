@@ -68,4 +68,3 @@ include = ["mcp-agent"]
 
 [tool.setuptools.package-data]
 mcp-agent = ["data/*.json"]
-
