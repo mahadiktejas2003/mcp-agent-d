@@ -173,3 +173,6 @@ uv.lock
 
 # File generated from promptify script (to create an LLM-friendly prompt for the repo)
 project_contents.md
+
+# example logs
+examples/**/*.jsonl
