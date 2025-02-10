@@ -133,7 +133,7 @@ class AnthropicAugmentedLLM(AugmentedLLM[MessageParam, Message]):
             response = executor_result[0]
 
             if isinstance(response, BaseException):
-                logger.error(f"Error: {executor_result}")
+                self.logger.error(f"Error: {executor_result}")
                 break
 
             self.logger.debug(

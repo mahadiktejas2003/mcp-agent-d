@@ -35,7 +35,6 @@ from mcp_agent.workflows.llm.augmented_llm import (
     RequestParams,
 )
 from mcp_agent.logging.logger import get_logger
-from rich import print
 
 
 class OpenAIAugmentedLLM(
@@ -186,7 +185,7 @@ class OpenAIAugmentedLLM(
             )
 
             if isinstance(response, BaseException):
-                logger.error(f"Error: {response}")
+                self.logger.error(f"Error: {response}")
                 break
 
             if not response.choices or len(response.choices) == 0:
@@ -215,13 +214,13 @@ class OpenAIAugmentedLLM(
                 ]
                 # Wait for all tool calls to complete.
                 tool_results = await self.executor.execute(*tool_tasks)
-                logger.debug(
+                self.logger.debug(
                     f"Iteration {i}: Tool call results: {str(tool_results) if tool_results else 'None'}"
                 )
                 # Add non-None results to messages.
                 for result in tool_results:
                     if isinstance(result, BaseException):
-                        logger.error(
+                        self.logger.error(
                             f"Warning: Unexpected error during tool execution: {result}. Continuing..."
                         )
                         continue
@@ -242,7 +241,9 @@ class OpenAIAugmentedLLM(
                 # TODO: saqadri - would be useful to return the reason for stopping to the caller
                 break
             elif choice.finish_reason == "stop":
-                logger.debug(f"Iteration {i}: Stopping because finish_reason is 'stop'")
+                self.logger.debug(
+                    f"Iteration {i}: Stopping because finish_reason is 'stop'"
+                )
                 break
 
         if params.use_history:

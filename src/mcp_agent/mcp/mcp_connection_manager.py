@@ -18,17 +18,14 @@ from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStre
 from mcp import ClientSession
 from mcp.client.stdio import (
     StdioServerParameters,
-    stdio_client,
     get_default_environment,
 )
 from mcp.client.sse import sse_client
 from mcp.types import JSONRPCMessage
 
-from mcp_agent.console import console
 
 from mcp_agent.config import MCPServerSettings
 from mcp_agent.logging.logger import get_logger
-from mcp_agent.mcp import stdio
 from mcp_agent.mcp.stdio import stdio_client_with_rich_stderr
 
 if TYPE_CHECKING:

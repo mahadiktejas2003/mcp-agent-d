@@ -16,7 +16,7 @@ from rich.json import JSON
 from rich.text import Text
 
 from mcp_agent.config import LoggerSettings
-from mcp_agent.console import console, error_console
+from mcp_agent.console import console
 from mcp_agent.logging.events import Event, EventFilter
 from mcp_agent.logging.json_serializer import JSONSerializer
 from mcp_agent.logging.listeners import EventListener, LifecycleAwareListener
