@@ -210,8 +210,7 @@ class MCPConnectionManager:
         def transport_context_factory():
             if config.transport == "stdio":
                 server_params = StdioServerParameters(
-                    command=config.command,
-                    args=config.args,
+                    command=config.command, args=config.args, env=config.env
                 )
                 return stdio_client(server_params)
             elif config.transport == "sse":

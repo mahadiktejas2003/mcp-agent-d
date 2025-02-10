@@ -125,7 +125,7 @@ class ServerRegistry:
                 )
 
             server_params = StdioServerParameters(
-                command=config.command, args=config.args
+                command=config.command, args=config.args, env=config.env
             )
 
             async with stdio_client(server_params) as (read_stream, write_stream):
