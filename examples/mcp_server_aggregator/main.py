@@ -17,9 +17,6 @@ async def example_usage_persistent():
     logger.info("Hello, world! Let's create an MCP aggregator (server-of-servers)...")
     logger.info("Current config:", data=context.config)
 
-    # Add the current directory to the filesystem server's args
-    context.config.mcp.servers["filesystem"].args.extend([os.getcwd()])
-
     # Create an MCP aggregator that connects to the fetch and filesystem servers
     aggregator = None
 
@@ -60,9 +57,6 @@ async def example_usage():
     context = app.context
     logger.info("Hello, world! Let's create an MCP aggregator (server-of-servers)...")
     logger.info("Current config:", data=context.config)
-
-    # Add the current directory to the filesystem server's args
-    context.config.mcp.servers["filesystem"].args.extend([os.getcwd()])
 
     # Create an MCP aggregator that connects to the fetch and filesystem servers
     aggregator = None
@@ -115,8 +109,8 @@ if __name__ == "__main__":
             end = time.time()
             non_persistent_time = end - start
 
-            print(f"Persistent connection time: {persistent_time:.2f}s")
-            print(f"Non-persistent connection time: {non_persistent_time:.2f}s")
+            print(f"\nPersistent connection time: {persistent_time:.2f}s")
+            print(f"\nNon-persistent connection time: {non_persistent_time:.2f}s")
         finally:
             await app.cleanup()
 
