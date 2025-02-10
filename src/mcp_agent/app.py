@@ -129,13 +129,29 @@ class MCPApp:
         self._context.model_selector = self._model_selector
 
         self._initialized = True
-        self.logger.info("MCPAgent initialized")
+        self.logger.info(
+            "MCPAgent initialized",
+            data={
+                "progress_action": "Running",
+                "target": self.name,
+                "agent_name": "mcp_application_loop",
+            },
+        )
 
     async def cleanup(self):
         """Cleanup application resources."""
         if not self._initialized:
             return
 
+        # Updatre progress display before logging is shut down
+        self.logger.info(
+            "MCPAgent cleanup",
+            data={
+                "progress_action": "Finished",
+                "target": self.name,
+                "agent_name": "mcp_application_loop",
+            },
+        )
         await cleanup_context()
         self._context = None
         self._initialized = False

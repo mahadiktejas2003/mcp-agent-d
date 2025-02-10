@@ -90,15 +90,8 @@ class ServerConnection:
         Initializes the server connection and session.
         Must be called within an async context.
         """
-        logger.info(
-            "Server session initialization starting",
-            data={"progress_action": "Starting", "mcp_name": self.server_name},
-        )
+
         await self.session.initialize()
-        logger.info(
-            "Server session initialized",
-            data={"progress_action": "Initialized", "mcp_name": self.server_name},
-        )
 
         # If there's an init hook, run it
         if self._init_hook:
@@ -168,11 +161,6 @@ async def _server_lifecycle_task(server_conn: ServerConnection) -> None:
         # 'get_server' won't hang
         server_conn._initialized_event.set()
         raise
-    finally:
-        logger.debug(
-            "Lifecycle task exiting",
-            data={"progress_action": "Shutdown", "mcp_name": server_name},
-        )
 
 
 class MCPConnectionManager:

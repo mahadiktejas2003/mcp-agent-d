@@ -28,21 +28,18 @@ class RichProgressDisplay:
 
     def start(self):
         """start"""
-        task_id = self._progress.add_task(
-            "[white]...mcp-agent...",
-            total=None,
-            target="mcp-agent app",
-            details="",
-            task_name="default",
-        )
-        self._taskmap["default"] = task_id
+        # task_id = self._progress.add_task(
+        #     "[white]...mcp-agent...",
+        #     total=None,
+        #     target="mcp-agent app",
+        #     details="",
+        #     task_name="default",
+        # )
+        # self._taskmap["default"] = task_id
         self._progress.start()
 
     def stop(self):
         """stop"""
-        default_task_id = self._taskmap["default"]
-        self._progress.update(default_task_id, total=100, completed=100)
-        self._progress.stop_task(default_task_id)
         self._progress.stop()
 
     def pause(self):
@@ -76,6 +73,7 @@ class RichProgressDisplay:
         return {
             ProgressAction.STARTING: "black on yellow",
             ProgressAction.INITIALIZED: "black on green",
+            ProgressAction.RUNNING: "black on green",
             ProgressAction.CHATTING: "white on dark_blue",
             ProgressAction.ROUTING: "white on dark_blue",
             ProgressAction.CALLING_TOOL: "white on dark_magenta",

@@ -11,6 +11,7 @@ class ProgressAction(str, Enum):
     """Progress actions available in the system."""
 
     STARTING = "Starting"
+    RUNNING = "Running"
     INITIALIZED = "Initialized"
     CHATTING = "Chatting"
     CALLING_TOOL = "Calling Tool"
@@ -56,15 +57,17 @@ def convert_log_event(event: Event) -> Optional[ProgressEvent]:
 
     # Build target string based on the event type
     namespace = event.namespace
-    if "mcp_connection_manager" in namespace:
-        target = f"MCP '{event_data.get('mcp_name')}'"
-    elif "mcp_aggregator" in namespace:
+    agent_name = event_data.get("agent_name")
+    if "mcp_aggregator" in namespace:
         server_name = event_data.get("server_name", "")
-        tool_name = event_data.get("tool_name", "")
-        target = f"{server_name} ({tool_name})" if server_name else tool_name
+        tool_name = event_data.get("tool_name")
+        if tool_name:
+            target = f"{server_name} ({tool_name})"
+        else:
+            target = f"MCP Server: {server_name}"
     elif "augmented_llm" in namespace:
         model = event_data.get("model", "")
-        agent_name = event_data.get("agent_name")
+
         target = f"{agent_name} ({model})" if agent_name else model
         # Add chat turn if present
         chat_turn = event_data.get("chat_turn")
