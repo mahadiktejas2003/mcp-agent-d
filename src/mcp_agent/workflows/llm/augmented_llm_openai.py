@@ -35,7 +35,6 @@ from mcp_agent.workflows.llm.augmented_llm import (
     RequestParams,
 )
 from mcp_agent.logging.logger import get_logger
-from rich import print
 
 
 class OpenAIAugmentedLLM(
@@ -107,7 +106,9 @@ class OpenAIAugmentedLLM(
         Override this method to use a different LLM.
         """
         config = self.context.config
-        openai_client = OpenAI(api_key=config.openai.api_key)
+        openai_client = OpenAI(
+            api_key=config.openai.api_key, base_url=config.openai.base_url
+        )
         messages: List[ChatCompletionMessageParam] = []
         params = self.get_request_params(request_params)
 
@@ -170,10 +171,7 @@ class OpenAIAugmentedLLM(
                 arguments = {**arguments, **params.metadata}
 
             self.logger.debug(f"{arguments}")
-            self._log_chat_progress(
-                chat_turn=len(messages) // 2,
-                model=model
-            )
+            self._log_chat_progress(chat_turn=len(messages) // 2, model=model)
 
             executor_result = await self.executor.execute(
                 openai_client.chat.completions.create, **arguments
@@ -186,6 +184,10 @@ class OpenAIAugmentedLLM(
                 data=response,
             )
 
+            if isinstance(response, BaseException):
+                self.logger.error(f"Error: {response}")
+                break
+
             if not response.choices or len(response.choices) == 0:
                 # No response from the model, we're done
                 break
@@ -193,15 +195,37 @@ class OpenAIAugmentedLLM(
             # TODO: saqadri - handle multiple choices for more complex interactions.
             # Keeping it simple for now because multiple choices will also complicate memory management
             choice = response.choices[0]
-            messages.append(choice.message)
-            responses.append(choice.message)
+            message = choice.message
+            responses.append(message)
 
-            if choice.finish_reason == "stop":
-                # We have reached the end of the conversation
+            converted_message = self.convert_message_to_message_param(
+                message, name=self.name
+            )
+            messages.append(converted_message)
+
+            if (
+                choice.finish_reason in ["tool_calls", "function_call"]
+                and message.tool_calls
+            ):
+                # Execute all tool calls in parallel.
+                tool_tasks = [
+                    self.execute_tool_call(tool_call)
+                    for tool_call in message.tool_calls
+                ]
+                # Wait for all tool calls to complete.
+                tool_results = await self.executor.execute(*tool_tasks)
                 self.logger.debug(
-                    f"Iteration {i}: Stopping because finish_reason is 'stop'"
+                    f"Iteration {i}: Tool call results: {str(tool_results) if tool_results else 'None'}"
                 )
-                break
+                # Add non-None results to messages.
+                for result in tool_results:
+                    if isinstance(result, BaseException):
+                        self.logger.error(
+                            f"Warning: Unexpected error during tool execution: {result}. Continuing..."
+                        )
+                        continue
+                    if result is not None:
+                        messages.append(result)
             elif choice.finish_reason == "length":
                 # We have reached the max tokens limit
                 self.logger.debug(
@@ -216,37 +240,11 @@ class OpenAIAugmentedLLM(
                 )
                 # TODO: saqadri - would be useful to return the reason for stopping to the caller
                 break
-            else:  #  choice.finish_reason in ["tool_calls", "function_call"]
-                message = choice.message
-
-                if message.content:
-                    messages.append(
-                        self.convert_message_to_message_param(message, name=self.name)
-                    )
-
-                if message.tool_calls:
-                    # Execute all tool calls in parallel
-                    tool_tasks = [
-                        self.execute_tool_call(tool_call)
-                        for tool_call in message.tool_calls
-                    ]
-
-                    # Wait for all tool calls to complete
-                    tool_results = await self.executor.execute(*tool_tasks)
-                    self.logger.debug(
-                        f"Iteration {i}: Tool call results: {str(tool_results) if tool_results else 'None'}"
-                    )
-
-                    # Add non-None results to messages
-                    for result in tool_results:
-                        if isinstance(result, BaseException):
-                            # Handle any unexpected exceptions during parallel execution
-                            self.logger.error(
-                                f"Warning: Unexpected error during tool execution: {result}. Continuing..."
-                            )
-                            continue
-                        if result is not None:
-                            messages.append(result)
+            elif choice.finish_reason == "stop":
+                self.logger.debug(
+                    f"Iteration {i}: Stopping because finish_reason is 'stop'"
+                )
+                break
 
         if params.use_history:
             self.history.set(messages)

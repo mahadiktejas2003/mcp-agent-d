@@ -11,7 +11,6 @@ from mcp.types import (
     Tool,
 )
 
-from mcp_agent import event_progress
 from mcp_agent.logging.logger import get_logger
 from mcp_agent.mcp.gen_client import gen_client
 
@@ -219,11 +218,14 @@ class MCPAggregator(ContextDependent):
 
                 self._namespaced_tool_map[namespaced_tool_name] = namespaced_tool
                 self._server_to_tool_map[server_name].append(namespaced_tool)
-        logger.debug("MCP Aggregator initialized", data={
-            "progress_action": "Running",
-            "mcp_name": self.agent_name,
-            "agent_name": self.agent_name
-        })
+        logger.debug(
+            "MCP Aggregator initialized",
+            data={
+                "progress_action": "Running",
+                "mcp_name": self.agent_name,
+                "agent_name": self.agent_name,
+            },
+        )
         self.initialized = True
 
     async def list_servers(self) -> List[str]:
@@ -274,12 +276,15 @@ class MCPAggregator(ContextDependent):
                 logger.error(f"Error: Tool '{name}' not found")
                 return CallToolResult(isError=True, message=f"Tool '{name}' not found")
 
-        logger.info("Requesting tool call", data={
-            "progress_action": "Calling Tool",
-            "tool_name": local_tool_name,
-            "server_name": server_name,
-            "agent_name": self.agent_name
-        })
+        logger.info(
+            "Requesting tool call",
+            data={
+                "progress_action": "Calling Tool",
+                "tool_name": local_tool_name,
+                "server_name": server_name,
+                "agent_name": self.agent_name,
+            },
+        )
 
         async def try_call_tool(client: ClientSession):
             try:

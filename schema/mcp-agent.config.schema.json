@@ -380,6 +380,18 @@
           ],
           "title": "Reasoning Effort",
           "type": "string"
+        },
+        "base_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Url"
         }
       },
       "title": "OpenAISettings",

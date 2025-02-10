@@ -38,7 +38,7 @@ async def example_usage():
 
             try:
                 llm_oai = await interpreter_agent.attach_llm(OpenAIAugmentedLLM)
-                llm_anthr = await interpreter_agent.attach_llm(AnthropicAugmentedLLM)
+                llm_anthr = await interpreter_agent.attach_llm(AnthropicAugmentedLLM)  # noqa: F841
 
                 #                result = await llm_oai.generate_str(research_prompt)
                 ##               logger.info(result)
