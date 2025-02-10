@@ -16,7 +16,11 @@ from typing import Any, Dict
 from contextlib import asynccontextmanager, contextmanager
 
 from mcp_agent.logging.events import Event, EventContext, EventFilter, EventType
-from mcp_agent.logging.listeners import BatchingListener, LoggingListener, ProgressListener
+from mcp_agent.logging.listeners import (
+    BatchingListener,
+    LoggingListener,
+    ProgressListener,
+)
 from mcp_agent.logging.transport import AsyncEventBus, EventTransport
 
 
@@ -58,7 +62,6 @@ class Logger:
         message: str,
         context: EventContext | None,
         data: dict,
-        extra: dict | None = None,
     ):
         """Create and emit an event."""
         evt = Event(
@@ -68,7 +71,6 @@ class Logger:
             message=message,
             context=context,
             data=data,
-            extra=extra or {},
         )
         self._emit_event(evt)
 
@@ -81,40 +83,37 @@ class Logger:
         **data,
     ):
         """Log a debug message."""
-        self.event("debug", name, message, context, data, extra)
+        self.event("debug", name, message, context, data)
 
     def info(
         self,
         message: str,
         name: str | None = None,
         context: EventContext = None,
-        extra: dict | None = None,
         **data,
     ):
         """Log an info message."""
-        self.event("info", name, message, context, data, extra)
+        self.event("info", name, message, context, data)
 
     def warning(
         self,
         message: str,
         name: str | None = None,
         context: EventContext = None,
-        extra: dict | None = None,
         **data,
     ):
         """Log a warning message."""
-        self.event("warning", name, message, context, data, extra)
+        self.event("warning", name, message, context, data)
 
     def error(
         self,
         message: str,
         name: str | None = None,
         context: EventContext = None,
-        extra: dict | None = None,
         **data,
     ):
         """Log an error message."""
-        self.event("error", name, message, context, data, extra)
+        self.event("error", name, message, context, data)
 
     def progress(
         self,
@@ -122,12 +121,11 @@ class Logger:
         name: str | None = None,
         percentage: float = None,
         context: EventContext = None,
-        extra: dict | None = None,
         **data,
     ):
         """Log a progress message."""
         merged_data = dict(percentage=percentage, **data)
-        self.event("progress", name, message, context, merged_data, extra)
+        self.event("progress", name, message, context, merged_data)
 
 
 @contextmanager

@@ -38,11 +38,17 @@ class ProgressEvent:
 
 def convert_log_event(event: Dict[str, Any]) -> Optional[ProgressEvent]:
     """Convert a log event to a progress event if applicable."""
-    # Check if this is a progress event by looking for progress_action in data
+    # Return early if event is not a dictionary
+    if not isinstance(event, dict):
+        return None
+
+    # Get data field, defaulting to empty dict
     data = event.get("data", {})
-    
-    # Handle both nested (from file) and flat (from live events) data structures
-    progress_data = data.get("data", data)  # Try nested first, fall back to flat
+    if not isinstance(data, dict):
+        return None
+
+    # Handle both nested and flat data structures
+    progress_data = data.get("data", data)
     progress_action = progress_data.get("progress_action")
     if not progress_action:
         return None

@@ -102,7 +102,6 @@ class LoggingListener(FilteredListener):
                 "span_id": event.span_id,
                 "trace_id": event.trace_id,
                 "event_name": event.name,
-                **event.extra  # Make sure any extra data is passed through
             },
         )
 
@@ -120,6 +119,7 @@ class ProgressListener(LifecycleAwareListener):
             display: Optional display handler. If None, the shared progress_display will be used.
         """
         from mcp_agent.progress_display import progress_display
+
         self.display = display or progress_display
 
     async def start(self):
@@ -133,16 +133,12 @@ class ProgressListener(LifecycleAwareListener):
     async def handle_event(self, event: Event):
         """Process an incoming event and display progress if relevant."""
         # Convert event to dict format expected by convert_log_event
-        event_dict = {
-            "namespace": event.namespace,
-            "message": event.message,
-            "data": event.data,
-            "extra": event.extra
-        }
 
-        progress_event = convert_log_event(event_dict)
-        if progress_event:
-            self.display.update(progress_event)
+        data = event.data if event.data else {}
+        if event.data:
+            progress_event = convert_log_event(data)
+            if progress_event:
+                self.display.update(progress_event)
 
 
 class BatchingListener(FilteredListener):
