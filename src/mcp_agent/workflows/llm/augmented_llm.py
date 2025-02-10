@@ -388,21 +388,19 @@ class AugmentedLLM(ContextDependent, AugmentedLLMProtocol[MessageParamT, Message
         """Convert an output message to a string representation."""
         return str(message)
 
-    def _log_chat_progress(self, chat_turn: Optional[int] = None, model: Optional[str] = None):
+    def _log_chat_progress(
+        self, chat_turn: Optional[int] = None, model: Optional[str] = None
+    ):
         """Log a chat progress event"""
         data = {
             "progress_action": "Chatting",
             "model": model,
             "agent_name": self.name,
-            "data": {"chat_turn": chat_turn} if chat_turn is not None else None
+            "chat_turn": chat_turn if chat_turn is not None else None,
         }
         self.logger.info("Chat in progress", data=data)
 
     def _log_chat_finished(self, model: Optional[str] = None):
         """Log a chat finished event"""
-        data = {
-            "progress_action": "Finished",
-            "model": model,
-            "agent_name": self.name
-        }
+        data = {"progress_action": "Finished", "model": model, "agent_name": self.name}
         self.logger.info("Chat finished", data=data)

@@ -132,11 +132,9 @@ class ProgressListener(LifecycleAwareListener):
 
     async def handle_event(self, event: Event):
         """Process an incoming event and display progress if relevant."""
-        # Convert event to dict format expected by convert_log_event
 
-        data = event.data if event.data else {}
         if event.data:
-            progress_event = convert_log_event(data)
+            progress_event = convert_log_event(event)
             if progress_event:
                 self.display.update(progress_event)
 

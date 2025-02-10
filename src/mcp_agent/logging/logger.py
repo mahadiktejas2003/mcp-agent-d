@@ -79,7 +79,6 @@ class Logger:
         message: str,
         name: str | None = None,
         context: EventContext = None,
-        extra: dict | None = None,
         **data,
     ):
         """Log a debug message."""

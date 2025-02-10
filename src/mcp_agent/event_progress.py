@@ -2,7 +2,9 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, Optional, Union
+from typing import Optional
+
+from mcp_agent.logging.events import Event
 
 
 class ProgressAction(str, Enum):
@@ -36,47 +38,47 @@ class ProgressEvent:
         return base
 
 
-def convert_log_event(event: Dict[str, Any]) -> Optional[ProgressEvent]:
+def convert_log_event(event: Event) -> Optional[ProgressEvent]:
     """Convert a log event to a progress event if applicable."""
-    # Return early if event is not a dictionary
-    if not isinstance(event, dict):
+
+    # Check to see if there is any additional data
+    if not event.data:
         return None
 
-    # Get data field, defaulting to empty dict
-    data = event.get("data", {})
-    if not isinstance(data, dict):
+    event_data = event.data.get("data")
+    if not isinstance(event_data, dict):
         return None
 
-    # Handle both nested and flat data structures
-    progress_data = data.get("data", data)
-    progress_action = progress_data.get("progress_action")
+    progress_action = event_data.get("progress_action")
     if not progress_action:
         return None
 
     # Build target string based on the event type
-    namespace = event.get("namespace", "")
+    namespace = event.namespace
     if "mcp_connection_manager" in namespace:
-        target = f"MCP '{data.get('mcp_name')}'"
+        target = f"MCP '{event_data.get('mcp_name')}'"
     elif "mcp_aggregator" in namespace:
-        server_name = data.get("server_name", "")
-        tool_name = data.get("tool_name", "")
+        server_name = event_data.get("server_name", "")
+        tool_name = event_data.get("tool_name", "")
         target = f"{server_name} ({tool_name})" if server_name else tool_name
     elif "augmented_llm" in namespace:
-        model = data.get("model", "")
-        agent_name = data.get("agent_name")
+        model = event_data.get("model", "")
+        agent_name = event_data.get("agent_name")
         target = f"{agent_name} ({model})" if agent_name else model
         # Add chat turn if present
-        chat_turn = data.get("data", {}).get("chat_turn")
+        chat_turn = event_data.get("chat_turn")
         if chat_turn is not None:
             return ProgressEvent(
                 ProgressAction(progress_action),
                 target,
                 f"Turn {chat_turn}",
-                agent_name=data.get("agent_name"),
+                agent_name=event_data.get("agent_name"),
             )
     else:
-        target = data.get("target", "unknown")
+        target = event_data.get("target", "unknown")
 
     return ProgressEvent(
-        ProgressAction(progress_action), target, agent_name=data.get("agent_name")
+        ProgressAction(progress_action),
+        target,
+        agent_name=event_data.get("agent_name"),
     )
