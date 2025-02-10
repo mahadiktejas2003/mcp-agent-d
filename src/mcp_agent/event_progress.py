@@ -17,6 +17,7 @@ class ProgressAction(str, Enum):
     FINISHED = "Finished"
     SHUTDOWN = "Shutdown"
     AGGREGATOR_INITIALIZED = "Running"
+    ROUTING = "Routing"
 
 
 @dataclass
@@ -74,6 +75,8 @@ def convert_log_event(event: Event) -> Optional[ProgressEvent]:
                 f"Turn {chat_turn}",
                 agent_name=event_data.get("agent_name"),
             )
+    elif "router_llm" in namespace:
+        target = "Requesting routing from LLM"
     else:
         target = event_data.get("target", "unknown")
 
