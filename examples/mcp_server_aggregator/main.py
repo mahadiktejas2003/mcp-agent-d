@@ -1,5 +1,4 @@
 import asyncio
-import os
 from pathlib import Path
 
 from mcp_agent.app import MCPApp
