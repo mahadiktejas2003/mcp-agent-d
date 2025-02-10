@@ -198,7 +198,8 @@ class LLMRouter(Router):
         )
 
         logger.debug(
-            f"Requesting routing from LLM, \nrequest: {request} \ntop_k: {top_k} \nrouting_instruction: {routing_instruction} \ncontext={context}"
+            f"Requesting routing from LLM, \nrequest: {request} \ntop_k: {top_k} \nrouting_instruction: {routing_instruction} \ncontext={context}",
+            data={"progress_action": "Routing", "agent_name": "LLM Router"},
         )
 
         # Format the prompt with all the necessary information
@@ -210,6 +211,11 @@ class LLMRouter(Router):
         response = await self.llm.generate_structured(
             message=prompt,
             response_model=StructuredResponse,
+        )
+
+        logger.debug(
+            "Routing Response received",
+            data={"progress_action": "Finished", "agent_name": "LLM Router"},
         )
 
         # Construct the result

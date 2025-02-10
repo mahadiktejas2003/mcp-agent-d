@@ -2,7 +2,6 @@
 
 from typing import Optional
 from rich.console import Console
-from rich.text import Text
 from mcp_agent.console import console as default_console
 from mcp_agent.event_progress import ProgressEvent, ProgressAction
 from rich.progress import Progress, BarColumn, TextColumn, TimeElapsedColumn
@@ -78,6 +77,7 @@ class RichProgressDisplay:
             ProgressAction.STARTING: "black on yellow",
             ProgressAction.INITIALIZED: "black on green",
             ProgressAction.CHATTING: "white on dark_blue",
+            ProgressAction.ROUTING: "white on dark_blue",
             ProgressAction.CALLING_TOOL: "white on dark_magenta",
             ProgressAction.FINISHED: "black on green",
             ProgressAction.SHUTDOWN: "black on red",
@@ -100,9 +100,10 @@ class RichProgressDisplay:
         else:
             task_id = self._taskmap[task_name]
 
-        # For FINISHED events, mark the task as complete but don't remove it
+        # For FINISHED events, mark the task as complete
         if event.action == ProgressAction.FINISHED:
             self._progress.update(task_id, total=100, completed=100)
+            self._taskmap.pop(task_name)
 
         # Update the task with new information
         self._progress.update(
