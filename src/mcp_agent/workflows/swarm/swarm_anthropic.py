@@ -17,7 +17,7 @@ class AnthropicSwarm(Swarm, AnthropicAugmentedLLM):
             request_params,
             default=RequestParams(
                 model="claude-3-5-sonnet-20241022",
-                max_tokens=8192,
+                maxTokens=8192,
                 parallel_tool_calls=False,
             ),
         )

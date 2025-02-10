@@ -124,16 +124,17 @@ class AnthropicAugmentedLLM(AugmentedLLM[MessageParam, Message]):
             if params.metadata:
                 arguments = {**arguments, **params.metadata}
 
-            self._log_chat_progress(
-                chat_turn=(len(messages) + 1) // 2,
-                model=model
-            )
+            self._log_chat_progress(chat_turn=(len(messages) + 1) // 2, model=model)
 
             executor_result = await self.executor.execute(
                 anthropic.messages.create, **arguments
             )
 
             response = executor_result[0]
+
+            if isinstance(response, BaseException):
+                logger.error(f"Error: {executor_result}")
+                break
 
             self.logger.debug(
                 f"{model} response:",

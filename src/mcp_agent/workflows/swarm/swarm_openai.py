@@ -16,7 +16,7 @@ class OpenAISwarm(Swarm, OpenAIAugmentedLLM):
             request_params,
             default=RequestParams(
                 model="gpt-4o",
-                max_tokens=8192,
+                maxTokens=8192,
                 parallel_tool_calls=False,
             ),
         )

@@ -16,7 +16,11 @@ from anyio.abc import TaskGroup
 from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 
 from mcp import ClientSession
-from mcp.client.stdio import StdioServerParameters
+from mcp.client.stdio import (
+    StdioServerParameters,
+    stdio_client,
+    get_default_environment,
+)
 from mcp.client.sse import sse_client
 from mcp.types import JSONRPCMessage
 
@@ -89,15 +93,15 @@ class ServerConnection:
         Initializes the server connection and session.
         Must be called within an async context.
         """
-        logger.info("Server session initialization starting", data={
-            "progress_action": "Starting",
-            "mcp_name": self.server_name
-        })
+        logger.info(
+            "Server session initialization starting",
+            data={"progress_action": "Starting", "mcp_name": self.server_name},
+        )
         await self.session.initialize()
-        logger.info("Server session initialized", data={
-            "progress_action": "Initialized", 
-            "mcp_name": self.server_name
-        })
+        logger.info(
+            "Server session initialized",
+            data={"progress_action": "Initialized", "mcp_name": self.server_name},
+        )
 
         # If there's an init hook, run it
         if self._init_hook:
@@ -168,10 +172,10 @@ async def _server_lifecycle_task(server_conn: ServerConnection) -> None:
         server_conn._initialized_event.set()
         raise
     finally:
-        logger.debug("Lifecycle task exiting", data={
-            "progress_action": "Shutdown",
-            "mcp_name": server_name
-        })
+        logger.debug(
+            "Lifecycle task exiting",
+            data={"progress_action": "Shutdown", "mcp_name": server_name},
+        )
 
 
 class MCPConnectionManager:
@@ -228,7 +232,7 @@ class MCPConnectionManager:
                 server_params = StdioServerParameters(
                     command=config.command,
                     args=config.args,
-                    env={**stdio.get_default_environment(), **(config.env or {})},
+                    env={**get_default_environment(), **(config.env or {})},
                 )
                 # Create stdio client config with redirected stderr
                 return stdio_client_with_rich_stderr(server_params)

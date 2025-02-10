@@ -78,6 +78,9 @@ class MCPServerSettings(BaseModel):
     env: Dict[str, str] | None = None
     """Environment variables to pass to the server process."""
 
+    env: Dict[str, str] | None = None
+    """Environment variables to pass to the server process."""
+
 
 class MCPSettings(BaseModel):
     """Configuration for all MCP servers."""
@@ -113,6 +116,8 @@ class OpenAISettings(BaseModel):
 
     api_key: str | None = None
     reasoning_effort: Literal["low", "medium", "high"] = "medium"
+
+    base_url: str | None = None
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 

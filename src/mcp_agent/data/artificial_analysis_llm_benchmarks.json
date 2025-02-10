@@ -10,11 +10,33 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 31090.0,
-        "tokens_per_second": 32.5
+        "time_to_first_token_ms": 30790.0,
+        "tokens_per_second": 34.4
       },
       "intelligence": {
         "quality_score": 90.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "o3-mini",
+    "description": "o3-mini",
+    "provider": "OpenAI",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 1.93,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 10480.0,
+        "tokens_per_second": 203.7
+      },
+      "intelligence": {
+        "quality_score": 89.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -32,8 +54,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 19760.0,
-        "tokens_per_second": 149.1
+        "time_to_first_token_ms": 21730.0,
+        "tokens_per_second": 149.4
       },
       "intelligence": {
         "quality_score": 85.0,
@@ -54,8 +76,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 24540.0,
-        "tokens_per_second": 41.2
+        "time_to_first_token_ms": 29650.0,
+        "tokens_per_second": 37.4
       },
       "intelligence": {
         "quality_score": 86.0,
@@ -76,8 +98,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 10550.0,
-        "tokens_per_second": 210.7
+        "time_to_first_token_ms": 11440.0,
+        "tokens_per_second": 198.3
       },
       "intelligence": {
         "quality_score": 82.0,
@@ -88,6 +110,28 @@
     }
   },
   {
+    "name": "o1-mini",
+    "description": "o1-mini",
+    "provider": "Microsoft Azure",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 5.78,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 14630.0,
+        "tokens_per_second": 74.7
+      },
+      "intelligence": {
+        "quality_score": 84.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
     "name": "gpt-4o-2024-08-06",
     "description": "GPT-4o (Aug '24)",
     "provider": "OpenAI",
@@ -98,8 +142,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 430.0,
-        "tokens_per_second": 69.0
+        "time_to_first_token_ms": 470.0,
+        "tokens_per_second": 63.5
       },
       "intelligence": {
         "quality_score": 78.0,
@@ -112,6 +156,94 @@
   {
     "name": "gpt-4o-2024-08-06",
     "description": "GPT-4o (Aug '24)",
+    "provider": "Microsoft Azure",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 4.38,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 800.0,
+        "tokens_per_second": 113.9
+      },
+      "intelligence": {
+        "quality_score": 78.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "gpt-4o-2024-05-13",
+    "description": "GPT-4o (May '24)",
+    "provider": "OpenAI",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 7.5,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 480.0,
+        "tokens_per_second": 64.9
+      },
+      "intelligence": {
+        "quality_score": 78.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "gpt-4o-2024-05-13",
+    "description": "GPT-4o (May '24)",
+    "provider": "Microsoft Azure",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 7.5,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 830.0,
+        "tokens_per_second": 128.8
+      },
+      "intelligence": {
+        "quality_score": 78.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "gpt-4o",
+    "description": "GPT-4o (Nov '24)",
+    "provider": "OpenAI",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 4.38,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 410.0,
+        "tokens_per_second": 104.7
+      },
+      "intelligence": {
+        "quality_score": 73.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "gpt-4o",
+    "description": "GPT-4o (Nov '24)",
     "provider": "Microsoft Azure",
     "metrics": {
       "cost": {
@@ -121,98 +253,10 @@
       },
       "speed": {
         "time_to_first_token_ms": 900.0,
-        "tokens_per_second": 0.1
+        "tokens_per_second": 144.4
       },
       "intelligence": {
-        "quality_score": 78.0,
-        "mmlu_score": null,
-        "gsm8k_score": null,
-        "bbh_score": null
-      }
-    }
-  },
-  {
-    "name": "gpt-4o-2024-05-13",
-    "description": "GPT-4o (May '24)",
-    "provider": "OpenAI",
-    "metrics": {
-      "cost": {
-        "blended_cost_per_1m": 7.5,
-        "input_cost_per_1m": null,
-        "output_cost_per_1m": null
-      },
-      "speed": {
-        "time_to_first_token_ms": 430.0,
-        "tokens_per_second": 68.0
-      },
-      "intelligence": {
-        "quality_score": 78.0,
-        "mmlu_score": null,
-        "gsm8k_score": null,
-        "bbh_score": null
-      }
-    }
-  },
-  {
-    "name": "gpt-4o-2024-05-13",
-    "description": "GPT-4o (May '24)",
-    "provider": "Microsoft Azure",
-    "metrics": {
-      "cost": {
-        "blended_cost_per_1m": 7.5,
-        "input_cost_per_1m": null,
-        "output_cost_per_1m": null
-      },
-      "speed": {
-        "time_to_first_token_ms": 760.0,
-        "tokens_per_second": 0.1
-      },
-      "intelligence": {
-        "quality_score": 78.0,
-        "mmlu_score": null,
-        "gsm8k_score": null,
-        "bbh_score": null
-      }
-    }
-  },
-  {
-    "name": "gpt-4o",
-    "description": "GPT-4o (Nov '24)",
-    "provider": "OpenAI",
-    "metrics": {
-      "cost": {
-        "blended_cost_per_1m": 4.38,
-        "input_cost_per_1m": null,
-        "output_cost_per_1m": null
-      },
-      "speed": {
-        "time_to_first_token_ms": 370.0,
-        "tokens_per_second": 120.8
-      },
-      "intelligence": {
-        "quality_score": 73.0,
-        "mmlu_score": null,
-        "gsm8k_score": null,
-        "bbh_score": null
-      }
-    }
-  },
-  {
-    "name": "gpt-4o",
-    "description": "GPT-4o (Nov '24)",
-    "provider": "Microsoft Azure",
-    "metrics": {
-      "cost": {
-        "blended_cost_per_1m": 4.38,
-        "input_cost_per_1m": null,
-        "output_cost_per_1m": null
-      },
-      "speed": {
-        "time_to_first_token_ms": 930.0,
-        "tokens_per_second": 0.1
-      },
-      "intelligence": {
-        "quality_score": 73.0,
+        "quality_score": 75.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -230,8 +274,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 380.0,
-        "tokens_per_second": 79.9
+        "time_to_first_token_ms": 460.0,
+        "tokens_per_second": 78.0
       },
       "intelligence": {
         "quality_score": 73.0,
@@ -253,7 +297,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 790.0,
-        "tokens_per_second": 0.1
+        "tokens_per_second": 171.7
       },
       "intelligence": {
         "quality_score": 73.0,
@@ -274,8 +318,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 230.0,
-        "tokens_per_second": 2191.5
+        "time_to_first_token_ms": 200.0,
+        "tokens_per_second": 2194.5
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -296,8 +340,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 580.0,
-        "tokens_per_second": 20.9
+        "time_to_first_token_ms": 560.0,
+        "tokens_per_second": 23.7
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -318,8 +362,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 940.0,
-        "tokens_per_second": 31.3
+        "time_to_first_token_ms": 930.0,
+        "tokens_per_second": 31.5
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -341,7 +385,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 600.0,
-        "tokens_per_second": 70.1
+        "tokens_per_second": 70.8
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -363,7 +407,29 @@
       },
       "speed": {
         "time_to_first_token_ms": 630.0,
-        "tokens_per_second": 44.8
+        "tokens_per_second": 41.4
+      },
+      "intelligence": {
+        "quality_score": 74.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "llama-3-3-instruct-70b",
+    "description": "Llama 3.3 70B",
+    "provider": "CentML",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 0.5,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 520.0,
+        "tokens_per_second": 124.1
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -384,8 +450,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 460.0,
-        "tokens_per_second": 0.1
+        "time_to_first_token_ms": 450.0,
+        "tokens_per_second": 52.5
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -406,8 +472,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 500.0,
-        "tokens_per_second": 101.6
+        "time_to_first_token_ms": 600.0,
+        "tokens_per_second": 93.9
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -428,8 +494,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 320.0,
-        "tokens_per_second": 27.2
+        "time_to_first_token_ms": 440.0,
+        "tokens_per_second": 26.2
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -450,8 +516,30 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 370.0,
-        "tokens_per_second": 28.7
+        "time_to_first_token_ms": 460.0,
+        "tokens_per_second": 25.2
+      },
+      "intelligence": {
+        "quality_score": 74.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "llama-3-3-instruct-70b",
+    "description": "Llama 3.3 70B",
+    "provider": "FriendliAI",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 0.6,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 340.0,
+        "tokens_per_second": 203.6
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -472,8 +560,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 830.0,
-        "tokens_per_second": 34.3
+        "time_to_first_token_ms": 840.0,
+        "tokens_per_second": 65.2
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -494,8 +582,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 340.0,
-        "tokens_per_second": 1873.1
+        "time_to_first_token_ms": 360.0,
+        "tokens_per_second": 1793.3
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -516,8 +604,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 260.0,
-        "tokens_per_second": 275.3
+        "time_to_first_token_ms": 370.0,
+        "tokens_per_second": 275.2
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -539,7 +627,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 440.0,
-        "tokens_per_second": 339.6
+        "tokens_per_second": 359.5
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -551,8 +639,8 @@
   },
   {
     "name": "llama-3-3-instruct-70b",
-    "description": "Llama 3.3 70B",
-    "provider": "Together.ai",
+    "description": "Llama 3.3 70B Turbo",
+    "provider": "Together.ai Turbo",
     "metrics": {
       "cost": {
         "blended_cost_per_1m": 0.88,
@@ -560,8 +648,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 400.0,
-        "tokens_per_second": 177.4
+        "time_to_first_token_ms": 390.0,
+        "tokens_per_second": 198.4
       },
       "intelligence": {
         "quality_score": 75.0,
@@ -582,8 +670,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 420.0,
-        "tokens_per_second": 18.9
+        "time_to_first_token_ms": 400.0,
+        "tokens_per_second": 19.0
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -604,8 +692,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 810.0,
-        "tokens_per_second": 10.6
+        "time_to_first_token_ms": 840.0,
+        "tokens_per_second": 7.3
       },
       "intelligence": {
         "quality_score": 75.0,
@@ -648,8 +736,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 810.0,
-        "tokens_per_second": 65.0
+        "time_to_first_token_ms": 800.0,
+        "tokens_per_second": 64.9
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -670,7 +758,7 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 710.0,
+        "time_to_first_token_ms": 720.0,
         "tokens_per_second": 34.1
       },
       "intelligence": {
@@ -692,7 +780,7 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 410.0,
+        "time_to_first_token_ms": 400.0,
         "tokens_per_second": 29.7
       },
       "intelligence": {
@@ -714,8 +802,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 540.0,
-        "tokens_per_second": 0.1
+        "time_to_first_token_ms": 520.0,
+        "tokens_per_second": 21.8
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -736,8 +824,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 600.0,
-        "tokens_per_second": 70.4
+        "time_to_first_token_ms": 740.0,
+        "tokens_per_second": 64.1
       },
       "intelligence": {
         "quality_score": 73.0,
@@ -758,8 +846,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 430.0,
-        "tokens_per_second": 21.5
+        "time_to_first_token_ms": 450.0,
+        "tokens_per_second": 21.7
       },
       "intelligence": {
         "quality_score": 73.0,
@@ -780,8 +868,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 710.0,
-        "tokens_per_second": 171.4
+        "time_to_first_token_ms": 690.0,
+        "tokens_per_second": 170.3
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -802,8 +890,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 700.0,
-        "tokens_per_second": 38.6
+        "time_to_first_token_ms": 730.0,
+        "tokens_per_second": 37.8
       },
       "intelligence": {
         "quality_score": 72.0,
@@ -824,8 +912,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 790.0,
-        "tokens_per_second": 80.7
+        "time_to_first_token_ms": 750.0,
+        "tokens_per_second": 86.9
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -846,8 +934,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 550.0,
-        "tokens_per_second": 22.7
+        "time_to_first_token_ms": 500.0,
+        "tokens_per_second": 37.1
       },
       "intelligence": {
         "quality_score": 67.0,
@@ -869,7 +957,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 190.0,
-        "tokens_per_second": 32.7
+        "tokens_per_second": 31.9
       },
       "intelligence": {
         "quality_score": 68.0,
@@ -890,8 +978,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 310.0,
-        "tokens_per_second": 67.8
+        "time_to_first_token_ms": 320.0,
+        "tokens_per_second": 68.2
       },
       "intelligence": {
         "quality_score": 66.0,
@@ -913,7 +1001,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 310.0,
-        "tokens_per_second": 38.9
+        "tokens_per_second": 39.8
       },
       "intelligence": {
         "quality_score": 68.0,
@@ -934,8 +1022,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 390.0,
-        "tokens_per_second": 267.5
+        "time_to_first_token_ms": 540.0,
+        "tokens_per_second": 272.1
       },
       "intelligence": {
         "quality_score": 67.0,
@@ -956,7 +1044,7 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 310.0,
+        "time_to_first_token_ms": 330.0,
         "tokens_per_second": 55.2
       },
       "intelligence": {
@@ -978,8 +1066,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 220.0,
-        "tokens_per_second": 2209.0
+        "time_to_first_token_ms": 230.0,
+        "tokens_per_second": 2172.6
       },
       "intelligence": {
         "quality_score": 68.0,
@@ -1000,8 +1088,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 700.0,
-        "tokens_per_second": 25.3
+        "time_to_first_token_ms": 660.0,
+        "tokens_per_second": 25.0
       },
       "intelligence": {
         "quality_score": 69.0,
@@ -1026,7 +1114,7 @@
         "tokens_per_second": 31.4
       },
       "intelligence": {
-        "quality_score": 68.0,
+        "quality_score": 67.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -1044,11 +1132,11 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 390.0,
-        "tokens_per_second": 138.9
+        "time_to_first_token_ms": 380.0,
+        "tokens_per_second": 141.3
       },
       "intelligence": {
-        "quality_score": 68.0,
+        "quality_score": 67.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -1067,7 +1155,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 630.0,
-        "tokens_per_second": 46.0
+        "tokens_per_second": 46.1
       },
       "intelligence": {
         "quality_score": 66.0,
@@ -1110,11 +1198,11 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 290.0,
-        "tokens_per_second": 71.2
+        "time_to_first_token_ms": 280.0,
+        "tokens_per_second": 69.5
       },
       "intelligence": {
-        "quality_score": 68.0,
+        "quality_score": 67.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -1132,11 +1220,11 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 560.0,
-        "tokens_per_second": 0.1
+        "time_to_first_token_ms": 440.0,
+        "tokens_per_second": 60.4
       },
       "intelligence": {
-        "quality_score": 68.0,
+        "quality_score": 67.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -1154,8 +1242,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 360.0,
-        "tokens_per_second": 131.4
+        "time_to_first_token_ms": 380.0,
+        "tokens_per_second": 131.6
       },
       "intelligence": {
         "quality_score": 67.0,
@@ -1176,8 +1264,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 270.0,
-        "tokens_per_second": 42.0
+        "time_to_first_token_ms": 280.0,
+        "tokens_per_second": 41.8
       },
       "intelligence": {
         "quality_score": 66.0,
@@ -1198,8 +1286,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 310.0,
-        "tokens_per_second": 38.7
+        "time_to_first_token_ms": 380.0,
+        "tokens_per_second": 40.3
       },
       "intelligence": {
         "quality_score": 66.0,
@@ -1220,8 +1308,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 430.0,
-        "tokens_per_second": 231.9
+        "time_to_first_token_ms": 350.0,
+        "tokens_per_second": 215.4
       },
       "intelligence": {
         "quality_score": 68.0,
@@ -1242,55 +1330,11 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 1020.0,
-        "tokens_per_second": 68.5
+        "time_to_first_token_ms": 1040.0,
+        "tokens_per_second": 63.7
       },
       "intelligence": {
         "quality_score": 68.0,
-        "mmlu_score": null,
-        "gsm8k_score": null,
-        "bbh_score": null
-      }
-    }
-  },
-  {
-    "name": "llama-3-1-instruct-70b",
-    "description": "Llama 3.1 70B",
-    "provider": "Groq",
-    "metrics": {
-      "cost": {
-        "blended_cost_per_1m": 0.64,
-        "input_cost_per_1m": null,
-        "output_cost_per_1m": null
-      },
-      "speed": {
-        "time_to_first_token_ms": 270.0,
-        "tokens_per_second": 275.4
-      },
-      "intelligence": {
-        "quality_score": 54.0,
-        "mmlu_score": null,
-        "gsm8k_score": null,
-        "bbh_score": null
-      }
-    }
-  },
-  {
-    "name": "llama-3-1-instruct-70b",
-    "description": "Llama 3.1 70B (Spec decoding)",
-    "provider": "Groq (Spec decoding)",
-    "metrics": {
-      "cost": {
-        "blended_cost_per_1m": 0.69,
-        "input_cost_per_1m": null,
-        "output_cost_per_1m": null
-      },
-      "speed": {
-        "time_to_first_token_ms": 340.0,
-        "tokens_per_second": 1857.4
-      },
-      "intelligence": {
-        "quality_score": 54.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -1308,8 +1352,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 430.0,
-        "tokens_per_second": 343.7
+        "time_to_first_token_ms": 410.0,
+        "tokens_per_second": 359.2
       },
       "intelligence": {
         "quality_score": 65.0,
@@ -1330,33 +1374,11 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 560.0,
-        "tokens_per_second": 61.6
+        "time_to_first_token_ms": 460.0,
+        "tokens_per_second": 64.2
       },
       "intelligence": {
         "quality_score": 43.0,
-        "mmlu_score": null,
-        "gsm8k_score": null,
-        "bbh_score": null
-      }
-    }
-  },
-  {
-    "name": "llama-3-1-instruct-70b",
-    "description": "Llama 3.1 70B",
-    "provider": "Perplexity",
-    "metrics": {
-      "cost": {
-        "blended_cost_per_1m": 1.0,
-        "input_cost_per_1m": null,
-        "output_cost_per_1m": null
-      },
-      "speed": {
-        "time_to_first_token_ms": 320.0,
-        "tokens_per_second": 52.1
-      },
-      "intelligence": {
-        "quality_score": 68.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -1374,8 +1396,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 360.0,
-        "tokens_per_second": 227.0
+        "time_to_first_token_ms": 340.0,
+        "tokens_per_second": 217.1
       },
       "intelligence": {
         "quality_score": 68.0,
@@ -1397,7 +1419,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 350.0,
-        "tokens_per_second": 126.3
+        "tokens_per_second": 125.9
       },
       "intelligence": {
         "quality_score": 62.0,
@@ -1418,8 +1440,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 360.0,
-        "tokens_per_second": 133.8
+        "time_to_first_token_ms": 350.0,
+        "tokens_per_second": 140.7
       },
       "intelligence": {
         "quality_score": 53.0,
@@ -1440,7 +1462,7 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 240.0,
+        "time_to_first_token_ms": 260.0,
         "tokens_per_second": 120.7
       },
       "intelligence": {
@@ -1463,7 +1485,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 220.0,
-        "tokens_per_second": 53.6
+        "tokens_per_second": 59.5
       },
       "intelligence": {
         "quality_score": 54.0,
@@ -1485,7 +1507,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 280.0,
-        "tokens_per_second": 750.2
+        "tokens_per_second": 750.7
       },
       "intelligence": {
         "quality_score": 53.0,
@@ -1506,8 +1528,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 260.0,
-        "tokens_per_second": 158.0
+        "time_to_first_token_ms": 280.0,
+        "tokens_per_second": 141.6
       },
       "intelligence": {
         "quality_score": 54.0,
@@ -1528,8 +1550,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 260.0,
-        "tokens_per_second": 2173.7
+        "time_to_first_token_ms": 250.0,
+        "tokens_per_second": 2181.1
       },
       "intelligence": {
         "quality_score": 54.0,
@@ -1550,8 +1572,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 450.0,
-        "tokens_per_second": 115.8
+        "time_to_first_token_ms": 420.0,
+        "tokens_per_second": 114.8
       },
       "intelligence": {
         "quality_score": 53.0,
@@ -1572,8 +1594,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 390.0,
-        "tokens_per_second": 90.9
+        "time_to_first_token_ms": 380.0,
+        "tokens_per_second": 91.3
       },
       "intelligence": {
         "quality_score": 54.0,
@@ -1594,8 +1616,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 500.0,
-        "tokens_per_second": 185.3
+        "time_to_first_token_ms": 510.0,
+        "tokens_per_second": 185.5
       },
       "intelligence": {
         "quality_score": 54.0,
@@ -1616,8 +1638,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 2220.0,
-        "tokens_per_second": 15.9
+        "time_to_first_token_ms": 1520.0,
+        "tokens_per_second": 25.1
       },
       "intelligence": {
         "quality_score": 54.0,
@@ -1638,8 +1660,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 170.0,
-        "tokens_per_second": 120.1
+        "time_to_first_token_ms": 160.0,
+        "tokens_per_second": 120.0
       },
       "intelligence": {
         "quality_score": 54.0,
@@ -1660,8 +1682,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 310.0,
-        "tokens_per_second": 0.1
+        "time_to_first_token_ms": 300.0,
+        "tokens_per_second": 162.1
       },
       "intelligence": {
         "quality_score": 54.0,
@@ -1704,8 +1726,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 230.0,
-        "tokens_per_second": 58.4
+        "time_to_first_token_ms": 250.0,
+        "tokens_per_second": 63.0
       },
       "intelligence": {
         "quality_score": 54.0,
@@ -1726,8 +1748,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 390.0,
-        "tokens_per_second": 521.2
+        "time_to_first_token_ms": 310.0,
+        "tokens_per_second": 500.0
       },
       "intelligence": {
         "quality_score": 54.0,
@@ -1748,8 +1770,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 550.0,
-        "tokens_per_second": 73.4
+        "time_to_first_token_ms": 560.0,
+        "tokens_per_second": 74.5
       },
       "intelligence": {
         "quality_score": 53.0,
@@ -1770,8 +1792,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 280.0,
-        "tokens_per_second": 750.4
+        "time_to_first_token_ms": 270.0,
+        "tokens_per_second": 750.5
       },
       "intelligence": {
         "quality_score": 53.0,
@@ -1792,33 +1814,11 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 260.0,
-        "tokens_per_second": 1112.0
+        "time_to_first_token_ms": 250.0,
+        "tokens_per_second": 1115.3
       },
       "intelligence": {
         "quality_score": 52.0,
-        "mmlu_score": null,
-        "gsm8k_score": null,
-        "bbh_score": null
-      }
-    }
-  },
-  {
-    "name": "llama-3-1-instruct-8b",
-    "description": "Llama 3.1 8B",
-    "provider": "Perplexity",
-    "metrics": {
-      "cost": {
-        "blended_cost_per_1m": 0.2,
-        "input_cost_per_1m": null,
-        "output_cost_per_1m": null
-      },
-      "speed": {
-        "time_to_first_token_ms": 330.0,
-        "tokens_per_second": 154.4
-      },
-      "intelligence": {
-        "quality_score": 54.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -1836,8 +1836,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 260.0,
-        "tokens_per_second": 285.7
+        "time_to_first_token_ms": 280.0,
+        "tokens_per_second": 307.7
       },
       "intelligence": {
         "quality_score": 53.0,
@@ -1858,8 +1858,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 280.0,
-        "tokens_per_second": 464.5
+        "time_to_first_token_ms": 270.0,
+        "tokens_per_second": 463.2
       },
       "intelligence": {
         "quality_score": 52.0,
@@ -1880,8 +1880,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 450.0,
-        "tokens_per_second": 199.1
+        "time_to_first_token_ms": 440.0,
+        "tokens_per_second": 200.0
       },
       "intelligence": {
         "quality_score": 48.0,
@@ -1902,8 +1902,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 400.0,
-        "tokens_per_second": 143.6
+        "time_to_first_token_ms": 360.0,
+        "tokens_per_second": 72.9
       },
       "intelligence": {
         "quality_score": 49.0,
@@ -1924,8 +1924,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 520.0,
-        "tokens_per_second": 122.1
+        "time_to_first_token_ms": 530.0,
+        "tokens_per_second": 123.2
       },
       "intelligence": {
         "quality_score": 49.0,
@@ -1947,7 +1947,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 250.0,
-        "tokens_per_second": 272.1
+        "tokens_per_second": 271.0
       },
       "intelligence": {
         "quality_score": 50.0,
@@ -1969,7 +1969,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 190.0,
-        "tokens_per_second": 150.4
+        "tokens_per_second": 147.9
       },
       "intelligence": {
         "quality_score": 49.0,
@@ -1990,8 +1990,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 610.0,
-        "tokens_per_second": 119.5
+        "time_to_first_token_ms": 600.0,
+        "tokens_per_second": 120.9
       },
       "intelligence": {
         "quality_score": 48.0,
@@ -2013,7 +2013,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 360.0,
-        "tokens_per_second": 1614.2
+        "tokens_per_second": 1611.7
       },
       "intelligence": {
         "quality_score": 49.0,
@@ -2034,8 +2034,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 230.0,
-        "tokens_per_second": 1482.3
+        "time_to_first_token_ms": 240.0,
+        "tokens_per_second": 1489.1
       },
       "intelligence": {
         "quality_score": 49.0,
@@ -2056,8 +2056,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 630.0,
-        "tokens_per_second": 54.8
+        "time_to_first_token_ms": 470.0,
+        "tokens_per_second": 62.0
       },
       "intelligence": {
         "quality_score": 49.0,
@@ -2078,8 +2078,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 350.0,
-        "tokens_per_second": 313.5
+        "time_to_first_token_ms": 330.0,
+        "tokens_per_second": 120.2
       },
       "intelligence": {
         "quality_score": 26.0,
@@ -2101,7 +2101,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 490.0,
-        "tokens_per_second": 267.1
+        "tokens_per_second": 267.4
       },
       "intelligence": {
         "quality_score": 26.0,
@@ -2122,8 +2122,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 230.0,
-        "tokens_per_second": 150.9
+        "time_to_first_token_ms": 240.0,
+        "tokens_per_second": 137.8
       },
       "intelligence": {
         "quality_score": 26.0,
@@ -2167,7 +2167,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 250.0,
-        "tokens_per_second": 2066.8
+        "tokens_per_second": 2084.3
       },
       "intelligence": {
         "quality_score": 26.0,
@@ -2188,8 +2188,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 460.0,
-        "tokens_per_second": 168.8
+        "time_to_first_token_ms": 490.0,
+        "tokens_per_second": 168.1
       },
       "intelligence": {
         "quality_score": 82.0,
@@ -2211,7 +2211,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 410.0,
-        "tokens_per_second": 58.2
+        "tokens_per_second": 59.3
       },
       "intelligence": {
         "quality_score": 80.0,
@@ -2232,8 +2232,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 760.0,
-        "tokens_per_second": 63.3
+        "time_to_first_token_ms": 750.0,
+        "tokens_per_second": 63.6
       },
       "intelligence": {
         "quality_score": 80.0,
@@ -2277,10 +2277,54 @@
       },
       "speed": {
         "time_to_first_token_ms": 400.0,
-        "tokens_per_second": 173.5
+        "tokens_per_second": 168.8
       },
       "intelligence": {
         "quality_score": 74.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "gemini-1-5-pro-may-2024",
+    "description": "Gemini 1.5 Pro (May) (Vertex)",
+    "provider": "Google (Vertex)",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 2.19,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 420.0,
+        "tokens_per_second": 65.1
+      },
+      "intelligence": {
+        "quality_score": 72.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "gemini-1-5-pro-may-2024",
+    "description": "Gemini 1.5 Pro (May) (AI Studio)",
+    "provider": "Google (AI Studio)",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 2.19,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 790.0,
+        "tokens_per_second": 66.5
+      },
+      "intelligence": {
+        "quality_score": 72.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -2298,8 +2342,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 350.0,
-        "tokens_per_second": 61.5
+        "time_to_first_token_ms": 370.0,
+        "tokens_per_second": 65.4
       },
       "intelligence": {
         "quality_score": 61.0,
@@ -2321,7 +2365,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 500.0,
-        "tokens_per_second": 180.7
+        "tokens_per_second": 179.6
       },
       "intelligence": {
         "quality_score": 55.0,
@@ -2342,8 +2386,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 490.0,
-        "tokens_per_second": 169.0
+        "time_to_first_token_ms": 510.0,
+        "tokens_per_second": 169.2
       },
       "intelligence": {
         "quality_score": 55.0,
@@ -2364,8 +2408,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 320.0,
-        "tokens_per_second": 54.6
+        "time_to_first_token_ms": 330.0,
+        "tokens_per_second": 50.6
       },
       "intelligence": {
         "quality_score": 54.0,
@@ -2387,7 +2431,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 240.0,
-        "tokens_per_second": 652.7
+        "tokens_per_second": 653.7
       },
       "intelligence": {
         "quality_score": 55.0,
@@ -2408,8 +2452,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 300.0,
-        "tokens_per_second": 131.3
+        "time_to_first_token_ms": 330.0,
+        "tokens_per_second": 131.4
       },
       "intelligence": {
         "quality_score": 55.0,
@@ -2430,33 +2474,11 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 320.0,
-        "tokens_per_second": 280.3
+        "time_to_first_token_ms": 300.0,
+        "tokens_per_second": 284.4
       },
       "intelligence": {
         "quality_score": 47.0,
-        "mmlu_score": null,
-        "gsm8k_score": null,
-        "bbh_score": null
-      }
-    }
-  },
-  {
-    "name": "gemini-experimental-dec-2024",
-    "description": "Gemini Experimental (Nov) (AI Studio)",
-    "provider": "Google (AI Studio)",
-    "metrics": {
-      "cost": {
-        "blended_cost_per_1m": 0.0,
-        "input_cost_per_1m": null,
-        "output_cost_per_1m": null
-      },
-      "speed": {
-        "time_to_first_token_ms": 1120.0,
-        "tokens_per_second": 54.5
-      },
-      "intelligence": {
-        "quality_score": 0.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -2474,11 +2496,11 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 290.0,
-        "tokens_per_second": 301.7
+        "time_to_first_token_ms": 280.0,
+        "tokens_per_second": 302.2
       },
       "intelligence": {
-        "quality_score": 0.0,
+        "quality_score": 60.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -2497,10 +2519,10 @@
       },
       "speed": {
         "time_to_first_token_ms": 280.0,
-        "tokens_per_second": 311.1
+        "tokens_per_second": 308.9
       },
       "intelligence": {
-        "quality_score": 0.0,
+        "quality_score": 60.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -2508,43 +2530,21 @@
     }
   },
   {
-    "name": "gemini-1-5-pro-may-2024",
-    "description": "Gemini 1.5 Pro (May) (Vertex)",
-    "provider": "Google (Vertex)",
-    "metrics": {
-      "cost": {
-        "blended_cost_per_1m": 2.19,
-        "input_cost_per_1m": null,
-        "output_cost_per_1m": null
-      },
-      "speed": {
-        "time_to_first_token_ms": 410.0,
-        "tokens_per_second": 64.8
-      },
-      "intelligence": {
-        "quality_score": 72.0,
-        "mmlu_score": null,
-        "gsm8k_score": null,
-        "bbh_score": null
-      }
-    }
-  },
-  {
-    "name": "gemini-1-5-pro-may-2024",
-    "description": "Gemini 1.5 Pro (May) (AI Studio)",
+    "name": "gemini-experimental-dec-2024",
+    "description": "Gemini Experimental (Nov) (AI Studio)",
     "provider": "Google (AI Studio)",
     "metrics": {
       "cost": {
-        "blended_cost_per_1m": 2.19,
+        "blended_cost_per_1m": 0.0,
         "input_cost_per_1m": null,
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 770.0,
-        "tokens_per_second": 66.4
+        "time_to_first_token_ms": 850.0,
+        "tokens_per_second": 54.5
       },
       "intelligence": {
-        "quality_score": 72.0,
+        "quality_score": 0.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -2562,8 +2562,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 1040.0,
-        "tokens_per_second": 43.4
+        "time_to_first_token_ms": 1050.0,
+        "tokens_per_second": 43.0
       },
       "intelligence": {
         "quality_score": 80.0,
@@ -2584,8 +2584,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 780.0,
-        "tokens_per_second": 72.9
+        "time_to_first_token_ms": 930.0,
+        "tokens_per_second": 73.2
       },
       "intelligence": {
         "quality_score": 80.0,
@@ -2606,8 +2606,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 1230.0,
-        "tokens_per_second": 85.3
+        "time_to_first_token_ms": 1060.0,
+        "tokens_per_second": 80.5
       },
       "intelligence": {
         "quality_score": 80.0,
@@ -2628,8 +2628,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 1030.0,
-        "tokens_per_second": 46.2
+        "time_to_first_token_ms": 970.0,
+        "tokens_per_second": 47.1
       },
       "intelligence": {
         "quality_score": 76.0,
@@ -2650,8 +2650,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 760.0,
-        "tokens_per_second": 62.5
+        "time_to_first_token_ms": 920.0,
+        "tokens_per_second": 73.7
       },
       "intelligence": {
         "quality_score": 76.0,
@@ -2672,8 +2672,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 850.0,
-        "tokens_per_second": 86.7
+        "time_to_first_token_ms": 930.0,
+        "tokens_per_second": 84.8
       },
       "intelligence": {
         "quality_score": 76.0,
@@ -2694,8 +2694,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 1480.0,
-        "tokens_per_second": 23.5
+        "time_to_first_token_ms": 1360.0,
+        "tokens_per_second": 25.9
       },
       "intelligence": {
         "quality_score": 70.0,
@@ -2716,7 +2716,7 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 3010.0,
+        "time_to_first_token_ms": 1130.0,
         "tokens_per_second": 27.6
       },
       "intelligence": {
@@ -2738,8 +2738,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 2009.9999999999998,
-        "tokens_per_second": 27.6
+        "time_to_first_token_ms": 1870.0,
+        "tokens_per_second": 27.4
       },
       "intelligence": {
         "quality_score": 70.0,
@@ -2761,7 +2761,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 850.0,
-        "tokens_per_second": 54.8
+        "tokens_per_second": 52.4
       },
       "intelligence": {
         "quality_score": 68.0,
@@ -2782,8 +2782,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 580.0,
-        "tokens_per_second": 100.4
+        "time_to_first_token_ms": 570.0,
+        "tokens_per_second": 100.3
       },
       "intelligence": {
         "quality_score": 68.0,
@@ -2804,8 +2804,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 960.0,
-        "tokens_per_second": 65.2
+        "time_to_first_token_ms": 940.0,
+        "tokens_per_second": 65.0
       },
       "intelligence": {
         "quality_score": 68.0,
@@ -2826,8 +2826,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 810.0,
-        "tokens_per_second": 64.9
+        "time_to_first_token_ms": 920.0,
+        "tokens_per_second": 64.7
       },
       "intelligence": {
         "quality_score": 68.0,
@@ -2848,8 +2848,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 780.0,
-        "tokens_per_second": 107.2
+        "time_to_first_token_ms": 790.0,
+        "tokens_per_second": 102.7
       },
       "intelligence": {
         "quality_score": 55.0,
@@ -2870,8 +2870,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 430.0,
-        "tokens_per_second": 137.9
+        "time_to_first_token_ms": 400.0,
+        "tokens_per_second": 135.9
       },
       "intelligence": {
         "quality_score": 55.0,
@@ -2892,8 +2892,52 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 410.0,
-        "tokens_per_second": 41.0
+        "time_to_first_token_ms": 370.0,
+        "tokens_per_second": 41.9
+      },
+      "intelligence": {
+        "quality_score": 74.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "mistral-large-2",
+    "description": "Mistral Large 2 (Nov '24)",
+    "provider": "Mistral",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 3.0,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 360.0,
+        "tokens_per_second": 47.4
+      },
+      "intelligence": {
+        "quality_score": 74.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "mistral-large-2",
+    "description": "Mistral Large 2 (Nov '24)",
+    "provider": "Microsoft Azure",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 3.0,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 530.0,
+        "tokens_per_second": 34.6
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -2914,7 +2958,7 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 470.0,
+        "time_to_first_token_ms": 380.0,
         "tokens_per_second": 30.9
       },
       "intelligence": {
@@ -2937,7 +2981,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 470.0,
-        "tokens_per_second": 34.4
+        "tokens_per_second": 34.1
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -2959,7 +3003,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 540.0,
-        "tokens_per_second": 0.1
+        "tokens_per_second": 35.8
       },
       "intelligence": {
         "quality_score": 74.0,
@@ -2970,21 +3014,21 @@
     }
   },
   {
-    "name": "mistral-large-2",
-    "description": "Mistral Large 2 (Nov '24)",
+    "name": "mistral-small-3",
+    "description": "Mistral Small 3",
     "provider": "Mistral",
     "metrics": {
       "cost": {
-        "blended_cost_per_1m": 3.0,
+        "blended_cost_per_1m": 0.15,
         "input_cost_per_1m": null,
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 440.0,
-        "tokens_per_second": 47.2
+        "time_to_first_token_ms": 270.0,
+        "tokens_per_second": 166.2
       },
       "intelligence": {
-        "quality_score": 74.0,
+        "quality_score": 72.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -2992,21 +3036,43 @@
     }
   },
   {
-    "name": "mistral-large-2",
-    "description": "Mistral Large 2 (Nov '24)",
-    "provider": "Microsoft Azure",
+    "name": "mistral-small-3",
+    "description": "Mistral Small 3",
+    "provider": "Fireworks",
     "metrics": {
       "cost": {
-        "blended_cost_per_1m": 3.0,
+        "blended_cost_per_1m": 0.9,
         "input_cost_per_1m": null,
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 540.0,
-        "tokens_per_second": 0.1
+        "time_to_first_token_ms": 360.0,
+        "tokens_per_second": 68.3
       },
       "intelligence": {
-        "quality_score": 74.0,
+        "quality_score": 72.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "mistral-small-3",
+    "description": "Mistral Small 3",
+    "provider": "Together.ai",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 0.8,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 260.0,
+        "tokens_per_second": 98.2
+      },
+      "intelligence": {
+        "quality_score": 72.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -3024,8 +3090,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 420.0,
-        "tokens_per_second": 61.5
+        "time_to_first_token_ms": 340.0,
+        "tokens_per_second": 61.6
       },
       "intelligence": {
         "quality_score": 61.0,
@@ -3046,8 +3112,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 360.0,
-        "tokens_per_second": 81.2
+        "time_to_first_token_ms": 290.0,
+        "tokens_per_second": 79.5
       },
       "intelligence": {
         "quality_score": 62.0,
@@ -3068,7 +3134,7 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 600.0,
+        "time_to_first_token_ms": 610.0,
         "tokens_per_second": 87.8
       },
       "intelligence": {
@@ -3090,8 +3156,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 630.0,
-        "tokens_per_second": 101.7
+        "time_to_first_token_ms": 640.0,
+        "tokens_per_second": 102.2
       },
       "intelligence": {
         "quality_score": 60.0,
@@ -3112,8 +3178,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 310.0,
-        "tokens_per_second": 70.4
+        "time_to_first_token_ms": 320.0,
+        "tokens_per_second": 68.7
       },
       "intelligence": {
         "quality_score": 61.0,
@@ -3134,8 +3200,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 510.0,
-        "tokens_per_second": 65.8
+        "time_to_first_token_ms": 590.0,
+        "tokens_per_second": 67.6
       },
       "intelligence": {
         "quality_score": 55.0,
@@ -3156,8 +3222,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 360.0,
-        "tokens_per_second": 68.0
+        "time_to_first_token_ms": 300.0,
+        "tokens_per_second": 101.4
       },
       "intelligence": {
         "quality_score": 56.0,
@@ -3179,7 +3245,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 440.0,
-        "tokens_per_second": 71.8
+        "tokens_per_second": 76.3
       },
       "intelligence": {
         "quality_score": 57.0,
@@ -3200,8 +3266,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 310.0,
-        "tokens_per_second": 139.4
+        "time_to_first_token_ms": 270.0,
+        "tokens_per_second": 140.3
       },
       "intelligence": {
         "quality_score": 56.0,
@@ -3222,8 +3288,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 340.0,
-        "tokens_per_second": 117.8
+        "time_to_first_token_ms": 270.0,
+        "tokens_per_second": 115.2
       },
       "intelligence": {
         "quality_score": 53.0,
@@ -3244,8 +3310,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 520.0,
-        "tokens_per_second": 157.9
+        "time_to_first_token_ms": 530.0,
+        "tokens_per_second": 157.5
       },
       "intelligence": {
         "quality_score": 53.0,
@@ -3266,8 +3332,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 610.0,
-        "tokens_per_second": 52.1
+        "time_to_first_token_ms": 640.0,
+        "tokens_per_second": 51.9
       },
       "intelligence": {
         "quality_score": 53.0,
@@ -3289,7 +3355,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 230.0,
-        "tokens_per_second": 75.3
+        "tokens_per_second": 63.0
       },
       "intelligence": {
         "quality_score": 54.0,
@@ -3310,8 +3376,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 330.0,
-        "tokens_per_second": 167.2
+        "time_to_first_token_ms": 260.0,
+        "tokens_per_second": 217.7
       },
       "intelligence": {
         "quality_score": 53.0,
@@ -3332,8 +3398,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 320.0,
-        "tokens_per_second": 100.5
+        "time_to_first_token_ms": 280.0,
+        "tokens_per_second": 101.5
       },
       "intelligence": {
         "quality_score": 42.0,
@@ -3355,7 +3421,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 350.0,
-        "tokens_per_second": 68.0
+        "tokens_per_second": 54.9
       },
       "intelligence": {
         "quality_score": 41.0,
@@ -3376,11 +3442,11 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 510.0,
-        "tokens_per_second": 161.1
+        "time_to_first_token_ms": 530.0,
+        "tokens_per_second": 162.4
       },
       "intelligence": {
-        "quality_score": 41.0,
+        "quality_score": 40.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -3398,11 +3464,11 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 500.0,
-        "tokens_per_second": 134.6
+        "time_to_first_token_ms": 530.0,
+        "tokens_per_second": 133.9
       },
       "intelligence": {
-        "quality_score": 41.0,
+        "quality_score": 40.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -3421,7 +3487,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 230.0,
-        "tokens_per_second": 144.4
+        "tokens_per_second": 157.0
       },
       "intelligence": {
         "quality_score": 43.0,
@@ -3443,7 +3509,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 210.0,
-        "tokens_per_second": 93.2
+        "tokens_per_second": 92.2
       },
       "intelligence": {
         "quality_score": 40.0,
@@ -3465,7 +3531,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 280.0,
-        "tokens_per_second": 566.0
+        "tokens_per_second": 567.2
       },
       "intelligence": {
         "quality_score": 42.0,
@@ -3486,8 +3552,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 360.0,
-        "tokens_per_second": 90.7
+        "time_to_first_token_ms": 370.0,
+        "tokens_per_second": 92.2
       },
       "intelligence": {
         "quality_score": 42.0,
@@ -3508,8 +3574,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 260.0,
-        "tokens_per_second": 94.0
+        "time_to_first_token_ms": 280.0,
+        "tokens_per_second": 94.4
       },
       "intelligence": {
         "quality_score": 35.0,
@@ -3530,11 +3596,55 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 490.0,
-        "tokens_per_second": 94.6
+        "time_to_first_token_ms": 430.0,
+        "tokens_per_second": 94.8
       },
       "intelligence": {
         "quality_score": 33.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "codestral",
+    "description": "Codestral (Jan '25)",
+    "provider": "Mistral",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 0.45,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 250.0,
+        "tokens_per_second": 208.2
+      },
+      "intelligence": {
+        "quality_score": 0.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "codestral",
+    "description": "Codestral (Jan '25) Vertex",
+    "provider": "Google Vertex",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 0.45,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 6540.0,
+        "tokens_per_second": 43993.5
+      },
+      "intelligence": {
+        "quality_score": 0.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -3552,8 +3662,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 520.0,
-        "tokens_per_second": 47.2
+        "time_to_first_token_ms": 510.0,
+        "tokens_per_second": 47.3
       },
       "intelligence": {
         "quality_score": 55.0,
@@ -3575,7 +3685,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 230.0,
-        "tokens_per_second": 75.5
+        "tokens_per_second": 74.6
       },
       "intelligence": {
         "quality_score": 55.0,
@@ -3597,7 +3707,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 520.0,
-        "tokens_per_second": 47.0
+        "tokens_per_second": 47.2
       },
       "intelligence": {
         "quality_score": 45.0,
@@ -3618,8 +3728,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 260.0,
-        "tokens_per_second": 76.8
+        "time_to_first_token_ms": 250.0,
+        "tokens_per_second": 77.6
       },
       "intelligence": {
         "quality_score": 47.0,
@@ -3640,8 +3750,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 590.0,
-        "tokens_per_second": 0.1
+        "time_to_first_token_ms": 580.0,
+        "tokens_per_second": 48.3
       },
       "intelligence": {
         "quality_score": 44.0,
@@ -3685,7 +3795,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 160.0,
-        "tokens_per_second": 173.3
+        "tokens_per_second": 172.6
       },
       "intelligence": {
         "quality_score": 37.0,
@@ -3707,7 +3817,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 460.0,
-        "tokens_per_second": 0.1
+        "tokens_per_second": 78.5
       },
       "intelligence": {
         "quality_score": 36.0,
@@ -3729,7 +3839,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 360.0,
-        "tokens_per_second": 108.4
+        "tokens_per_second": 108.1
       },
       "intelligence": {
         "quality_score": 0.0,
@@ -3751,7 +3861,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 170.0,
-        "tokens_per_second": 116.6
+        "tokens_per_second": 115.7
       },
       "intelligence": {
         "quality_score": 51.0,
@@ -3795,51 +3905,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 150.0,
-        "tokens_per_second": 166.5
-      },
-      "intelligence": {
-        "quality_score": 0.0,
-        "mmlu_score": null,
-        "gsm8k_score": null,
-        "bbh_score": null
-      }
-    }
-  },
-  {
-    "name": "sonar-3-1-small-chat",
-    "description": "Sonar 3.1 Small",
-    "provider": "Perplexity",
-    "metrics": {
-      "cost": {
-        "blended_cost_per_1m": 0.2,
-        "input_cost_per_1m": null,
-        "output_cost_per_1m": null
-      },
-      "speed": {
-        "time_to_first_token_ms": 310.0,
-        "tokens_per_second": 202.9
-      },
-      "intelligence": {
-        "quality_score": 0.0,
-        "mmlu_score": null,
-        "gsm8k_score": null,
-        "bbh_score": null
-      }
-    }
-  },
-  {
-    "name": "sonar-3-1-large-chat",
-    "description": "Sonar 3.1 Large",
-    "provider": "Perplexity",
-    "metrics": {
-      "cost": {
-        "blended_cost_per_1m": 1.0,
-        "input_cost_per_1m": null,
-        "output_cost_per_1m": null
-      },
-      "speed": {
-        "time_to_first_token_ms": 310.0,
-        "tokens_per_second": 53.0
+        "tokens_per_second": 166.9
       },
       "intelligence": {
         "quality_score": 0.0,
@@ -3861,7 +3927,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 350.0,
-        "tokens_per_second": 66.9
+        "tokens_per_second": 66.8
       },
       "intelligence": {
         "quality_score": 72.0,
@@ -3882,8 +3948,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 360.0,
-        "tokens_per_second": 87.0
+        "time_to_first_token_ms": 370.0,
+        "tokens_per_second": 88.1
       },
       "intelligence": {
         "quality_score": 75.0,
@@ -3904,8 +3970,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 320.0,
-        "tokens_per_second": 141.0
+        "time_to_first_token_ms": 310.0,
+        "tokens_per_second": 146.2
       },
       "intelligence": {
         "quality_score": 70.0,
@@ -3927,10 +3993,32 @@
       },
       "speed": {
         "time_to_first_token_ms": 310.0,
-        "tokens_per_second": 194.1
+        "tokens_per_second": 196.4
       },
       "intelligence": {
-        "quality_score": 66.0,
+        "quality_score": 65.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "phi-4",
+    "description": "Phi-4",
+    "provider": "Nebius",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 0.15,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 550.0,
+        "tokens_per_second": 120.9
+      },
+      "intelligence": {
+        "quality_score": 76.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -3948,8 +4036,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 230.0,
-        "tokens_per_second": 77.3
+        "time_to_first_token_ms": 280.0,
+        "tokens_per_second": 58.7
       },
       "intelligence": {
         "quality_score": 76.0,
@@ -3971,7 +4059,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 430.0,
-        "tokens_per_second": 0.1
+        "tokens_per_second": 38.0
       },
       "intelligence": {
         "quality_score": 0.0,
@@ -3992,8 +4080,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 450.0,
-        "tokens_per_second": 69.1
+        "time_to_first_token_ms": 470.0,
+        "tokens_per_second": 68.4
       },
       "intelligence": {
         "quality_score": 50.0,
@@ -4014,8 +4102,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 310.0,
-        "tokens_per_second": 83.0
+        "time_to_first_token_ms": 350.0,
+        "tokens_per_second": 83.2
       },
       "intelligence": {
         "quality_score": 44.0,
@@ -4036,8 +4124,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 610.0,
-        "tokens_per_second": 48.0
+        "time_to_first_token_ms": 630.0,
+        "tokens_per_second": 47.9
       },
       "intelligence": {
         "quality_score": 72.0,
@@ -4058,8 +4146,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 590.0,
-        "tokens_per_second": 70.6
+        "time_to_first_token_ms": 600.0,
+        "tokens_per_second": 70.8
       },
       "intelligence": {
         "quality_score": 72.0,
@@ -4080,8 +4168,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 330.0,
-        "tokens_per_second": 29.7
+        "time_to_first_token_ms": 360.0,
+        "tokens_per_second": 29.2
       },
       "intelligence": {
         "quality_score": 72.0,
@@ -4102,8 +4190,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 540.0,
-        "tokens_per_second": 56.9
+        "time_to_first_token_ms": 520.0,
+        "tokens_per_second": 56.4
       },
       "intelligence": {
         "quality_score": 64.0,
@@ -4125,7 +4213,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 690.0,
-        "tokens_per_second": 0.1
+        "tokens_per_second": 50.9
       },
       "intelligence": {
         "quality_score": 64.0,
@@ -4146,8 +4234,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 330.0,
-        "tokens_per_second": 180.3
+        "time_to_first_token_ms": 320.0,
+        "tokens_per_second": 179.1
       },
       "intelligence": {
         "quality_score": 46.0,
@@ -4168,8 +4256,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 500.0,
-        "tokens_per_second": 0.1
+        "time_to_first_token_ms": 480.0,
+        "tokens_per_second": 82.3
       },
       "intelligence": {
         "quality_score": 0.0,
@@ -4190,8 +4278,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 22450.0,
-        "tokens_per_second": 62.4
+        "time_to_first_token_ms": 34620.0,
+        "tokens_per_second": 58.9
       },
       "intelligence": {
         "quality_score": 89.0,
@@ -4212,8 +4300,52 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 790.0,
-        "tokens_per_second": 12.8
+        "time_to_first_token_ms": 104270.0,
+        "tokens_per_second": 13.7
+      },
+      "intelligence": {
+        "quality_score": 89.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "deepseek-r1",
+    "description": "DeepSeek R1",
+    "provider": "Nebius",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 1.2,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 182090.0,
+        "tokens_per_second": 6.7
+      },
+      "intelligence": {
+        "quality_score": 89.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "deepseek-r1",
+    "description": "DeepSeek R1",
+    "provider": "CentML",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 6.0,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 85740.0,
+        "tokens_per_second": 20.9
       },
       "intelligence": {
         "quality_score": 89.0,
@@ -4234,8 +4366,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 78680.0,
-        "tokens_per_second": 21.0
+        "time_to_first_token_ms": 54230.0,
+        "tokens_per_second": 27.8
       },
       "intelligence": {
         "quality_score": 89.0,
@@ -4251,13 +4383,35 @@
     "provider": "Deepinfra",
     "metrics": {
       "cost": {
-        "blended_cost_per_1m": 1.26,
+        "blended_cost_per_1m": 1.16,
         "input_cost_per_1m": null,
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 7720.0,
+        "time_to_first_token_ms": 68870.0,
         "tokens_per_second": 8.3
+      },
+      "intelligence": {
+        "quality_score": 89.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "deepseek-r1",
+    "description": "DeepSeek R1",
+    "provider": "Novita",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 4.0,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 78300.0,
+        "tokens_per_second": 16.6
       },
       "intelligence": {
         "quality_score": 89.0,
@@ -4278,8 +4432,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 1450.0,
-        "tokens_per_second": 12.3
+        "time_to_first_token_ms": 100530.0,
+        "tokens_per_second": 15.4
       },
       "intelligence": {
         "quality_score": 89.0,
@@ -4300,11 +4454,11 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 1070.0,
-        "tokens_per_second": 50.9
+        "time_to_first_token_ms": 1470.0,
+        "tokens_per_second": 47.2
       },
       "intelligence": {
-        "quality_score": 79.0,
+        "quality_score": 80.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -4322,8 +4476,30 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 1070.0,
-        "tokens_per_second": 9.4
+        "time_to_first_token_ms": 1160.0,
+        "tokens_per_second": 6.1
+      },
+      "intelligence": {
+        "quality_score": 79.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "deepseek-v3",
+    "description": "DeepSeek V3",
+    "provider": "Nebius",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 0.75,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 950.0,
+        "tokens_per_second": 16.3
       },
       "intelligence": {
         "quality_score": 79.0,
@@ -4344,8 +4520,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 910.0,
-        "tokens_per_second": 18.5
+        "time_to_first_token_ms": 1070.0,
+        "tokens_per_second": 20.1
       },
       "intelligence": {
         "quality_score": 79.0,
@@ -4366,8 +4542,30 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 650.0,
-        "tokens_per_second": 10.0
+        "time_to_first_token_ms": 750.0,
+        "tokens_per_second": 8.6
+      },
+      "intelligence": {
+        "quality_score": 79.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "deepseek-v3",
+    "description": "DeepSeek V3",
+    "provider": "Novita",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 0.89,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 870.0,
+        "tokens_per_second": 9.4
       },
       "intelligence": {
         "quality_score": 79.0,
@@ -4388,8 +4586,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 710.0,
-        "tokens_per_second": 19.6
+        "time_to_first_token_ms": 610.0,
+        "tokens_per_second": 14.2
       },
       "intelligence": {
         "quality_score": 79.0,
@@ -4400,21 +4598,21 @@
     }
   },
   {
-    "name": "deepseek-v2-5",
-    "description": "DeepSeek-V2.5 (Dec '24)",
-    "provider": "DeepSeek",
+    "name": "deepseek-llm-67b-chat",
+    "description": "DeepSeek LLM 67B (V1)",
+    "provider": "Together.ai",
     "metrics": {
       "cost": {
-        "blended_cost_per_1m": 0.17,
+        "blended_cost_per_1m": 0.9,
         "input_cost_per_1m": null,
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 1080.0,
-        "tokens_per_second": 51.9
+        "time_to_first_token_ms": 560.0,
+        "tokens_per_second": 28.3
       },
       "intelligence": {
-        "quality_score": 72.0,
+        "quality_score": 47.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -4422,21 +4620,87 @@
     }
   },
   {
-    "name": "deepseek-coder-v2",
-    "description": "DeepSeek-Coder-V2",
-    "provider": "DeepSeek",
+    "name": "deepseek-r1-distill-llama-70b",
+    "description": "DeepSeek R1 Distill Llama 70B",
+    "provider": "Cerebras",
     "metrics": {
       "cost": {
-        "blended_cost_per_1m": 0.17,
+        "blended_cost_per_1m": 0.94,
         "input_cost_per_1m": null,
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 1050.0,
-        "tokens_per_second": 49.7
+        "time_to_first_token_ms": 1010.0,
+        "tokens_per_second": 1500.7
       },
       "intelligence": {
-        "quality_score": 71.0,
+        "quality_score": 0.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "deepseek-r1-distill-llama-70b",
+    "description": "DeepSeek R1 Distill Llama 70B",
+    "provider": "Deepinfra",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 0.34,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 21070.0,
+        "tokens_per_second": 33.4
+      },
+      "intelligence": {
+        "quality_score": 0.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "deepseek-r1-distill-llama-70b",
+    "description": "DeepSeek R1 Distill Llama 70B",
+    "provider": "Novita",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 0.39,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 37590.0,
+        "tokens_per_second": 15.4
+      },
+      "intelligence": {
+        "quality_score": 0.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "deepseek-r1-distill-llama-70b",
+    "description": "DeepSeek R1 Distill Llama 70B",
+    "provider": "Groq",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 0.81,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 3450.0,
+        "tokens_per_second": 254.7
+      },
+      "intelligence": {
+        "quality_score": 0.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -4454,11 +4718,33 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 770.0,
-        "tokens_per_second": 7.7
+        "time_to_first_token_ms": 790.0,
+        "tokens_per_second": 7.5
       },
       "intelligence": {
         "quality_score": 0.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "qwen-2-5-max",
+    "description": "Qwen2.5 Max",
+    "provider": "Alibaba Cloud",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 2.8,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 1330.0,
+        "tokens_per_second": 34.8
+      },
+      "intelligence": {
+        "quality_score": 79.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -4476,8 +4762,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 550.0,
-        "tokens_per_second": 32.1
+        "time_to_first_token_ms": 580.0,
+        "tokens_per_second": 29.5
       },
       "intelligence": {
         "quality_score": 77.0,
@@ -4498,8 +4784,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 620.0,
-        "tokens_per_second": 44.3
+        "time_to_first_token_ms": 630.0,
+        "tokens_per_second": 45.8
       },
       "intelligence": {
         "quality_score": 77.0,
@@ -4520,8 +4806,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 590.0,
-        "tokens_per_second": 67.8
+        "time_to_first_token_ms": 610.0,
+        "tokens_per_second": 67.9
       },
       "intelligence": {
         "quality_score": 77.0,
@@ -4542,8 +4828,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 320.0,
-        "tokens_per_second": 78.3
+        "time_to_first_token_ms": 330.0,
+        "tokens_per_second": 79.2
       },
       "intelligence": {
         "quality_score": 77.0,
@@ -4564,8 +4850,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 320.0,
-        "tokens_per_second": 34.9
+        "time_to_first_token_ms": 310.0,
+        "tokens_per_second": 36.7
       },
       "intelligence": {
         "quality_score": 78.0,
@@ -4586,8 +4872,30 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 540.0,
-        "tokens_per_second": 224.7
+        "time_to_first_token_ms": 400.0,
+        "tokens_per_second": 224.2
+      },
+      "intelligence": {
+        "quality_score": 77.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "qwen2-5-72b-instruct",
+    "description": "Qwen2.5 72B Turbo",
+    "provider": "Together.ai Turbo",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 1.2,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 420.0,
+        "tokens_per_second": 93.1
       },
       "intelligence": {
         "quality_score": 77.0,
@@ -4600,16 +4908,16 @@
   {
     "name": "qwen2-5-72b-instruct",
     "description": "Qwen2.5 72B",
-    "provider": "Together.ai",
+    "provider": "Alibaba Cloud",
     "metrics": {
       "cost": {
-        "blended_cost_per_1m": 1.2,
+        "blended_cost_per_1m": 0.0,
         "input_cost_per_1m": null,
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 400.0,
-        "tokens_per_second": 93.7
+        "time_to_first_token_ms": 1160.0,
+        "tokens_per_second": 60.0
       },
       "intelligence": {
         "quality_score": 77.0,
@@ -4631,7 +4939,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 480.0,
-        "tokens_per_second": 37.4
+        "tokens_per_second": 36.9
       },
       "intelligence": {
         "quality_score": 72.0,
@@ -4652,8 +4960,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 300.0,
-        "tokens_per_second": 96.7
+        "time_to_first_token_ms": 310.0,
+        "tokens_per_second": 97.8
       },
       "intelligence": {
         "quality_score": 72.0,
@@ -4674,8 +4982,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 250.0,
-        "tokens_per_second": 48.6
+        "time_to_first_token_ms": 260.0,
+        "tokens_per_second": 46.6
       },
       "intelligence": {
         "quality_score": 71.0,
@@ -4696,8 +5004,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 330.0,
-        "tokens_per_second": 311.8
+        "time_to_first_token_ms": 340.0,
+        "tokens_per_second": 314.8
       },
       "intelligence": {
         "quality_score": 72.0,
@@ -4718,11 +5026,33 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 510.0,
-        "tokens_per_second": 82.7
+        "time_to_first_token_ms": 550.0,
+        "tokens_per_second": 83.1
       },
       "intelligence": {
         "quality_score": 72.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "qwen-turbo",
+    "description": "Qwen Turbo",
+    "provider": "Alibaba Cloud",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 0.09,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 1200.0,
+        "tokens_per_second": 87.8
+      },
+      "intelligence": {
+        "quality_score": 71.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -4740,11 +5070,11 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 340.0,
-        "tokens_per_second": 65.0
+        "time_to_first_token_ms": 350.0,
+        "tokens_per_second": 64.8
       },
       "intelligence": {
-        "quality_score": 69.0,
+        "quality_score": 68.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -4776,6 +5106,28 @@
   {
     "name": "QwQ-32B-Preview",
     "description": "QwQ 32B-Preview",
+    "provider": "Nebius",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 0.14,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 570.0,
+        "tokens_per_second": 80.2
+      },
+      "intelligence": {
+        "quality_score": 0.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "QwQ-32B-Preview",
+    "description": "QwQ 32B-Preview",
     "provider": "Fireworks",
     "metrics": {
       "cost": {
@@ -4784,8 +5136,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 310.0,
-        "tokens_per_second": 105.0
+        "time_to_first_token_ms": 320.0,
+        "tokens_per_second": 103.3
       },
       "intelligence": {
         "quality_score": 0.0,
@@ -4806,8 +5158,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 260.0,
-        "tokens_per_second": 54.8
+        "time_to_first_token_ms": 280.0,
+        "tokens_per_second": 52.7
       },
       "intelligence": {
         "quality_score": 0.0,
@@ -4828,8 +5180,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 480.0,
-        "tokens_per_second": 306.1
+        "time_to_first_token_ms": 450.0,
+        "tokens_per_second": 307.1
       },
       "intelligence": {
         "quality_score": 0.0,
@@ -4850,8 +5202,52 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 440.0,
-        "tokens_per_second": 60.7
+        "time_to_first_token_ms": 400.0,
+        "tokens_per_second": 64.6
+      },
+      "intelligence": {
+        "quality_score": 0.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "qwen2.5-32b-instruct",
+    "description": "Qwen2.5 Instruct 32B Fast",
+    "provider": "Nebius Fast",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 0.0,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 570.0,
+        "tokens_per_second": 82.5
+      },
+      "intelligence": {
+        "quality_score": 0.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "qwen2.5-32b-instruct",
+    "description": "Qwen2.5 Instruct 32B Base",
+    "provider": "Nebius Base",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 0.0,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 600.0,
+        "tokens_per_second": 60.8
       },
       "intelligence": {
         "quality_score": 0.0,
@@ -4872,11 +5268,11 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 380.0,
-        "tokens_per_second": 68.5
+        "time_to_first_token_ms": 390.0,
+        "tokens_per_second": 66.6
       },
       "intelligence": {
-        "quality_score": 61.0,
+        "quality_score": 62.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -4894,8 +5290,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 640.0,
-        "tokens_per_second": 35.7
+        "time_to_first_token_ms": 630.0,
+        "tokens_per_second": 36.1
       },
       "intelligence": {
         "quality_score": 75.0,
@@ -4916,8 +5312,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 1480.0,
-        "tokens_per_second": 0.1
+        "time_to_first_token_ms": 1500.0,
+        "tokens_per_second": 47.3
       },
       "intelligence": {
         "quality_score": 75.0,
@@ -4938,8 +5334,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 730.0,
-        "tokens_per_second": 28.7
+        "time_to_first_token_ms": 750.0,
+        "tokens_per_second": 27.1
       },
       "intelligence": {
         "quality_score": 0.0,
@@ -4960,8 +5356,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 360.0,
-        "tokens_per_second": 47.3
+        "time_to_first_token_ms": 370.0,
+        "tokens_per_second": 47.6
       },
       "intelligence": {
         "quality_score": 47.0,
@@ -4982,7 +5378,7 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 620.0,
+        "time_to_first_token_ms": 600.0,
         "tokens_per_second": 32.8
       },
       "intelligence": {
@@ -5005,7 +5401,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 450.0,
-        "tokens_per_second": 46.8
+        "tokens_per_second": 45.5
       },
       "intelligence": {
         "quality_score": 48.0,
@@ -5026,8 +5422,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 290.0,
-        "tokens_per_second": 124.1
+        "time_to_first_token_ms": 300.0,
+        "tokens_per_second": 121.1
       },
       "intelligence": {
         "quality_score": 46.0,
@@ -5048,8 +5444,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 320.0,
-        "tokens_per_second": 42.2
+        "time_to_first_token_ms": 300.0,
+        "tokens_per_second": 46.3
       },
       "intelligence": {
         "quality_score": 48.0,
@@ -5070,8 +5466,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 1350.0,
-        "tokens_per_second": 23.4
+        "time_to_first_token_ms": 1340.0,
+        "tokens_per_second": 23.2
       },
       "intelligence": {
         "quality_score": 62.0,
@@ -5092,8 +5488,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 270.0,
-        "tokens_per_second": 348.6
+        "time_to_first_token_ms": 250.0,
+        "tokens_per_second": 342.0
       },
       "intelligence": {
         "quality_score": 48.0,
@@ -5115,7 +5511,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 340.0,
-        "tokens_per_second": 172.2
+        "tokens_per_second": 175.0
       },
       "intelligence": {
         "quality_score": 48.0,
@@ -5136,8 +5532,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 380.0,
-        "tokens_per_second": 25.2
+        "time_to_first_token_ms": 350.0,
+        "tokens_per_second": 23.5
       },
       "intelligence": {
         "quality_score": 48.0,
@@ -5158,8 +5554,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 370.0,
-        "tokens_per_second": 67.7
+        "time_to_first_token_ms": 380.0,
+        "tokens_per_second": 71.9
       },
       "intelligence": {
         "quality_score": 44.0,
@@ -5181,7 +5577,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 330.0,
-        "tokens_per_second": 102.7
+        "tokens_per_second": 103.4
       },
       "intelligence": {
         "quality_score": 45.0,
@@ -5203,7 +5599,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 380.0,
-        "tokens_per_second": 0.1
+        "tokens_per_second": 73.9
       },
       "intelligence": {
         "quality_score": 45.0,
@@ -5224,8 +5620,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 240.0,
-        "tokens_per_second": 188.7
+        "time_to_first_token_ms": 250.0,
+        "tokens_per_second": 188.9
       },
       "intelligence": {
         "quality_score": 45.0,
@@ -5246,8 +5642,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 200.0,
-        "tokens_per_second": 108.8
+        "time_to_first_token_ms": 210.0,
+        "tokens_per_second": 109.0
       },
       "intelligence": {
         "quality_score": 45.0,
@@ -5269,7 +5665,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 560.0,
-        "tokens_per_second": 71.9
+        "tokens_per_second": 71.4
       },
       "intelligence": {
         "quality_score": 53.0,
@@ -5290,8 +5686,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 330.0,
-        "tokens_per_second": 1201.6
+        "time_to_first_token_ms": 340.0,
+        "tokens_per_second": 1200.8
       },
       "intelligence": {
         "quality_score": 45.0,
@@ -5312,8 +5708,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 310.0,
-        "tokens_per_second": 212.2
+        "time_to_first_token_ms": 350.0,
+        "tokens_per_second": 214.9
       },
       "intelligence": {
         "quality_score": 46.0,
@@ -5334,8 +5730,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 360.0,
-        "tokens_per_second": 124.0
+        "time_to_first_token_ms": 370.0,
+        "tokens_per_second": 123.8
       },
       "intelligence": {
         "quality_score": 0.0,
@@ -5356,8 +5752,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 1220.0,
-        "tokens_per_second": 101.3
+        "time_to_first_token_ms": 1230.0,
+        "tokens_per_second": 102.2
       },
       "intelligence": {
         "quality_score": 0.0,
@@ -5378,8 +5774,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 830.0,
-        "tokens_per_second": 44.3
+        "time_to_first_token_ms": 850.0,
+        "tokens_per_second": 42.6
       },
       "intelligence": {
         "quality_score": 57.0,
@@ -5400,33 +5796,11 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 830.0,
-        "tokens_per_second": 85.1
+        "time_to_first_token_ms": 860.0,
+        "tokens_per_second": 83.4
       },
       "intelligence": {
         "quality_score": 57.0,
-        "mmlu_score": null,
-        "gsm8k_score": null,
-        "bbh_score": null
-      }
-    }
-  },
-  {
-    "name": "claude-2",
-    "description": "Claude 2.0",
-    "provider": "Anthropic",
-    "metrics": {
-      "cost": {
-        "blended_cost_per_1m": 12.0,
-        "input_cost_per_1m": null,
-        "output_cost_per_1m": null
-      },
-      "speed": {
-        "time_to_first_token_ms": 810.0,
-        "tokens_per_second": 29.5
-      },
-      "intelligence": {
-        "quality_score": 0.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -5444,7 +5818,7 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 1860.0,
+        "time_to_first_token_ms": 1840.0,
         "tokens_per_second": 28.9
       },
       "intelligence": {
@@ -5466,8 +5840,30 @@
         "output_cost_per_1m": null
       },
       "speed": {
+        "time_to_first_token_ms": 820.0,
+        "tokens_per_second": 13.4
+      },
+      "intelligence": {
+        "quality_score": 0.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "claude-2",
+    "description": "Claude 2.0",
+    "provider": "Anthropic",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 12.0,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
         "time_to_first_token_ms": 810.0,
-        "tokens_per_second": 13.3
+        "tokens_per_second": 29.6
       },
       "intelligence": {
         "quality_score": 0.0,
@@ -5488,8 +5884,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 420.0,
-        "tokens_per_second": 59.9
+        "time_to_first_token_ms": 310.0,
+        "tokens_per_second": 69.9
       },
       "intelligence": {
         "quality_score": 59.0,
@@ -5510,8 +5906,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 390.0,
-        "tokens_per_second": 0.1
+        "time_to_first_token_ms": 370.0,
+        "tokens_per_second": 53.8
       },
       "intelligence": {
         "quality_score": 59.0,
@@ -5532,8 +5928,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 420.0,
-        "tokens_per_second": 36.9
+        "time_to_first_token_ms": 370.0,
+        "tokens_per_second": 37.3
       },
       "intelligence": {
         "quality_score": 57.0,
@@ -5555,7 +5951,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 410.0,
-        "tokens_per_second": 43.2
+        "tokens_per_second": 42.9
       },
       "intelligence": {
         "quality_score": 56.0,
@@ -5576,8 +5972,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 520.0,
-        "tokens_per_second": 0.1
+        "time_to_first_token_ms": 510.0,
+        "tokens_per_second": 39.5
       },
       "intelligence": {
         "quality_score": 55.0,
@@ -5598,8 +5994,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 320.0,
-        "tokens_per_second": 131.6
+        "time_to_first_token_ms": 260.0,
+        "tokens_per_second": 131.4
       },
       "intelligence": {
         "quality_score": 24.0,
@@ -5621,7 +6017,7 @@
       },
       "speed": {
         "time_to_first_token_ms": 330.0,
-        "tokens_per_second": 93.6
+        "tokens_per_second": 92.9
       },
       "intelligence": {
         "quality_score": 28.0,
@@ -5642,8 +6038,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 210.0,
-        "tokens_per_second": 107.4
+        "time_to_first_token_ms": 220.0,
+        "tokens_per_second": 106.6
       },
       "intelligence": {
         "quality_score": 28.0,
@@ -5664,8 +6060,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 900.0,
-        "tokens_per_second": 100.5
+        "time_to_first_token_ms": 970.0,
+        "tokens_per_second": 98.1
       },
       "intelligence": {
         "quality_score": 33.0,
@@ -5686,33 +6082,11 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 220.0,
-        "tokens_per_second": 181.3
+        "time_to_first_token_ms": 230.0,
+        "tokens_per_second": 180.3
       },
       "intelligence": {
         "quality_score": 28.0,
-        "mmlu_score": null,
-        "gsm8k_score": null,
-        "bbh_score": null
-      }
-    }
-  },
-  {
-    "name": "mistral-medium",
-    "description": "Mistral Medium",
-    "provider": "Mistral",
-    "metrics": {
-      "cost": {
-        "blended_cost_per_1m": 4.09,
-        "input_cost_per_1m": null,
-        "output_cost_per_1m": null
-      },
-      "speed": {
-        "time_to_first_token_ms": 440.0,
-        "tokens_per_second": 43.5
-      },
-      "intelligence": {
-        "quality_score": 0.0,
         "mmlu_score": null,
         "gsm8k_score": null,
         "bbh_score": null
@@ -5730,8 +6104,74 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 320.0,
+        "time_to_first_token_ms": 280.0,
         "tokens_per_second": 85.1
+      },
+      "intelligence": {
+        "quality_score": 0.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "mistral-medium",
+    "description": "Mistral Medium",
+    "provider": "Mistral",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 4.09,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 350.0,
+        "tokens_per_second": 43.4
+      },
+      "intelligence": {
+        "quality_score": 0.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "sonar-3-1-small-chat",
+    "description": "Sonar 3.1 Small",
+    "provider": "Perplexity",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 0.2,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 310.0,
+        "tokens_per_second": 190.5
+      },
+      "intelligence": {
+        "quality_score": 0.0,
+        "mmlu_score": null,
+        "gsm8k_score": null,
+        "bbh_score": null
+      }
+    }
+  },
+  {
+    "name": "sonar-3-1-large-chat",
+    "description": "Sonar 3.1 Large",
+    "provider": "Perplexity",
+    "metrics": {
+      "cost": {
+        "blended_cost_per_1m": 1.0,
+        "input_cost_per_1m": null,
+        "output_cost_per_1m": null
+      },
+      "speed": {
+        "time_to_first_token_ms": 310.0,
+        "tokens_per_second": 50.0
       },
       "intelligence": {
         "quality_score": 0.0,
@@ -5752,8 +6192,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 290.0,
-        "tokens_per_second": 72.7
+        "time_to_first_token_ms": 300.0,
+        "tokens_per_second": 75.8
       },
       "intelligence": {
         "quality_score": 44.0,
@@ -5774,8 +6214,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 340.0,
-        "tokens_per_second": 182.4
+        "time_to_first_token_ms": 320.0,
+        "tokens_per_second": 179.0
       },
       "intelligence": {
         "quality_score": 0.0,
@@ -5796,8 +6236,8 @@
         "output_cost_per_1m": null
       },
       "speed": {
-        "time_to_first_token_ms": 530.0,
-        "tokens_per_second": 0.1
+        "time_to_first_token_ms": 520.0,
+        "tokens_per_second": 75.0
       },
       "intelligence": {
         "quality_score": 28.0,
