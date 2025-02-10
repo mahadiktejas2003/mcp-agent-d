@@ -102,6 +102,7 @@ class LoggingListener(FilteredListener):
                 "span_id": event.span_id,
                 "trace_id": event.trace_id,
                 "event_name": event.name,
+                **event.extra  # Make sure any extra data is passed through
             },
         )
 
@@ -136,6 +137,7 @@ class ProgressListener(LifecycleAwareListener):
             "namespace": event.namespace,
             "message": event.message,
             "data": event.data,
+            "extra": event.extra
         }
 
         progress_event = convert_log_event(event_dict)

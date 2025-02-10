@@ -86,8 +86,9 @@ class RichProgressDisplay:
 
     def update(self, event: ProgressEvent) -> None:
         """Update the progress display with a new event."""
-
         task_name = event.agent_name or "default"
+
+        # Create new task if needed
         if task_name not in self._taskmap:
             task_id = self._progress.add_task(
                 "",
@@ -95,15 +96,15 @@ class RichProgressDisplay:
                 target=f"{event.target}",
                 details=f"{event.agent_name}",
             )
-            self._taskmap[event.agent_name] = task_id
+            self._taskmap[task_name] = task_id
         else:
             task_id = self._taskmap[task_name]
 
+        # For FINISHED events, mark the task as complete but don't remove it
         if event.action == ProgressAction.FINISHED:
             self._progress.update(task_id, total=100, completed=100)
-            self._progress.stop_task(task_id)
-            self._taskmap.pop(task_name)
 
+        # Update the task with new information
         self._progress.update(
             task_id,
             description=f"[{self._get_action_style(event.action)}]{event.action.value:<15}",

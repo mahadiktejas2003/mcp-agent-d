@@ -74,7 +74,7 @@ class MCPServerSettings(BaseModel):
 
     roots: Optional[List[MCPRootSettings]] = None
     """Root directories this server has access to."""
-    
+
     env: Dict[str, str] | None = None
     """Environment variables to pass to the server process."""
 
@@ -175,7 +175,7 @@ class LoggerSettings(BaseModel):
     progress_display: bool = True
     """Enable or disable the progress display"""
 
-    path: str = "mcp-agent.log"
+    path: str = "mcp-agent.jsonl"
     """Path to log file, if logger 'type' is 'file'."""
 
     batch_size: int = 100

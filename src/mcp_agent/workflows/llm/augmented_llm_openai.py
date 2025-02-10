@@ -35,7 +35,6 @@ from mcp_agent.workflows.llm.augmented_llm import (
     RequestParams,
 )
 from mcp_agent.logging.logger import get_logger
-from mcp_agent.workflows.llm.llm_constants import FINAL_RESPONSE_LOG_MESSAGE
 from rich import print
 
 
@@ -171,11 +170,9 @@ class OpenAIAugmentedLLM(
                 arguments = {**arguments, **params.metadata}
 
             self.logger.debug(f"{arguments}")
-            self.logger.debug(
-                f"Iteration {i}: Calling OpenAI ChatCompletion with messages:",
-                data=messages,
-                model=model,
+            self._log_chat_progress(
                 chat_turn=len(messages) // 2,
+                model=model
             )
 
             executor_result = await self.executor.execute(
@@ -185,7 +182,7 @@ class OpenAIAugmentedLLM(
             response = executor_result[0]
 
             self.logger.debug(
-                f"Iteration {i}: OpenAI ChatCompletion response:",
+                "OpenAI ChatCompletion response:",
                 data=response,
             )
 
@@ -254,7 +251,7 @@ class OpenAIAugmentedLLM(
         if params.use_history:
             self.history.set(messages)
 
-        self.logger.debug(FINAL_RESPONSE_LOG_MESSAGE, data=responses, model=model)
+        self._log_chat_finished(model=model)
 
         return responses
 

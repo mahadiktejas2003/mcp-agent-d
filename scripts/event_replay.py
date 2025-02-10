@@ -19,7 +19,15 @@ def load_events(path: Path) -> list:
     with open(path) as f:
         for line in f:
             if line.strip():
-                events.append(json.loads(line))
+                raw_event = json.loads(line)
+                # Convert from log format to event format
+                event = {
+                    "namespace": raw_event.get("namespace", ""),
+                    "message": raw_event.get("message", ""),
+                    "data": raw_event.get("data", {}).get("data", {}),  # Get nested data
+                    "extra": raw_event.get("data", {}).get("data", {})  # Progress data is in nested data field
+                }
+                events.append(event)
     return events
 
 
@@ -39,7 +47,7 @@ def main(log_file: str):
             if progress_event:
                 progress.update(progress_event)
                 # Add a small delay to make the replay visible
-                time.sleep(1.5)
+                time.sleep(0.5)
     except KeyboardInterrupt:
         pass
     finally:

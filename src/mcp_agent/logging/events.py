@@ -48,6 +48,7 @@ class Event(BaseModel):
     message: str
     timestamp: datetime = Field(default_factory=datetime.now)
     data: Dict[str, Any] = Field(default_factory=dict)
+    extra: Dict[str, Any] = Field(default_factory=dict)
     context: EventContext | None = None
 
     # For distributed tracing
