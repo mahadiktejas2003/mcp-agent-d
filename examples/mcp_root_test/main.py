@@ -9,7 +9,7 @@ from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 from mcp_agent.logging.logger import LoggingConfig
 from rich import print
 
-app = MCPApp(name="mcp_root_test")
+app = MCPApp(name="Testing MCP Server roots")
 
 
 async def example_usage():
@@ -17,17 +17,15 @@ async def example_usage():
         logger = agent_app.logger
         context = agent_app.context
 
-        #        logger.info("Current config:", data=context.config.model_dump())
-
         async with MCPConnectionManager(context.server_registry):
             interpreter_agent = Agent(
                 name="analysis",
-                instruction="""You have access to a python interpreter.""",
+                instruction="""You have access to a python interpreter. Pandas, Seaborn and Matplotlib are already installed. You can add further packages if needed.""",
                 server_names=["root_test", "interpreter"],
             )
 
             try:
-                llm = await interpreter_agent.attach_llm(OpenAIAugmentedLLM)
+                llm = await interpreter_agent.attach_llm(AnthropicAugmentedLLM)
 
                 # (claude does not need this signpost - this is where 'available files' pattern would be useful)
                 await llm.generate_str(
@@ -40,6 +38,7 @@ async def example_usage():
                     "Consider the data, and how to usefully group it for presentation to a Human. Find insights, using the Python Interpreter as needed.\n"
                     + "Use MatPlotLib to produce insightful visualisations. Save them as '.png' files in the current directory. Be sure to run the code and save the files "
                 )
+                print(result)
                 logger.info(result)
 
             finally:

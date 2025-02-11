@@ -2,8 +2,8 @@ $schema: ../../schema/mcp-agent.config.schema.json
 
 execution_engine: asyncio
 logger:
-  type: console
-  level: info
+  type: file
+  level: debug
   path: "./mcp_root_test.jsonl"
 
 mcp:
@@ -25,7 +25,7 @@ mcp:
           "--pull=always",
           "-v",
           "./test_data:/mnt/data/",
-          "ghcr.io/evalstate/mcp-python:latest",
+          "ghcr.io/evalstate/mcp-py-repl:latest",
         ]
       roots:
         - uri: "file://./test_data/"
@@ -38,4 +38,4 @@ mcp:
 openai:
   # Secrets (API keys, etc.) are stored in an mcp_agent.secrets.yaml file which can be gitignored
   default_model: o3-mini
-  reasoning_effort: high
+  reasoning_effort: low
