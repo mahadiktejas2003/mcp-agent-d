@@ -10,8 +10,9 @@ from contextlib import asynccontextmanager
 
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
+from mcp_agent.human_input.handler import console_input_callback
 from mcp_agent.workflows.llm.augmented_llm_anthropic import AnthropicAugmentedLLM
-from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
+from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM  # noqa: F401
 from mcp_agent.config import Settings
 
 # Set up logging
@@ -59,6 +60,7 @@ class MCPAgentDecorator:
         self.app = MCPApp(
             name=name,
             settings=Settings(**self.config) if hasattr(self, "config") else None,
+            human_input_callback=console_input_callback,
         )
         self.agents: AgentConfig = {}
 
@@ -170,21 +172,59 @@ class MCPAgentDecorator:
                 logger.error(f"Error cleaning up agent {agent.name}: {e}")
 
 
+class AgentReference:
+    """
+    Reference to a specific agent for fluent interface.
+    """
+
+    def __init__(self, wrapper: "AgentAppWrapper", agent_name: str):
+        self.wrapper = wrapper
+        self.name = agent_name
+
+    async def send(self, message: str) -> str:
+        """Send a message to this specific agent."""
+        return await self.wrapper.send(self.name, message)
+
+    async def __call__(self, message: str) -> str:
+        """Allow direct calling of the agent reference."""
+        return await self.send(message)
+
+
 class AgentAppWrapper:
     """
     Wrapper class providing a simplified interface to the agent application.
     """
 
     def __init__(self, app: MCPApp, agents: Dict[str, Agent]) -> None:
-        """
-        Initialize the wrapper.
-
-        Args:
-            app: The MCPApp instance
-            agents: Dictionary of agent name to Agent instance
-        """
         self.app = app
         self.agents = agents
+        self._default_agent: Optional[str] = None
+
+    @property
+    def default_agent(self) -> str:
+        """Get the default agent name, using the first registered agent if not set."""
+        if self._default_agent is None:
+            if not self.agents:
+                raise RuntimeError("No agents available")
+            self._default_agent = next(iter(self.agents.keys()))
+        return self._default_agent
+
+    @default_agent.setter
+    def default_agent(self, agent_name: str) -> None:
+        """Set the default agent."""
+        if agent_name not in self.agents:
+            raise ValueError(f"Agent '{agent_name}' not found")
+        self._default_agent = agent_name
+
+    def list_agents(self) -> List[str]:
+        """Get a list of available agent names."""
+        return list(self.agents.keys())
+
+    def agent(self, name: str) -> AgentReference:
+        """Get a reference to a specific agent for fluent interface usage."""
+        if name not in self.agents:
+            raise ValueError(f"Agent '{name}' not found")
+        return AgentReference(self, name)
 
     async def send(self, agent_name: str, message: str) -> str:
         """
@@ -211,4 +251,5 @@ class AgentAppWrapper:
         return await agent._llm.generate_str(message)
 
     async def __call__(self, message: str) -> str:
-        return self.send(self, self.agents[0].name, message)
+        """Send a message to the default agent."""
+        return await self.send(self.default_agent, message)
