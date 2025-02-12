@@ -8,10 +8,9 @@ logger:
 
 mcp:
   servers:
-    mcp_root:
-      type: "mcp_root"
-      command: "uv"
-      args: ["run", "../mcp_root_test/root_test_server.py"]
+    brave:
+      command: "npx"
+      args: ["-y", "@modelcontextprotocol/server-brave-search"]
     interpreter:
       command: "docker"
       args:
@@ -21,12 +20,19 @@ mcp:
           "--rm",
           "--pull=always",
           "-v",
-          "./test_data:/mnt/data/",
-          "ghcr.io/evalstate/mcp-python:latest",
+          "./mapped_root:/mnt/data/",
+          "ghcr.io/evalstate/mcp-py-repl:latest",
         ]
+      roots:
+        - uri: "file://./mapped_root/"
+          name: "test_data"
+          server_uri_alias: "file:///mnt/data/"
     filesystem:
       command: "npx"
-      args: ["-y", "@modelcontextprotocol/server-filesystem", "."]
+      args: ["-y", "@modelcontextprotocol/server-filesystem", "./mapped_root/"]
+    fetch:
+      command: "uvx"
+      args: ["mcp-server-fetch"]
 
 openai:
   # Secrets (API keys, etc.) are stored in an mcp_agent.secrets.yaml file
