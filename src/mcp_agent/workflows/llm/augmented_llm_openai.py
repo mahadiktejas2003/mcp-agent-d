@@ -298,7 +298,7 @@ class OpenAIAugmentedLLM(
 
         # Next we pass the text through instructor to extract structured data
         client = instructor.from_openai(
-            OpenAI(api_key=self.context.config.openai.api_key),
+            OpenAI(api_key=self.context.config.openai.api_key, base_url=self.context.config.openai.base_url),
             mode=instructor.Mode.TOOLS_STRICT,
         )
 
