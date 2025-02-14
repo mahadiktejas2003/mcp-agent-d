@@ -14,7 +14,6 @@ app = MCPApp(name="mcp_root_test")
 
 async def example_usage():
     async with app.run() as agent_app:
-        logger = agent_app.logger
         context = agent_app.context
 
         async with MCPConnectionManager(context.server_registry):

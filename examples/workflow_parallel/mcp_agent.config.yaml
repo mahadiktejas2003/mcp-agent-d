@@ -3,9 +3,9 @@ $schema: ../../schema/mcp-agent.config.schema.json
 
 execution_engine: asyncio
 logger:
-  type: console
-  level: info
-  path: "./mcp-agent-o3-mini.jsonl"
+  type: file
+  level: debug
+  path: "./workflow_parallel.jsonl"
   batch_size: 100
   flush_interval: 2
   max_queue_size: 2048
@@ -15,4 +15,4 @@ logger:
 
 openai:
   # Secrets (API keys, etc.) are stored in an mcp_agent.secrets.yaml file which can be gitignored
-  default_model: "o3-mini"
+  default_model: "gpt-4o-mini"
