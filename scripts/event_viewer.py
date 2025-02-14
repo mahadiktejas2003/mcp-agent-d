@@ -5,17 +5,18 @@ import json
 import sys
 import tty
 import termios
+from datetime import datetime
 from pathlib import Path
-from typing import Optional, List
+from typing import List, Optional
 
 import typer
 from rich.console import Console
-from rich.live import Live
 from rich.panel import Panel
 from rich.layout import Layout
 from rich.text import Text
 
 from mcp_agent.event_progress import convert_log_event, ProgressEvent
+from mcp_agent.logging.events import Event
 
 
 def get_key() -> str:
@@ -32,57 +33,44 @@ def get_key() -> str:
 class EventDisplay:
     """Display MCP events from a log file."""
 
-    def __init__(self, events: list):
+    def __init__(self, events: List[Event]):
         self.events = events
         self.total = len(events)
         self.current = 0
         self.current_iteration: Optional[int] = None
         self.tool_calls = 0
         self.progress_events: List[ProgressEvent] = []
+        self._process_current()
 
-    def next(self) -> None:
-        """Move to next event."""
-        if self.current < self.total:
-            event = self.events[self.current]
-            self._process_event(event)
+    def next(self, steps: int = 1) -> None:
+        """Move forward n steps."""
+        for _ in range(steps):
+            if self.current < self.total - 1:
+                self.current += 1
+                self._process_current()
 
-            # Convert to progress event if applicable
-            progress_event = convert_log_event(event)
+    def prev(self, steps: int = 1) -> None:
+        """Move backward n steps."""
+        if self.current > 0:
+            self.current = max(0, self.current - steps)
+            # Need to rebuild progress events up to this point
+            self._rebuild_progress_events()
+
+    def _rebuild_progress_events(self) -> None:
+        """Rebuild progress events up to current position."""
+        self.progress_events = []
+        for i in range(self.current + 1):
+            progress_event = convert_log_event(self.events[i])
             if progress_event:
                 if not self.progress_events or str(progress_event) != str(
                     self.progress_events[-1]
                 ):
                     self.progress_events.append(progress_event)
 
-            self.current += 1
-
-    def prev(self) -> None:
-        """Move to previous event."""
-        if self.current > 0:
-            # Reset state and replay up to previous event
-            self._reset_state()
-            for i in range(self.current - 1):
-                self._process_event(self.events[i])
-
-                # Rebuild progress events
-                progress_event = convert_log_event(self.events[i])
-                if progress_event:
-                    if not self.progress_events or str(progress_event) != str(
-                        self.progress_events[-1]
-                    ):
-                        self.progress_events.append(progress_event)
-
-            self.current -= 1
-
-    def _reset_state(self) -> None:
-        """Reset state for replay."""
-        self.current_iteration = None
-        self.tool_calls = 0
-        self.progress_events = []
-
-    def _process_event(self, event: dict) -> None:
-        """Update state based on event."""
-        message = event.get("message", "")
+    def _process_current(self) -> None:
+        """Process the current event."""
+        event = self.events[self.current]
+        message = event.message
 
         # Track iterations
         if "Iteration" in message:
@@ -97,9 +85,16 @@ class EventDisplay:
         if "Tool call" in message or "Calling tool" in message:
             self.tool_calls += 1
 
+        # Update progress events
+        progress_event = convert_log_event(event)
+        if progress_event:
+            if not self.progress_events or str(progress_event) != str(
+                self.progress_events[-1]
+            ):
+                self.progress_events.append(progress_event)
+
     def render(self) -> Panel:
         """Render current event state."""
-
         # Create the main layout
         main_layout = Layout()
 
@@ -108,16 +103,18 @@ class EventDisplay:
         state_text.append("Current Status:\n", style="bold")
         state_text.append("Iteration: ", style="bold")
         state_text.append(f"{self.current_iteration or 'None'}\n", style="blue")
-        state_text.append(f"Event: {self.current}/{self.total}\n", style="cyan")
+        state_text.append(f"Event: {self.current + 1}/{self.total}\n", style="cyan")
         state_text.append(f"Tool Calls: {self.tool_calls}\n", style="magenta")
-        # Add current event JSON line if we have events
-        if self.events and self.current < len(self.events):
-            current_event = json.dumps(self.events[self.current])
-            # Get console width and account for panel borders/padding (approximately 4 chars)
+
+        # Current event details
+        if self.events:
+            event = self.events[self.current]
+            event_str = f"[{event.type}] {event.namespace}: {event.message}"
+            # Get console width and account for panel borders/padding
             max_width = Console().width - 4
-            if len(current_event) > max_width:
-                current_event = current_event[: max_width - 3] + "..."
-            state_text.append(current_event + "\n", style="yellow")
+            if len(event_str) > max_width:
+                event_str = event_str[: max_width - 3] + "..."
+            state_text.append(event_str + "\n", style="yellow")
 
         # Progress event section
         if self.progress_events:
@@ -143,53 +140,77 @@ class EventDisplay:
         main_layout.split(
             Layout(Panel(state_text, title="Status"), size=8),
             Layout(Panel(progress_text, title="Progress"), size=8),
-            Layout(Panel(controls_text, title="Controls"), size=6),
+            Layout(Panel(controls_text, title="Controls"), size=5),
         )
 
         return Panel(main_layout, title="MCP Event Viewer")
 
 
-def load_events(path: Path) -> list:
+def load_events(path: Path) -> List[Event]:
     """Load events from JSONL file."""
     events = []
-    with open(path) as f:
-        for line in f:
-            if line.strip():
-                events.append(json.loads(line))
+    print(f"Loading events from {path}")  # Debug
+    try:
+        with open(path) as f:
+            for line_num, line in enumerate(f, 1):
+                if line.strip():
+                    try:
+                        raw_event = json.loads(line)
+                        # Convert from log format to event format
+                        event = Event(
+                            type=raw_event.get("level", "info").lower(),
+                            namespace=raw_event.get("namespace", ""),
+                            message=raw_event.get("message", ""),
+                            timestamp=datetime.fromisoformat(raw_event["timestamp"]),
+                            data=raw_event.get("data", {}),
+                        )
+                        events.append(event)
+                    except Exception as e:
+                        print(f"Error on line {line_num}: {e}")
+                        print(f"Line content: {line.strip()}")
+                        raise
+    except Exception as e:
+        print(f"Error loading file: {e}")
+        raise
+
+    print(f"Loaded {len(events)} events")  # Debug
     return events
 
 
 def main(log_file: str):
     """View MCP Agent events from a log file."""
     events = load_events(Path(log_file))
+    if not events:
+        print("No events loaded!")
+        return
+
     display = EventDisplay(events)
     console = Console()
 
-    with Live(
-        display.render(),
-        console=console,
-        screen=True,
-        transient=True,
-        auto_refresh=False,  # Only refresh on demand
-    ) as live:
-        while True:
+    # Main display loop
+    while True:
+        # Clear screen and show current state
+        # TODO turn this in to a live display
+        console.clear()
+        console.print(display.render())
+
+        # Get input
+        try:
             key = get_key()
 
             if key == "l":  # Next one step
                 display.next()
             elif key == "L":  # Next ten steps
-                for _ in range(10):
-                    display.next()
+                display.next(10)
             elif key == "h":  # Previous one step
                 display.prev()
             elif key == "H":  # Previous ten steps
-                for _ in range(10):
-                    display.prev()
+                display.prev(10)
             elif key in {"q", "Q"}:  # Quit
                 break
-
-            live.update(display.render())
-            live.refresh()
+        except Exception as e:
+            print(f"\nError handling input: {e}")
+            break
 
 
 if __name__ == "__main__":
