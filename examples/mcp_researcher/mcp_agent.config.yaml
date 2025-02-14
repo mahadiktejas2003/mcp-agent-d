@@ -2,7 +2,7 @@ $schema: ../../schema/mcp-agent.config.schema.json
 
 execution_engine: asyncio
 logger:
-  type: console
+  type: file
   level: info
 
 mcp:
@@ -20,7 +20,7 @@ mcp:
           "--pull=always",
           "-v",
           "./agent_folder:/mnt/data/",
-          "ghcr.io/evalstate/mcp-python:latest",
+          "ghcr.io/evalstate/mcp-py-repl:latest",
         ]
       roots:
         - uri: "file://./agent_folder/"
@@ -31,7 +31,7 @@ mcp:
       args: ["mcp-server-fetch"]
     filesystem:
       command: "npx"
-      args: ["-y", "@modelcontextprotocol/server-filesystem", "./agent_folder"]
+      args: ["-y", "@modelcontextprotocol/server-filesystem", "./agent_folder/"]
 
 openai:
   # Secrets (API keys, etc.) are stored in an mcp_agent.secrets.yaml file which can be gitignored
