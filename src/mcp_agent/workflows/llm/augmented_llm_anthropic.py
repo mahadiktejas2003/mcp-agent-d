@@ -2,7 +2,6 @@ import json
 from typing import Iterable, List, Type
 
 from pydantic import BaseModel
-from rich.panel import Panel
 
 import instructor
 from anthropic import Anthropic
@@ -175,26 +174,26 @@ class AnthropicAugmentedLLM(AugmentedLLM[MessageParam, Message]):
                         tool_use_id = content.id
 
                         # TODO -- productionize this
-                        if tool_name == HUMAN_INPUT_TOOL_NAME:
-                            # Get the message from the content list
-                            message_text = ""
-                            for block in response_as_message["content"]:
-                                if (
-                                    isinstance(block, dict)
-                                    and block.get("type") == "text"
-                                ):
-                                    message_text += block.get("text", "")
-                                elif hasattr(block, "type") and block.type == "text":
-                                    message_text += block.text
+                        # if tool_name == HUMAN_INPUT_TOOL_NAME:
+                        #     # Get the message from the content list
+                        #     message_text = ""
+                        #     for block in response_as_message["content"]:
+                        #         if (
+                        #             isinstance(block, dict)
+                        #             and block.get("type") == "text"
+                        #         ):
+                        #             message_text += block.get("text", "")
+                        #         elif hasattr(block, "type") and block.type == "text":
+                        #             message_text += block.text
 
-                            panel = Panel(
-                                message_text,
-                                title="MESSAGE",
-                                style="green",
-                                border_style="bold white",
-                                padding=(1, 2),
-                            )
-                            console.console.print(panel)
+                        # panel = Panel(
+                        #     message_text,
+                        #     title="MESSAGE",
+                        #     style="green",
+                        #     border_style="bold white",
+                        #     padding=(1, 2),
+                        # )
+                        # console.console.print(panel)
 
                         tool_call_request = CallToolRequest(
                             method="tools/call",
