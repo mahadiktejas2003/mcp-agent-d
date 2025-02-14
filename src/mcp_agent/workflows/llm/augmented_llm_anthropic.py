@@ -2,6 +2,7 @@ import json
 from typing import Iterable, List, Type
 
 from pydantic import BaseModel
+from rich.panel import Panel
 
 import instructor
 from anthropic import Anthropic
@@ -28,6 +29,8 @@ from mcp.types import (
     TextResourceContents,
 )
 
+from mcp_agent import console
+from mcp_agent.agents.agent import HUMAN_INPUT_TOOL_NAME
 from mcp_agent.workflows.llm.augmented_llm import (
     AugmentedLLM,
     ModelT,
@@ -124,6 +127,7 @@ class AnthropicAugmentedLLM(AugmentedLLM[MessageParam, Message]):
             if params.metadata:
                 arguments = {**arguments, **params.metadata}
 
+            self.logger.debug(f"{arguments}")
             self._log_chat_progress(chat_turn=(len(messages) + 1) // 2, model=model)
 
             executor_result = await self.executor.execute(
@@ -169,6 +173,28 @@ class AnthropicAugmentedLLM(AugmentedLLM[MessageParam, Message]):
                         tool_name = content.name
                         tool_args = content.input
                         tool_use_id = content.id
+
+                        # TODO -- productionize this
+                        if tool_name == HUMAN_INPUT_TOOL_NAME:
+                            # Get the message from the content list
+                            message_text = ""
+                            for block in response_as_message["content"]:
+                                if (
+                                    isinstance(block, dict)
+                                    and block.get("type") == "text"
+                                ):
+                                    message_text += block.get("text", "")
+                                elif hasattr(block, "type") and block.type == "text":
+                                    message_text += block.text
+
+                            panel = Panel(
+                                message_text,
+                                title="MESSAGE",
+                                style="green",
+                                border_style="bold white",
+                                padding=(1, 2),
+                            )
+                            console.console.print(panel)
 
                         tool_call_request = CallToolRequest(
                             method="tools/call",
