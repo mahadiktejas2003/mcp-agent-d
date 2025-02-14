@@ -28,8 +28,8 @@ from mcp.types import (
     TextResourceContents,
 )
 
-from mcp_agent import console
-from mcp_agent.agents.agent import HUMAN_INPUT_TOOL_NAME
+# from mcp_agent import console
+# from mcp_agent.agents.agent import HUMAN_INPUT_TOOL_NAME
 from mcp_agent.workflows.llm.augmented_llm import (
     AugmentedLLM,
     ModelT,
