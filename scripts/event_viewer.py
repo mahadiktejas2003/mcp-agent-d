@@ -124,6 +124,18 @@ class EventDisplay:
             progress_text.append(f"{latest_event.action}\n", style="cyan")
             progress_text.append("Target: ", style="bold")
             progress_text.append(f"{latest_event.target}\n", style="green")
+            # Add agent name from event data
+            try:
+                current_event = self.events[self.current]
+                agent = current_event.data.get('data', {}).get('agent_name', '')
+                if not agent:  # Fallback to namespace if agent_name not found
+                    agent = current_event.namespace.split('.')[-1] if current_event.namespace else ""
+                if agent:
+                    progress_text.append("Agent: ", style="bold")
+                    progress_text.append(f"{agent}\n", style="yellow")
+            except (AttributeError, KeyError):
+                pass  # Skip agent display if data is malformed
+
             if latest_event.details:
                 progress_text.append("Details: ", style="bold")
                 progress_text.append(f"{latest_event.details}\n", style="magenta")

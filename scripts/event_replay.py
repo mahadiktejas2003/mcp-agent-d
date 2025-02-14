@@ -50,10 +50,18 @@ def main(log_file: str):
             progress_event = convert_log_event(event)
             if progress_event:
                 if not last_progress_event or str(progress_event) != str(last_progress_event):
-                    # Add agent info to the progress event target
-                    agent = event.namespace.split('.')[-1] if event.namespace else ""
-                    if agent:
-                        progress_event.target = f"{agent}: {progress_event.target}"
+                    # Add agent info to the progress event target from data
+                    try:
+                        agent = event.data.get('data', {}).get('agent_name', '')
+                        if not agent:  # Fallback to namespace if agent_name not found
+                            agent = event.namespace.split('.')[-1] if event.namespace else ""
+                        if agent:
+                            progress_event.target = f"{agent}: {progress_event.target}"
+                    except (AttributeError, KeyError):
+                        # Fallback to namespace if there's any error accessing data
+                        agent = event.namespace.split('.')[-1] if event.namespace else ""
+                        if agent:
+                            progress_event.target = f"{agent}: {progress_event.target}"
                     progress.update(progress_event)
                     last_progress_event = progress_event
                     # Add a small delay to make the replay visible

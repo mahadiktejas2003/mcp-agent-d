@@ -54,8 +54,14 @@ def create_event_table(events: list[Event]) -> Table:
 
     # Add events
     for progress_event, orig_event in progress_events:
-        # Extract agent name from namespace (e.g., "mcp_agent.goose" -> "goose")
-        agent = orig_event.namespace.split('.')[-1] if orig_event.namespace else ""
+        # Extract agent name from data or fallback to namespace
+        try:
+            agent = orig_event.data.get('data', {}).get('agent_name', '')
+            if not agent:  # Fallback to namespace if agent_name not found
+                agent = orig_event.namespace.split('.')[-1] if orig_event.namespace else ""
+        except (AttributeError, KeyError):
+            # Fallback to namespace if there's any error accessing data
+            agent = orig_event.namespace.split('.')[-1] if orig_event.namespace else ""
         table.add_row(agent, progress_event.action.value, progress_event.target, progress_event.details or "")
 
     return table
