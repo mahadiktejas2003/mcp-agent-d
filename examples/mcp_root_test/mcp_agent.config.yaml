@@ -12,9 +12,9 @@ mcp:
       command: "uv"
       args: ["run", "root_test_server.py"]
       roots:
-        - uri: "file:///home/ssmith/"
+        - uri: "file:///./test_data/"
           name: "test_data"
-          server_uri_alias: "file:///home/ssmith/"
+          server_uri_alias: "file:///mnt/data/"
     interpreter:
       command: "docker"
       args:
