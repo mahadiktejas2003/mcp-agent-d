@@ -40,7 +40,7 @@ class MCPApp:
     def __init__(
         self,
         name: str = "mcp_application",
-        settings: Optional[Settings] = None,
+        settings: Optional[Settings] | str = None,
         human_input_callback: Optional[HumanInputCallback] = console_input_callback,
         signal_notification: Optional[SignalWaitCallback] = None,
         upstream_session: Optional["ServerSession"] = None,
@@ -50,7 +50,8 @@ class MCPApp:
         Initialize the application with a name and optional settings.
         Args:
             name: Name of the application
-            settings: Application configuration - If unspecified, the settings are loaded from mcp_agent.config.yaml
+            settings: Application configuration - If unspecified, the settings are loaded from mcp_agent.config.yaml.
+                If this is a string, it is treated as the path to the config file to load.
             human_input_callback: Callback for handling human input
             signal_notification: Callback for getting notified on workflow signals/events.
             upstream_session: Optional upstream session if the MCPApp is running as a server to an MCP client.
@@ -59,7 +60,7 @@ class MCPApp:
         self.name = name
 
         # We use these to initialize the context in initialize()
-        self._config = settings
+        self._config_or_path = settings
         self._human_input_callback = human_input_callback
         self._signal_notification = signal_notification
         self._upstream_session = upstream_session
@@ -121,7 +122,7 @@ class MCPApp:
         if self._initialized:
             return
 
-        self._context = await initialize_context(self._config)
+        self._context = await initialize_context(self._config_or_path)
 
         # Set the properties that were passed in the constructor
         self._context.human_input_handler = self._human_input_callback

@@ -164,13 +164,15 @@ async def configure_executor(config: "Settings"):
 
 
 async def initialize_context(
-    config: Optional["Settings"] = None, store_globally: bool = False
+    config: Optional["Settings" | str] = None, store_globally: bool = False
 ):
     """
     Initialize the global application context.
     """
     if config is None:
         config = get_settings()
+    elif isinstance(config, str):
+        config = get_settings(config_path=config)
 
     context = Context()
     context.config = config
