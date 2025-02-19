@@ -251,7 +251,7 @@ def get_settings(config_path: str | None = None) -> Settings:
     if _settings:
         return _settings
 
-    config_file = config_path or Settings.find_config()
+    config_file = Path(config_path) if config_path else Settings.find_config()
     merged_settings = {}
 
     if config_file:
