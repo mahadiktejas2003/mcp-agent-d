@@ -6,6 +6,8 @@ Transports for the Logger module for MCP Agent, including:
 
 import asyncio
 import json
+import uuid
+import datetime
 from abc import ABC, abstractmethod
 from typing import Dict, List, Protocol
 from pathlib import Path
@@ -432,10 +434,103 @@ class AsyncEventBus:
                 break
 
 
+class MultiTransport(EventTransport):
+    """Transport that sends events to multiple configured transports."""
+
+    def __init__(self, transports: List[EventTransport]):
+        """Initialize MultiTransport with a list of transports.
+
+        Args:
+            transports: List of EventTransport instances to use
+        """
+        self.transports = transports
+
+    async def send_event(self, event: Event):
+        """Send event to all configured transports.
+
+        Args:
+            event: Event to send
+        """
+        # Send to all transports, capturing exceptions but not failing.
+        exceptions = []
+        for transport in self.transports:
+            try:
+                await transport.send_event(event)
+            except Exception as e:
+                exceptions.append((transport, e))
+
+        # Log any exceptions that occurred
+        if exceptions:
+            print(f"Errors occurred in {len(exceptions)} transports:")
+            for transport, exc in exceptions:
+                print(f"  {transport.__class__.__name__}: {exc}")
+
+
+def generate_log_filename(settings: LoggerSettings) -> str:
+    """Generate a log filename based on the configuration.
+
+    Args:
+        settings: Logger settings containing path patthern configuration
+
+    Returns:
+        String path for the log file
+    """
+    # If no pattern specified, use the static pattern
+    if (
+        not hasattr(settings, "path_pattern")
+        or "{timestamp}" not in settings.path_pattern
+    ):
+        return settings.path
+
+    # Generate timestamp or run ID
+    if hasattr(settings, "use_run_id") and settings.use_run_id:
+        replacement = str(uuid.uuid4())
+    else:
+        now = datetime.datetime.now()
+        time_format = getattr(settings, "timestamp_format", "%Y%m%d_%H%M%S")
+        replacement = now.strftime(time_format)
+
+    return settings.path_pattern.replace("{timestamp}", replacement)
+
+
 def create_transport(
     settings: LoggerSettings, event_filter: EventFilter | None = None
 ) -> EventTransport:
     """Create event transport based on settings."""
+    # Check if multiple transports are configured
+    if hasattr(settings, "transports") and len(settings.transports) >= 1:
+        transports: List[EventTransport] = []
+
+        for transport_type in settings.transports:
+            if transport_type == "none":
+                continue
+            elif transport_type == "console":
+                transports.append(ConsoleTransport(event_filter=event_filter))
+            elif transport_type == "file":
+                filepath = generate_log_filename(settings)
+                transports.append(
+                    FileTransport(filepath=filepath, event_filter=event_filter)
+                )
+            elif transport_type == "http":
+                if not settings.http_endpoint:
+                    print(
+                        "Warning: HTTP endpoint required for HTTP transport. Skipping."
+                    )
+                    continue
+                transports.append(
+                    HTTPTransport(
+                        endpoint=settings.http_endpoint,
+                        headers=settings.http_headers,
+                        batch_size=settings.batch_size,
+                        timeout=settings.http_timeout,
+                        event_filter=event_filter,
+                    )
+                )
+        if transports:
+            return MultiTransport(transports)
+        else:
+            return NoOpTransport(event_filter=event_filter)
+    # Backward compatibility for single transport configuration
     if settings.type == "none":
         return NoOpTransport(event_filter=event_filter)
     elif settings.type == "console":
@@ -443,8 +538,9 @@ def create_transport(
     elif settings.type == "file":
         if not settings.path:
             raise ValueError("File path required for file transport")
+        filepath = generate_log_filename(settings)
         return FileTransport(
-            filepath=settings.path,
+            filepath=filepath,
             event_filter=event_filter,
         )
     elif settings.type == "http":
