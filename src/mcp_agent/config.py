@@ -172,7 +172,11 @@ class LoggerSettings(BaseModel):
     Logger settings for the MCP Agent application.
     """
 
+    # Original transport configuration (kept for backward compatibility)
     type: Literal["none", "console", "file", "http"] = "console"
+
+    transports: List[Literal["none", "console", "file", "http"]] = ["console"]
+    """List of transports to use (can enable multiple simultaneously)"""
 
     level: Literal["debug", "info", "warning", "error"] = "info"
     """Minimum logging level"""
@@ -182,6 +186,19 @@ class LoggerSettings(BaseModel):
 
     path: str = "mcp-agent.jsonl"
     """Path to log file, if logger 'type' is 'file'."""
+
+    # Support for auto-generated filenames with timestamp patterns
+    path_pattern: str = "logs/mcp-agent-{timestamp}.jsonl"
+    """
+    Path pattern for file transport with timestamp placeholder.
+    {timestamp} will be replaced with current time in format specified by timestamp_format.
+    """
+
+    timestamp_format: str = "%Y%m%d_%H%M%S"
+    """Format string for timestamp in path_pattern"""
+
+    use_run_id: bool = False
+    """Whether to use a unique run ID in the filename instead of timestamp"""
 
     batch_size: int = 100
     """Number of events to accumulate before processing"""
