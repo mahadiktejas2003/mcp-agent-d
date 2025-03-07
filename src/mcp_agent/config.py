@@ -188,10 +188,12 @@ class LoggerSettings(BaseModel):
     """Path to log file, if logger 'type' is 'file'."""
 
     # Support for auto-generated filenames with timestamp patterns
-    path_pattern: str = "logs/mcp-agent-{timestamp}.jsonl"
+    path_pattern: str | None = None
     """
     Path pattern for file transport with timestamp placeholder.
     {timestamp} will be replaced with current time in format specified by timestamp_format.
+    If not specified, the standard 'path' setting will be used instead.
+    Example: "logs/mcp-agent-{timestamp}.jsonl"
     """
 
     timestamp_format: str = "%Y%m%d_%H%M%S"
