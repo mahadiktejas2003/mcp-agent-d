@@ -446,20 +446,26 @@ class MultiTransport(EventTransport):
         self.transports = transports
 
     async def send_event(self, event: Event):
-        """Send event to all configured transports.
+        """Send event to all configured transports in parallel.
 
         Args:
             event: Event to send
         """
-        # Send to all transports, capturing exceptions but not failing.
-        exceptions = []
-        for transport in self.transports:
+
+        # helper function to handle exceptions
+        async def send_with_exception_handling(transport):
             try:
                 await transport.send_event(event)
+                return None
             except Exception as e:
-                exceptions.append((transport, e))
+                return (transport, e)
 
-        # Log any exceptions that occurred
+        results = await asyncio.gather(
+            *[send_with_exception_handling(transport) for transport in self.transports],
+            return_exceptions=False,
+        )
+
+        exceptions = [result for result in results if result is not None]
         if exceptions:
             print(f"Errors occurred in {len(exceptions)} transports:")
             for transport, exc in exceptions:
