@@ -10,31 +10,6 @@ from pydantic import BaseModel, ConfigDict, field_validator, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class LogPathSettings(BaseModel):
-    """
-    Settings for configuring log file paths with dynamic elements like timestamps or session IDs.
-    """
-    path_pattern: str = "logs/mcp-agent-{unique_id}.jsonl"
-    """
-    Path pattern for log files with a {unique_id} placeholder.
-    The placeholder will be replaced according to the unique_id setting.
-    Example: "logs/mcp-agent-{unique_id}.jsonl"
-    """
-    
-    unique_id: Literal["timestamp", "session_id"] = "timestamp"
-    """
-    Type of unique identifier to use in the log filename:
-    - timestamp: Uses the current time formatted according to timestamp_format
-    - session_id: Generates a UUID for the session
-    """
-    
-    timestamp_format: str = "%Y%m%d_%H%M%S"
-    """
-    Format string for timestamps when unique_id is set to "timestamp".
-    Uses Python's datetime.strftime format.
-    """
-
-
 class MCPServerAuthSettings(BaseModel):
     """Represents authentication configuration for a server."""
 
@@ -192,6 +167,32 @@ class OpenTelemetrySettings(BaseModel):
     """Sample rate for tracing (1.0 = sample everything)"""
 
 
+class LogPathSettings(BaseModel):
+    """
+    Settings for configuring log file paths with dynamic elements like timestamps or session IDs.
+    """
+
+    path_pattern: str = "logs/mcp-agent-{unique_id}.jsonl"
+    """
+    Path pattern for log files with a {unique_id} placeholder.
+    The placeholder will be replaced according to the unique_id setting.
+    Example: "logs/mcp-agent-{unique_id}.jsonl"
+    """
+
+    unique_id: Literal["timestamp", "session_id"] = "timestamp"
+    """
+    Type of unique identifier to use in the log filename:
+    - timestamp: Uses the current time formatted according to timestamp_format
+    - session_id: Generates a UUID for the session
+    """
+
+    timestamp_format: str = "%Y%m%d_%H%M%S"
+    """
+    Format string for timestamps when unique_id is set to "timestamp".
+    Uses Python's datetime.strftime format.
+    """
+
+
 class LoggerSettings(BaseModel):
     """
     Logger settings for the MCP Agent application.
@@ -200,7 +201,7 @@ class LoggerSettings(BaseModel):
     # Original transport configuration (kept for backward compatibility)
     type: Literal["none", "console", "file", "http"] = "console"
 
-    transports: List[Literal["none", "console", "file", "http"]] = ["console"]
+    transports: List[Literal["none", "console", "file", "http"]] = []
     """List of transports to use (can enable multiple simultaneously)"""
 
     level: Literal["debug", "info", "warning", "error"] = "info"
