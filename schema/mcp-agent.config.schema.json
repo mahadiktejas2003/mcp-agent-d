@@ -1,5 +1,31 @@
 {
   "$defs": {
+    "LogPathSettings": {
+      "description": "Settings for configuring log file paths with dynamic elements like timestamps or session IDs.",
+      "properties": {
+        "path_pattern": {
+          "default": "logs/mcp-agent-{unique_id}.jsonl",
+          "title": "Path Pattern",
+          "type": "string",
+          "description": "Path pattern for log files with a {unique_id} placeholder"
+        },
+        "unique_id": {
+          "default": "timestamp",
+          "enum": ["timestamp", "session_id"],
+          "title": "Unique Id",
+          "type": "string",
+          "description": "Type of unique identifier to use in the log filename"
+        },
+        "timestamp_format": {
+          "default": "%Y%m%d_%H%M%S",
+          "title": "Timestamp Format",
+          "type": "string",
+          "description": "Format string for timestamps when unique_id is set to timestamp"
+        }
+      },
+      "title": "LogPathSettings",
+      "type": "object"
+    },
     "AnthropicSettings": {
       "additionalProperties": true,
       "description": "Settings for using Anthropic models in the MCP Agent application.",
@@ -88,30 +114,18 @@
           "type": "string",
           "description": "Path to log file, if logger 'type' is 'file'."
         },
-        "path_pattern": {
+        "path_settings": {
           "anyOf": [
             {
-              "type": "string"
+              "$ref": "#/$defs/LogPathSettings"
             },
             {
               "type": "null"
             }
           ],
           "default": null,
-          "title": "Path Pattern",
-          "description": "Path pattern for file transport with timestamp placeholder. {timestamp} will be replaced with current time in format specified by timestamp_format."
-        },
-        "timestamp_format": {
-          "default": "%Y%m%d_%H%M%S",
-          "title": "Timestamp Format",
-          "type": "string",
-          "description": "Format string for timestamp in path_pattern"
-        },
-        "use_run_id": {
-          "default": false,
-          "title": "Use Run Id",
-          "type": "boolean",
-          "description": "Whether to use a unique run ID in the filename instead of timestamp"
+          "title": "Path Settings",
+          "description": "Advanced settings for log file paths with dynamic elements like timestamps or session IDs"
         },
         "batch_size": {
           "default": 100,
@@ -660,13 +674,11 @@
       ],
       "default": {
         "type": "console",
-        "transports": [],
+        "transports": ["console"],
         "level": "info",
         "progress_display": true,
         "path": "mcp-agent.jsonl",
-        "path_pattern": null,
-        "timestamp_format": "%Y%m%d_%H%M%S",
-        "use_run_id": false,
+        "path_settings": null,
         "batch_size": 100,
         "flush_interval": 2.0,
         "max_queue_size": 2048,

@@ -472,92 +472,85 @@ class MultiTransport(EventTransport):
                 print(f"  {transport.__class__.__name__}: {exc}")
 
 
-def generate_log_filename(settings: LoggerSettings) -> str:
+def get_log_filename(settings: LoggerSettings) -> str:
     """Generate a log filename based on the configuration.
 
     Args:
-        settings: Logger settings containing path patthern configuration
+        settings: Logger settings containing path configuration
 
     Returns:
         String path for the log file
     """
-    # If no pattern specified, use the static pattern
-    if (
-        not hasattr(settings, "path_pattern")
-        or "{timestamp}" not in settings.path_pattern
-    ):
+    # If we have a standard path setting and no advanced path settings, use the standard path
+    if settings.path and not settings.path_settings:
         return settings.path
 
-    # Generate timestamp or run ID
-    if hasattr(settings, "use_run_id") and settings.use_run_id:
-        replacement = str(uuid.uuid4())
-    else:
-        now = datetime.datetime.now()
-        time_format = getattr(settings, "timestamp_format", "%Y%m%d_%H%M%S")
-        replacement = now.strftime(time_format)
+    # If we have advanced path settings, use those
+    if settings.path_settings:
+        path_pattern = settings.path_settings.path_pattern
+        unique_id_type = settings.path_settings.unique_id
 
-    return settings.path_pattern.replace("{timestamp}", replacement)
+        # FIXME: https://github.com/lastmile-ai/mcp-agent/issues/47
+        if unique_id_type == "session_id":
+            unique_id = str(uuid.uuid4())
+        else:  # timestamp is the default
+            now = datetime.datetime.now()
+            time_format = settings.path_settings.timestamp_format
+            unique_id = now.strftime(time_format)
+
+        return path_pattern.replace("{unique_id}", unique_id)
+
+    # Default fallback
+    return settings.path
 
 
 def create_transport(
     settings: LoggerSettings, event_filter: EventFilter | None = None
 ) -> EventTransport:
     """Create event transport based on settings."""
-    # Check if multiple transports are configured
-    if hasattr(settings, "transports") and len(settings.transports) >= 1:
-        transports: List[EventTransport] = []
+    transports: List[EventTransport] = []
+    transport_types = []
 
-        for transport_type in settings.transports:
-            if transport_type == "none":
-                continue
-            elif transport_type == "console":
-                transports.append(ConsoleTransport(event_filter=event_filter))
-            elif transport_type == "file":
-                filepath = generate_log_filename(settings)
-                transports.append(
-                    FileTransport(filepath=filepath, event_filter=event_filter)
-                )
-            elif transport_type == "http":
-                if not settings.http_endpoint:
-                    print(
-                        "Warning: HTTP endpoint required for HTTP transport. Skipping."
-                    )
-                    continue
-                transports.append(
-                    HTTPTransport(
-                        endpoint=settings.http_endpoint,
-                        headers=settings.http_headers,
-                        batch_size=settings.batch_size,
-                        timeout=settings.http_timeout,
-                        event_filter=event_filter,
-                    )
-                )
-        if transports:
-            return MultiTransport(transports)
-        else:
-            return NoOpTransport(event_filter=event_filter)
-    # Backward compatibility for single transport configuration
-    if settings.type == "none":
-        return NoOpTransport(event_filter=event_filter)
-    elif settings.type == "console":
-        return ConsoleTransport(event_filter=event_filter)
-    elif settings.type == "file":
-        if not settings.path:
-            raise ValueError("File path required for file transport")
-        filepath = generate_log_filename(settings)
-        return FileTransport(
-            filepath=filepath,
-            event_filter=event_filter,
-        )
-    elif settings.type == "http":
-        if not settings.http_endpoint:
-            raise ValueError("HTTP endpoint required for HTTP transport")
-        return HTTPTransport(
-            endpoint=settings.http_endpoint,
-            headers=settings.http_headers,
-            batch_size=settings.batch_size,
-            timeout=settings.http_timeout,
-            event_filter=event_filter,
-        )
+    # Determine which transport types to use (from new or legacy config)
+    if hasattr(settings, "transports") and settings.transports:
+        transport_types = settings.transports
     else:
-        raise ValueError(f"Unsupported transport type: {settings.type}")
+        transport_types = [settings.type]
+
+    for transport_type in transport_types:
+        if transport_type == "none":
+            continue
+        elif transport_type == "console":
+            transports.append(ConsoleTransport(event_filter=event_filter))
+        elif transport_type == "file":
+            filepath = get_log_filename(settings)
+            if not filepath:
+                raise ValueError(
+                    "File path required for file transport. Either specify 'path' or configure 'path_settings'"
+                )
+
+            transports.append(
+                FileTransport(filepath=filepath, event_filter=event_filter)
+            )
+        elif transport_type == "http":
+            if not settings.http_endpoint:
+                raise ValueError("HTTP endpoint required for HTTP transport")
+
+            transports.append(
+                HTTPTransport(
+                    endpoint=settings.http_endpoint,
+                    headers=settings.http_headers,
+                    batch_size=settings.batch_size,
+                    timeout=settings.http_timeout,
+                    event_filter=event_filter,
+                )
+            )
+        else:
+            raise ValueError(f"Unsupported transport type: {transport_type}")
+
+    if not transports:
+        return NoOpTransport(event_filter=event_filter)
+    elif len(transports) == 1:
+        return transports[0]
+    else:
+        return MultiTransport(transports)
