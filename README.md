@@ -128,8 +128,14 @@ if __name__ == "__main__":
 ```yaml
 execution_engine: asyncio
 logger:
-  type: console
+  transports: [console]  # You can use [file, console] for both
   level: debug
+  path: "logs/mcp-agent.jsonl"  # Used for file transport
+  # For dynamic log filenames:
+  # path_settings:
+  #   path_pattern: "logs/mcp-agent-{unique_id}.jsonl"
+  #   unique_id: "timestamp"  # Or "session_id"
+  #   timestamp_format: "%Y%m%d_%H%M%S"
 
 mcp:
   servers:
