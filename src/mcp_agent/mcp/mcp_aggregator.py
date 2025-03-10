@@ -5,11 +5,7 @@ from pydantic import BaseModel, ConfigDict
 from mcp.client.session import ClientSession
 from mcp.server.lowlevel.server import Server
 from mcp.server.stdio import stdio_server
-from mcp.types import (
-    CallToolResult,
-    ListToolsResult,
-    Tool,
-)
+from mcp.types import CallToolResult, ListToolsResult, Tool, TextContent
 
 from mcp_agent.logging.logger import get_logger
 from mcp_agent.mcp.gen_client import gen_client
@@ -283,7 +279,10 @@ class MCPAggregator(ContextDependent):
 
             if server_name is None or local_tool_name is None:
                 logger.error(f"Error: Tool '{name}' not found")
-                return CallToolResult(isError=True, message=f"Tool '{name}' not found")
+                return CallToolResult(
+                    isError=True,
+                    content=[TextContent(type="text", text=f"Tool '{name}' not found")],
+                )
 
         logger.info(
             "Requesting tool call",
@@ -301,7 +300,12 @@ class MCPAggregator(ContextDependent):
             except Exception as e:
                 return CallToolResult(
                     isError=True,
-                    message=f"Failed to call tool '{local_tool_name}' on server '{server_name}': {e}",
+                    content=[
+                        TextContent(
+                            type="text",
+                            text=f"Failed to call tool '{local_tool_name}' on server '{server_name}': {str(e)}",
+                        )
+                    ],
                 )
 
         if self.connection_persistence:
@@ -360,7 +364,12 @@ class MCPCompoundServer(Server):
             result = await self.aggregator.call_tool(name=name, arguments=arguments)
             return result.content
         except Exception as e:
-            return CallToolResult(isError=True, message=f"Error calling tool: {e}")
+            return CallToolResult(
+                isError=True,
+                content=[
+                    TextContent(type="text", text=f"Error calling tool: {str(e)}")
+                ],
+            )
 
     async def run_stdio_async(self) -> None:
         """Run the server using stdio transport."""
