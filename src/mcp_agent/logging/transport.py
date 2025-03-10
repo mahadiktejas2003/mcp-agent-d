@@ -6,6 +6,8 @@ Transports for the Logger module for MCP Agent, including:
 
 import asyncio
 import json
+import uuid
+import datetime
 from abc import ABC, abstractmethod
 from typing import Dict, List, Protocol
 from pathlib import Path
@@ -432,30 +434,123 @@ class AsyncEventBus:
                 break
 
 
+class MultiTransport(EventTransport):
+    """Transport that sends events to multiple configured transports."""
+
+    def __init__(self, transports: List[EventTransport]):
+        """Initialize MultiTransport with a list of transports.
+
+        Args:
+            transports: List of EventTransport instances to use
+        """
+        self.transports = transports
+
+    async def send_event(self, event: Event):
+        """Send event to all configured transports in parallel.
+
+        Args:
+            event: Event to send
+        """
+
+        # helper function to handle exceptions
+        async def send_with_exception_handling(transport):
+            try:
+                await transport.send_event(event)
+                return None
+            except Exception as e:
+                return (transport, e)
+
+        results = await asyncio.gather(
+            *[send_with_exception_handling(transport) for transport in self.transports],
+            return_exceptions=False,
+        )
+
+        exceptions = [result for result in results if result is not None]
+        if exceptions:
+            print(f"Errors occurred in {len(exceptions)} transports:")
+            for transport, exc in exceptions:
+                print(f"  {transport.__class__.__name__}: {exc}")
+
+
+def get_log_filename(settings: LoggerSettings) -> str:
+    """Generate a log filename based on the configuration.
+
+    Args:
+        settings: Logger settings containing path configuration
+
+    Returns:
+        String path for the log file
+    """
+    # If we have a standard path setting and no advanced path settings, use the standard path
+    if settings.path and not settings.path_settings:
+        return settings.path
+
+    # If we have advanced path settings, use those
+    if settings.path_settings:
+        path_pattern = settings.path_settings.path_pattern
+        unique_id_type = settings.path_settings.unique_id
+
+        # FIXME: https://github.com/lastmile-ai/mcp-agent/issues/47
+        if unique_id_type == "session_id":
+            unique_id = str(uuid.uuid4())
+        else:  # timestamp is the default
+            now = datetime.datetime.now()
+            time_format = settings.path_settings.timestamp_format
+            unique_id = now.strftime(time_format)
+
+        return path_pattern.replace("{unique_id}", unique_id)
+
+    # Default fallback
+    return settings.path
+
+
 def create_transport(
     settings: LoggerSettings, event_filter: EventFilter | None = None
 ) -> EventTransport:
     """Create event transport based on settings."""
-    if settings.type == "none":
-        return NoOpTransport(event_filter=event_filter)
-    elif settings.type == "console":
-        return ConsoleTransport(event_filter=event_filter)
-    elif settings.type == "file":
-        if not settings.path:
-            raise ValueError("File path required for file transport")
-        return FileTransport(
-            filepath=settings.path,
-            event_filter=event_filter,
-        )
-    elif settings.type == "http":
-        if not settings.http_endpoint:
-            raise ValueError("HTTP endpoint required for HTTP transport")
-        return HTTPTransport(
-            endpoint=settings.http_endpoint,
-            headers=settings.http_headers,
-            batch_size=settings.batch_size,
-            timeout=settings.http_timeout,
-            event_filter=event_filter,
-        )
+    transports: List[EventTransport] = []
+    transport_types = []
+
+    # Determine which transport types to use (from new or legacy config)
+    if hasattr(settings, "transports") and settings.transports:
+        transport_types = settings.transports
     else:
-        raise ValueError(f"Unsupported transport type: {settings.type}")
+        transport_types = [settings.type]
+
+    for transport_type in transport_types:
+        if transport_type == "none":
+            continue
+        elif transport_type == "console":
+            transports.append(ConsoleTransport(event_filter=event_filter))
+        elif transport_type == "file":
+            filepath = get_log_filename(settings)
+            if not filepath:
+                raise ValueError(
+                    "File path required for file transport. Either specify 'path' or configure 'path_settings'"
+                )
+
+            transports.append(
+                FileTransport(filepath=filepath, event_filter=event_filter)
+            )
+        elif transport_type == "http":
+            if not settings.http_endpoint:
+                raise ValueError("HTTP endpoint required for HTTP transport")
+
+            transports.append(
+                HTTPTransport(
+                    endpoint=settings.http_endpoint,
+                    headers=settings.http_headers,
+                    batch_size=settings.batch_size,
+                    timeout=settings.http_timeout,
+                    event_filter=event_filter,
+                )
+            )
+        else:
+            raise ValueError(f"Unsupported transport type: {transport_type}")
+
+    if not transports:
+        return NoOpTransport(event_filter=event_filter)
+    elif len(transports) == 1:
+        return transports[0]
+    else:
+        return MultiTransport(transports)

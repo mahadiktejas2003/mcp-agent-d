@@ -167,12 +167,42 @@ class OpenTelemetrySettings(BaseModel):
     """Sample rate for tracing (1.0 = sample everything)"""
 
 
+class LogPathSettings(BaseModel):
+    """
+    Settings for configuring log file paths with dynamic elements like timestamps or session IDs.
+    """
+
+    path_pattern: str = "logs/mcp-agent-{unique_id}.jsonl"
+    """
+    Path pattern for log files with a {unique_id} placeholder.
+    The placeholder will be replaced according to the unique_id setting.
+    Example: "logs/mcp-agent-{unique_id}.jsonl"
+    """
+
+    unique_id: Literal["timestamp", "session_id"] = "timestamp"
+    """
+    Type of unique identifier to use in the log filename:
+    - timestamp: Uses the current time formatted according to timestamp_format
+    - session_id: Generates a UUID for the session
+    """
+
+    timestamp_format: str = "%Y%m%d_%H%M%S"
+    """
+    Format string for timestamps when unique_id is set to "timestamp".
+    Uses Python's datetime.strftime format.
+    """
+
+
 class LoggerSettings(BaseModel):
     """
     Logger settings for the MCP Agent application.
     """
 
+    # Original transport configuration (kept for backward compatibility)
     type: Literal["none", "console", "file", "http"] = "console"
+
+    transports: List[Literal["none", "console", "file", "http"]] = []
+    """List of transports to use (can enable multiple simultaneously)"""
 
     level: Literal["debug", "info", "warning", "error"] = "info"
     """Minimum logging level"""
@@ -182,6 +212,12 @@ class LoggerSettings(BaseModel):
 
     path: str = "mcp-agent.jsonl"
     """Path to log file, if logger 'type' is 'file'."""
+
+    # Settings for advanced log path configuration
+    path_settings: Optional["LogPathSettings"] = None
+    """
+    Save log files with more advanced path semantics, like having timestamps or session id in the log name.
+    """
 
     batch_size: int = 100
     """Number of events to accumulate before processing"""
