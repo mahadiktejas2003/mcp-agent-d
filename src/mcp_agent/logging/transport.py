@@ -500,8 +500,7 @@ def get_log_filename(settings: LoggerSettings) -> str:
 
         return path_pattern.replace("{unique_id}", unique_id)
 
-    # Default fallback
-    return settings.path
+    raise ValueError("No path settings provided")
 
 
 def create_transport(
