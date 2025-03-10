@@ -214,7 +214,7 @@ class LoggerSettings(BaseModel):
     """Path to log file, if logger 'type' is 'file'."""
 
     # Settings for advanced log path configuration
-    path_settings: Optional["LogPathSettings"] = None
+    path_settings: LogPathSettings | None = None
     """
     Save log files with more advanced path semantics, like having timestamps or session id in the log name.
     """
