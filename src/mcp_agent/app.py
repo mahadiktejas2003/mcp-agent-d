@@ -1,6 +1,7 @@
 from typing import Any, Dict, Optional, Type, TypeVar, Callable
 from datetime import timedelta
 import asyncio
+import uuid
 from contextlib import asynccontextmanager
 
 from mcp import ServerSession
@@ -113,7 +114,8 @@ class MCPApp:
     @property
     def logger(self):
         if self._logger is None:
-            self._logger = get_logger(f"mcp_agent.{self.name}")
+            session_id = self._context.session_id if self._context else None
+            self._logger = get_logger(f"mcp_agent.{self.name}", session_id=session_id)
         return self._logger
 
     async def initialize(self):
@@ -121,7 +123,13 @@ class MCPApp:
         if self._initialized:
             return
 
-        self._context = await initialize_context(self._config_or_path, store_globally=True)
+        # Generate a session ID first
+        session_id = str(uuid.uuid4())
+
+        # Pass the session ID to initialize_context
+        self._context = await initialize_context(
+            self._config_or_path, store_globally=True, session_id=session_id
+        )
 
         # Set the properties that were passed in the constructor
         self._context.human_input_handler = self._human_input_callback
@@ -136,6 +144,7 @@ class MCPApp:
                 "progress_action": "Running",
                 "target": self.name,
                 "agent_name": "mcp_application_loop",
+                "session_id": session_id,
             },
         )
 

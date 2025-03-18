@@ -472,11 +472,12 @@ class MultiTransport(EventTransport):
                 print(f"  {transport.__class__.__name__}: {exc}")
 
 
-def get_log_filename(settings: LoggerSettings) -> str:
+def get_log_filename(settings: LoggerSettings, session_id: str | None = None) -> str:
     """Generate a log filename based on the configuration.
 
     Args:
         settings: Logger settings containing path configuration
+        session_id: Optional session ID to use in the filename
 
     Returns:
         String path for the log file
@@ -490,10 +491,11 @@ def get_log_filename(settings: LoggerSettings) -> str:
         path_pattern = settings.path_settings.path_pattern
         unique_id_type = settings.path_settings.unique_id
 
-        # FIXME: https://github.com/lastmile-ai/mcp-agent/issues/47
+        # Only use session_id when explicitly configured as "session_id"
         if unique_id_type == "session_id":
-            unique_id = str(uuid.uuid4())
-        else:  # timestamp is the default
+            # Use provided session_id if available, otherwise generate a new UUID
+            unique_id = session_id if session_id else str(uuid.uuid4())
+        else:  # For any other setting (including "timestamp"), use the original behavior
             now = datetime.datetime.now()
             time_format = settings.path_settings.timestamp_format
             unique_id = now.strftime(time_format)
@@ -504,7 +506,9 @@ def get_log_filename(settings: LoggerSettings) -> str:
 
 
 def create_transport(
-    settings: LoggerSettings, event_filter: EventFilter | None = None
+    settings: LoggerSettings,
+    event_filter: EventFilter | None = None,
+    session_id: str | None = None,
 ) -> EventTransport:
     """Create event transport based on settings."""
     transports: List[EventTransport] = []
@@ -522,7 +526,7 @@ def create_transport(
         elif transport_type == "console":
             transports.append(ConsoleTransport(event_filter=event_filter))
         elif transport_type == "file":
-            filepath = get_log_filename(settings)
+            filepath = get_log_filename(settings, session_id)
             if not filepath:
                 raise ValueError(
                     "File path required for file transport. Either specify 'path' or configure 'path_settings'"

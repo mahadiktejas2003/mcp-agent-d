@@ -60,6 +60,7 @@ class Context(BaseModel):
     signal_notification: Optional[SignalWaitCallback] = None
     upstream_session: Optional[ServerSession] = None  # TODO: saqadri - figure this out
     model_selector: Optional[ModelSelector] = None
+    session_id: str | None = None
 
     # Registries
     server_registry: Optional[ServerRegistry] = None
@@ -126,13 +127,15 @@ async def configure_otel(config: "Settings"):
     trace.set_tracer_provider(tracer_provider)
 
 
-async def configure_logger(config: "Settings"):
+async def configure_logger(config: "Settings", session_id: str | None = None):
     """
     Configure logging and tracing based on the application config.
     """
     event_filter: EventFilter = EventFilter(min_level=config.logger.level)
     logger.info(f"Configuring logger with level: {config.logger.level}")
-    transport = create_transport(settings=config.logger, event_filter=event_filter)
+    transport = create_transport(
+        settings=config.logger, event_filter=event_filter, session_id=session_id
+    )
     await LoggingConfig.configure(
         event_filter=event_filter,
         transport=transport,
@@ -169,7 +172,9 @@ async def configure_executor(config: "Settings"):
 
 
 async def initialize_context(
-    config: Optional[Union["Settings", str]] = None, store_globally: bool = False
+    config: Optional[Union["Settings", str]] = None,
+    store_globally: bool = False,
+    session_id: str = None,
 ):
     """
     Initialize the global application context.
@@ -183,9 +188,11 @@ async def initialize_context(
     context.config = config
     context.server_registry = ServerRegistry(config=config)
 
+    context.session_id = session_id
+
     # Configure logging and telemetry
     await configure_otel(config)
-    await configure_logger(config)
+    await configure_logger(config, context.session_id)
     await configure_usage_telemetry(config)
 
     # Configure the executor

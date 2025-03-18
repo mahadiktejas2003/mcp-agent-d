@@ -31,8 +31,9 @@ class Logger:
     - `name` can be a custom domain-specific event name, e.g. "ORDER_PLACED".
     """
 
-    def __init__(self, namespace: str):
+    def __init__(self, namespace: str, session_id: str | None = None):
         self.namespace = namespace
+        self.session_id = session_id
         self.event_bus = AsyncEventBus.get()
 
     def _ensure_event_loop(self):
@@ -64,6 +65,15 @@ class Logger:
         data: dict,
     ):
         """Create and emit an event."""
+        # Only create or modify context with session_id if we have one
+        if self.session_id:
+            # If no context was provided, create one with our session_id
+            if context is None:
+                context = EventContext(session_id=self.session_id)
+            # If context exists but has no session_id, add our session_id
+            elif context.session_id is None:
+                context.session_id = self.session_id
+
         evt = Event(
             type=etype,
             name=ename,
@@ -255,21 +265,23 @@ _logger_lock = threading.Lock()
 _loggers: Dict[str, Logger] = {}
 
 
-def get_logger(namespace: str) -> Logger:
+def get_logger(namespace: str, session_id: str | None = None) -> Logger:
     """
     Get a logger instance for a given namespace.
     Creates a new logger if one doesn't exist for this namespace.
 
     Args:
         namespace: The namespace for the logger (e.g. "agent.helper", "workflow.demo")
+        session_id: Optional session ID to associate with all events from this logger
 
     Returns:
         A Logger instance for the given namespace
     """
 
     with _logger_lock:
+        # Create a new logger if one doesn't exist
         if namespace not in _loggers:
-            _loggers[namespace] = Logger(namespace)
+            _loggers[namespace] = Logger(namespace, session_id)
         return _loggers[namespace]
 
 
