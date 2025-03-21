@@ -1,5 +1,4 @@
 version = 1
-revision = 1
 requires-python = ">=3.10"
 
 [manifest]
@@ -779,7 +778,7 @@ wheels = [
 
 [[package]]
 name = "mcp-agent"
-version = "0.0.8"
+version = "0.0.10"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
@@ -841,7 +840,6 @@ requires-dist = [
     { name = "temporalio", marker = "extra == 'temporal'", specifier = ">=1.8.0" },
     { name = "typer", specifier = ">=0.15.1" },
 ]
-provides-extras = ["temporal", "anthropic", "openai", "cohere"]
 
 [package.metadata.requires-dev]
 dev = [
