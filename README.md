@@ -494,7 +494,7 @@ The mcp-agent Swarm pattern works seamlessly with MCP servers, and is exposed as
 
 > [!NOTE]
 >
-> **[Link to full example](examples/workflow_orchestrator_worker/main.py)**
+> **[Link to full example](examples/workflow_swarm/main.py)**
 
 <details>
 <summary>Example</summary>
