@@ -12,7 +12,7 @@ from typing import (
 )
 
 import anyio
-from anyio import Event, create_task_group, get_cancelled_exc_class, Lock
+from anyio import Event, create_task_group, Lock
 from anyio.abc import TaskGroup
 from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 
