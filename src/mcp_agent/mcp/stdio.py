@@ -209,4 +209,23 @@ async def stdio_client_with_rich_stderr(
         tg.start_soon(stdout_reader)
         tg.start_soon(stdin_writer)
         tg.start_soon(stderr_reader)
-        yield read_stream, write_stream
+        try:
+            yield read_stream, write_stream
+        finally:
+            # Clean up process
+            logger.debug(
+                f"Terminating process (PID: {process.pid if hasattr(process, 'pid') else 'unknown'})"
+            )
+            try:
+                process.terminate()
+                if platform.system() == "Windows":
+                    try:
+                        with anyio.fail_after(2.0):
+                            await process.wait()
+                    except TimeoutError:
+                        # Force kill if it doesn't terminate
+                        process.kill()
+            except Exception as e:
+                logger.warning(
+                    f"Error terminating process (PID: {process.pid if hasattr(process, 'pid') else 'unknown'}): {e}"
+                )

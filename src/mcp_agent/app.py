@@ -71,6 +71,17 @@ class MCPApp:
         self._context: Optional[Context] = None
         self._initialized = False
 
+        try:
+            import platform
+
+            # Set event loop policy for Windows
+            if platform.system() == "Windows":
+                import asyncio
+
+                asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+        finally:
+            pass
+
     @property
     def context(self) -> Context:
         if self._context is None:
