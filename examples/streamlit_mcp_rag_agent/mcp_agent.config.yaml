@@ -10,20 +10,18 @@ logger:
   http_endpoint:
   http_headers:
   http_timeout: 5
+  progress_display: false
 
 mcp:
   servers:
     qdrant:
       command: "uvx"
-      args:
-        [
-          "mcp-server-qdrant"
-        ]
+      args: ["mcp-server-qdrant"]
       env:
         {
           "QDRANT_URL": "http://localhost:6333",
           "COLLECTION_NAME": "my_collection",
-          "EMBEDDING_MODEL": "BAAI/bge-small-en-v1.5"
+          "EMBEDDING_MODEL": "BAAI/bge-small-en-v1.5",
         }
 
 openai:

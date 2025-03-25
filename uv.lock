@@ -1,12 +1,6 @@
 version = 1
 requires-python = ">=3.10"
 
-[manifest]
-members = [
-    "mcp-agent",
-    "streamlit-mcp-basic-agent",
-]
-
 [[package]]
 name = "aiohappyeyeballs"
 version = "2.4.4"
@@ -117,7 +111,7 @@ wheels = [
 
 [[package]]
 name = "anthropic"
-version = "0.42.0"
+version = "0.48.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -128,9 +122,9 @@ dependencies = [
     { name = "sniffio" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e7/7c/91b79f5ae4a52497a4e330d66ea5929aec2878ee2c9f8a998dbe4f4c7f01/anthropic-0.42.0.tar.gz", hash = "sha256:bf8b0ed8c8cb2c2118038f29c58099d2f99f7847296cafdaa853910bfff4edf4", size = 192361 }
+sdist = { url = "https://files.pythonhosted.org/packages/20/e3/dba5eb132666517178488295305854304794367c4126e8261d2843b540f0/anthropic-0.48.0.tar.gz", hash = "sha256:5e94b571a3874295b6c8600d3797875abdca18946a9ade68b6aa0408caa31cad", size = 209603 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ba/33/b907a6d27dd0d8d3adb4edb5c9e9c85a189719ec6855051cce3814c8ef13/anthropic-0.42.0-py3-none-any.whl", hash = "sha256:46775f65b723c078a2ac9e9de44a46db5c6a4fabeacfd165e5ea78e6817f4eff", size = 203365 },
+    { url = "https://files.pythonhosted.org/packages/82/4b/9d2a167bd6c3db8391e0ae2853f94244667c557cc10a6d05898fde2f6ead/anthropic-0.48.0-py3-none-any.whl", hash = "sha256:e2495a07d14484f3219a5c0b902a63f9df8c2b3bd358f68b5ee86f1e89d1ba81", size = 242356 },
 ]
 
 [[package]]
@@ -584,7 +578,7 @@ wheels = [
 
 [[package]]
 name = "instructor"
-version = "1.7.2"
+version = "1.7.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -599,9 +593,9 @@ dependencies = [
     { name = "tenacity" },
     { name = "typer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/63/ba/692739c76959191aa7e5f0fccda871b36548355f4a09c8733687e64e62b0/instructor-1.7.2.tar.gz", hash = "sha256:6c01b2b159766df24865dc81f7bf8457cbda88a3c0bbc810da3467d19b185ed2", size = 66200177 }
+sdist = { url = "https://files.pythonhosted.org/packages/fa/83/5d257d1c4a93e7b24df4617fa299d7809b0e756d7ff733cc60aaeb63f0f7/instructor-1.7.7.tar.gz", hash = "sha256:ed91c5cdbd1eca53420e852a803b8281055459dee834f1bd315e5f3824d463f5", size = 67500094 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c5/82/fd319382c1a33d7021cf151007b4cbd5daddf09d9ca5fb670e476668f9fc/instructor-1.7.2-py3-none-any.whl", hash = "sha256:cb43d27f6d7631c31762b936b2fcb44d2a3f9d8a020430a0f4d3484604ffb95b", size = 71353 },
+    { url = "https://files.pythonhosted.org/packages/f0/23/aa5aa221c50c1775d8fd19e9f662909bc4cd6ef461630ee58a4f2637f037/instructor-1.7.7-py3-none-any.whl", hash = "sha256:a6565dc0a299d6b3761c7a225e83477c8956762d0d5c7e06fb0c3dd07cd705c6", size = 83921 },
 ]
 
 [package.optional-dependencies]
@@ -822,10 +816,10 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "anthropic", marker = "extra == 'anthropic'", specifier = ">=0.42.0" },
+    { name = "anthropic", marker = "extra == 'anthropic'", specifier = ">=0.48.0" },
     { name = "cohere", marker = "extra == 'cohere'", specifier = ">=5.13.4" },
     { name = "fastapi", specifier = ">=0.115.6" },
-    { name = "instructor", specifier = ">=1.7.0" },
+    { name = "instructor", specifier = ">=1.7.7" },
     { name = "instructor", extras = ["anthropic"], marker = "extra == 'anthropic'", specifier = ">=1.7.2" },
     { name = "mcp", specifier = ">=1.2.1" },
     { name = "numpy", specifier = ">=2.1.3" },
@@ -1625,11 +1619,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/1a/4c/9b5764bd22eec91c4
 wheels = [
     { url = "https://files.pythonhosted.org/packages/96/00/2b325970b3060c7cecebab6d295afe763365822b1306a12eeab198f74323/starlette-0.41.3-py3-none-any.whl", hash = "sha256:44cedb2b7c77a9de33a8b74b2b90e9f50d11fcf25d8270ea525ad71a25374ff7", size = 73225 },
 ]
-
-[[package]]
-name = "streamlit-mcp-basic-agent"
-version = "0.1.0"
-source = { virtual = "examples/streamlit_mcp_basic_agent" }
 
 [[package]]
 name = "temporalio"

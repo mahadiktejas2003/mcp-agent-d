@@ -1,7 +1,6 @@
 import json
 from typing import Iterable, List, Type
 
-import instructor
 from openai import OpenAI
 from openai.types.chat import (
     ChatCompletionAssistantMessageParam,
@@ -291,6 +290,8 @@ class OpenAIAugmentedLLM(
         # We need to do this in a two-step process because Instructor doesn't
         # know how to invoke MCP tools via call_tool, so we'll handle all the
         # processing first and then pass the final response through Instructor
+        import instructor
+
         response = await self.generate_str(
             message=message,
             request_params=request_params,

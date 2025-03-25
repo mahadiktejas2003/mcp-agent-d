@@ -3,7 +3,6 @@ from typing import Iterable, List, Type
 
 from pydantic import BaseModel
 
-import instructor
 from anthropic import Anthropic
 from anthropic.types import (
     ContentBlock,
@@ -271,6 +270,8 @@ class AnthropicAugmentedLLM(AugmentedLLM[MessageParam, Message]):
         # We need to do this in a two-step process because Instructor doesn't
         # know how to invoke MCP tools via call_tool, so we'll handle all the
         # processing first and then pass the final response through Instructor
+        import instructor
+
         response = await self.generate_str(
             message=message,
             request_params=request_params,

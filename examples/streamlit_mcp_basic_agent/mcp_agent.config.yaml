@@ -10,6 +10,7 @@ logger:
   http_endpoint:
   http_headers:
   http_timeout: 5
+  progress_display: false
 
 mcp:
   servers:

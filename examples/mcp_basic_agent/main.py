@@ -80,11 +80,9 @@ async def example_usage():
             llm = await finder_agent.attach_llm(AnthropicAugmentedLLM)
 
             result = await llm.generate_str(
-                message="Print the first 2 paragraphs of https://www.anthropic.com/research/building-effective-agents",
+                message="Print the first 2 paragraphs of https://modelcontextprotocol.io/introduction",
             )
-            logger.info(
-                f"First 2 paragraphs of Building Effective Agents blog post: {result}"
-            )
+            logger.info(f"First 2 paragraphs of Model Context Protocol docs: {result}")
 
             # Multi-turn conversations
             result = await llm.generate_str(

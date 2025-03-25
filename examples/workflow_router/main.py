@@ -108,7 +108,7 @@ async def example_usage():
         # This should route the query to fetch MCP server (inferring just by the server name alone!)
         # You can also specify a server description in mcp_agent.config.yaml to help the router make a more informed decision
         results = await anthropic_router.route_to_server(
-            request="Print the first two paragraphs of https://www.anthropic.com/research/building-effective-agents",
+            request="Print the first two paragraphs of https://modelcontextprotocol.io/introduction",
             top_k=1,
         )
         logger.info("Router Results:", data=results)

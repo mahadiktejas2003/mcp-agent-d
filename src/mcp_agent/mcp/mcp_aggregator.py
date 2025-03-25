@@ -268,14 +268,14 @@ class MCPAggregator(ContextDependent):
 
         if SEP in name:  # Namespaced tool name
             parts = name.split(SEP)
-            
+
             for i in range(len(parts) - 1, 0, -1):
                 potential_server_name = SEP.join(parts[:i])
                 if potential_server_name in self.server_names:
                     server_name = potential_server_name
                     local_tool_name = SEP.join(parts[i:])
                     break
-                
+
             if server_name is None:
                 server_name, local_tool_name = name.split(SEP, 1)
         else:
