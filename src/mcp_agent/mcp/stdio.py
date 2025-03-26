@@ -4,11 +4,11 @@ Custom implementation of stdio_client that handles stderr through rich console.
 
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Dict, List, TextIO
+from typing import TextIO
 
-import platform
 import shutil
 import subprocess
+import sys
 
 import anyio
 import anyio.lowlevel
@@ -18,93 +18,6 @@ import mcp.types as types
 from mcp_agent.logging.logger import get_logger
 
 logger = get_logger(__name__)
-
-
-def get_executable_command(command: str) -> str:
-    """
-    Get the correct executable command normalized for the current platform.
-
-    Args:
-        command: Base command (e.g., 'uvx', 'npx')
-        args: Command arguments
-
-    Returns:
-        List[str]: Platform-appropriate command
-    """
-
-    try:
-        if platform.system() != "Windows":
-            return command
-        else:
-            # For Windows, we need more sophisticated path resolution
-            # First check if command exists in PATH as-is
-            command_path = shutil.which(command)
-            if command_path:
-                logger.debug(f"Found command '{command} in PATH: {command_path}")
-                return command_path
-
-            # Check for Windows-specific extensions
-            for ext in [".cmd", ".bat", ".exe", ".ps1"]:
-                ext_version = f"{command}{ext}"
-                ext_path = shutil.which(ext_version)
-                if ext_path:
-                    logger.debug(f"Found command {command} with extension: {ext_path}")
-                    return ext_path
-
-            # For regular commands or if we couldn't find special versions
-            logger.debug(
-                f"Warning: Couldn't shutil.which({command}). Using original '{command}'"
-            )
-            return command
-    except Exception as exc:
-        logger.warning(
-            f"Error in get_executable_command, defaulting to original '{command}'. Error: {exc}"
-        )
-        return command
-
-
-async def create_platform_compatible_process(
-    command: str,
-    args: List[str],
-    env: Dict[str, str] | None = None,
-    errlog: int | TextIO = subprocess.PIPE,
-    cwd: Path | str | None = None,
-):
-    """
-    Creates a subprocess in a platform-compatible way.
-    Returns a process handle.
-    """
-
-    process = None
-
-    if platform.system() == "Windows":
-        try:
-            process = await anyio.open_process(
-                [command, *args],
-                env=env,
-                # Ensure we don't create console windows for each process
-                creationflags=subprocess.CREATE_NO_WINDOW
-                if hasattr(subprocess, "CREATE_NO_WINDOW")
-                else 0,
-                stderr=errlog,
-                cwd=cwd,
-            )
-
-            return process
-        except Exception as e:
-            logger.warning(
-                f"Error creating subprocess using create_subprocess_exec for '{command}': {e}",
-                exc_info=True,
-            )
-            # Don't raise, let's try to create the process using the default method
-            process = None
-
-    # Default method for creating the process
-    process = await anyio.open_process(
-        [command, *args], env=env, stderr=errlog, cwd=cwd
-    )
-
-    return process
 
 
 @asynccontextmanager
@@ -121,10 +34,10 @@ async def stdio_client_with_rich_stderr(
     read_stream_writer, read_stream = anyio.create_memory_object_stream(0)
     write_stream, write_stream_reader = anyio.create_memory_object_stream(0)
 
-    command = get_executable_command(server.command)
+    command = _get_executable_command(server.command)
 
     # Open process with stderr piped for capture
-    process = await create_platform_compatible_process(
+    process = await _create_platform_compatible_process(
         command=command,
         args=server.args,
         env=(
@@ -133,6 +46,7 @@ async def stdio_client_with_rich_stderr(
             else get_default_environment()
         ),
         errlog=errlog,
+        # cwd=server.cwd,
     )
 
     if process.pid:
@@ -218,7 +132,7 @@ async def stdio_client_with_rich_stderr(
             )
             try:
                 process.terminate()
-                if platform.system() == "Windows":
+                if sys.platform == "win32":
                     try:
                         with anyio.fail_after(2.0):
                             await process.wait()
@@ -229,3 +143,77 @@ async def stdio_client_with_rich_stderr(
                 logger.warning(
                     f"Error terminating process (PID: {process.pid if hasattr(process, 'pid') else 'unknown'}): {e}"
                 )
+
+
+def _get_executable_command(command: str) -> str:
+    """
+    Get the correct executable command normalized for the current platform.
+
+    Args:
+        command: Base command (e.g., 'uvx', 'npx')
+
+    Returns:
+        str: Platform-appropriate command
+    """
+
+    try:
+        if sys.platform != "win32":
+            return command
+        else:
+            # For Windows, we need more sophisticated path resolution
+            # First check if command exists in PATH as-is
+            command_path = shutil.which(command)
+            if command_path:
+                return command_path
+
+            # Check for Windows-specific extensions
+            for ext in [".cmd", ".bat", ".exe", ".ps1"]:
+                ext_version = f"{command}{ext}"
+                ext_path = shutil.which(ext_version)
+                if ext_path:
+                    return ext_path
+
+            # For regular commands or if we couldn't find special versions
+            return command
+    except Exception:
+        return command
+
+
+async def _create_platform_compatible_process(
+    command: str,
+    args: list[str],
+    env: dict[str, str] | None = None,
+    errlog: int | TextIO = subprocess.PIPE,
+    cwd: Path | str | None = None,
+):
+    """
+    Creates a subprocess in a platform-compatible way.
+    Returns a process handle.
+    """
+
+    process = None
+
+    if sys.platform == "win32":
+        try:
+            process = await anyio.open_process(
+                [command, *args],
+                env=env,
+                # Ensure we don't create console windows for each process
+                creationflags=subprocess.CREATE_NO_WINDOW  # type: ignore
+                if hasattr(subprocess, "CREATE_NO_WINDOW")
+                else 0,
+                stderr=errlog,
+                cwd=cwd,
+            )
+
+            return process
+        except Exception:
+            # Don't raise, let's try to create the process using the default method
+            process = None
+
+    # Default method for creating the process
+    process = await anyio.open_process(
+        [command, *args], env=env, stderr=errlog, cwd=cwd
+    )
+
+    return process

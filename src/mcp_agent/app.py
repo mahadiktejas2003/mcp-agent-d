@@ -1,6 +1,7 @@
 from typing import Any, Dict, Optional, Type, TypeVar, Callable
 from datetime import timedelta
 import asyncio
+import sys
 import uuid
 from contextlib import asynccontextmanager
 
@@ -72,10 +73,8 @@ class MCPApp:
         self._initialized = False
 
         try:
-            import platform
-
             # Set event loop policy for Windows
-            if platform.system() == "Windows":
+            if sys.platform == "win32":
                 import asyncio
 
                 asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
