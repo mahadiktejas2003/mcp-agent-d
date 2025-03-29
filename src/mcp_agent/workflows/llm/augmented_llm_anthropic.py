@@ -75,7 +75,7 @@ class AnthropicAugmentedLLM(AugmentedLLM[MessageParam, Message]):
             modelPreferences=self.model_preferences,
             maxTokens=2048,
             systemPrompt=self.instruction,
-            parallel_tool_calls=True,
+            parallel_tool_calls=False,
             max_iterations=10,
             use_history=True,
         )

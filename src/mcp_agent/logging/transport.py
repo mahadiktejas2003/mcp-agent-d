@@ -293,6 +293,21 @@ class AsyncEventBus:
             cls._instance.transport = transport
         return cls._instance
 
+    @classmethod
+    def reset(cls) -> None:
+        """
+        Reset the singleton instance.
+        This is primarily useful for testing scenarios where you need to ensure
+        a clean state between tests.
+        """
+        if cls._instance:
+            # Signal shutdown
+            cls._instance._running = False
+            cls._instance._stop_event.set()
+
+            # Clear the singleton instance
+            cls._instance = None
+
     async def start(self):
         """Start the event bus and all lifecycle-aware listeners."""
         if self._running:
@@ -385,11 +400,19 @@ class AsyncEventBus:
     async def _process_events(self):
         """Process events from the queue until stopped."""
         while self._running:
+            event = None
             try:
                 # Use wait_for with a timeout to allow checking running state
                 try:
+                    # Check if we should be stopping first
+                    if not self._running or self._stop_event.is_set():
+                        break
+
                     event = await asyncio.wait_for(self._queue.get(), timeout=0.1)
                 except asyncio.TimeoutError:
+                    # Check again before continuing
+                    if not self._running or self._stop_event.is_set():
+                        break
                     continue
 
                 # Process the event through all listeners
@@ -409,13 +432,15 @@ class AsyncEventBus:
                                 f"Stacktrace: {''.join(traceback.format_exception(type(r), r, r.__traceback__))}"
                             )
 
-                self._queue.task_done()
-
             except asyncio.CancelledError:
                 break
             except Exception as e:
                 print(f"Error in event processing loop: {e}")
                 continue
+            finally:
+                # Always mark the task as done if we got an event
+                if event is not None:
+                    self._queue.task_done()
 
         # Process remaining events in queue
         while not self._queue.empty():

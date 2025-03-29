@@ -86,7 +86,7 @@ class SwarmAgent(Agent):
         instruction: str | Callable[[Dict], str] = "You are a helpful agent.",
         server_names: list[str] = None,
         functions: List["AgentFunctionCallable"] = None,
-        parallel_tool_calls: bool = True,
+        parallel_tool_calls: bool = False,
         human_input_callback: HumanInputCallback = None,
         context: Optional["Context"] = None,
         **kwargs,

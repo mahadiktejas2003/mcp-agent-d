@@ -134,6 +134,7 @@ class ServerRegistry:
                 env={**get_default_environment(), **(config.env or {})},
             )
 
+            # TODO: saqadri (FA1) - Should this be stdio_client_with_rich_stderr
             async with stdio_client(server_params) as (read_stream, write_stream):
                 session = client_session_factory(
                     read_stream,

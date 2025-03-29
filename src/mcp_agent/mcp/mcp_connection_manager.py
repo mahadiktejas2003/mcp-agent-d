@@ -25,6 +25,8 @@ from mcp.client.sse import sse_client
 from mcp.types import JSONRPCMessage, ServerCapabilities
 
 from mcp_agent.config import MCPServerSettings
+from mcp_agent.core.exceptions import ServerInitializationError
+from mcp_agent.event_progress import ProgressAction
 from mcp_agent.logging.logger import get_logger
 from mcp_agent.mcp.mcp_agent_client_session import MCPAgentClientSession
 from mcp_agent.mcp.stdio import stdio_client_with_rich_stderr
@@ -176,7 +178,7 @@ async def _server_lifecycle_task(server_conn: ServerConnection) -> None:
             f"{server_name}: Lifecycle task encountered an error: {exc}",
             exc_info=True,
             data={
-                "progress_action": "ERROR",
+                "progress_action": ProgressAction.FATAL_ERROR,
                 "server_name": server_name,
             },
         )
@@ -333,7 +335,7 @@ class MCPConnectionManager(ContextDependent):
         # Check if the server is healthy after initialization
         if not server_conn.is_healthy():
             error_msg = server_conn._error_message or "Unknown error"
-            raise RuntimeError(
+            raise ServerInitializationError(
                 f"MCP Server: '{server_name}': Failed to initialize with error: '{error_msg}'. Check mcp_agent.config.yaml"
             )
 

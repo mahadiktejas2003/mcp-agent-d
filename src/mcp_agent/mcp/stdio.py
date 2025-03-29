@@ -25,11 +25,8 @@ async def stdio_client_with_rich_stderr(
     server: StdioServerParameters, errlog: int | TextIO = subprocess.PIPE
 ):
     """
-    Modified version of stdio_client that captures stderr and routes it through our rich console.
-    Follows the original pattern closely for reliability.
-
-    Args:
-        server: The server parameters for the stdio connection
+    Client transport for stdio: this will connect to a server by spawning a
+    process and communicating with it over stdin/stdout.
     """
     read_stream_writer, read_stream = anyio.create_memory_object_stream(0)
     write_stream, write_stream_reader = anyio.create_memory_object_stream(0)
@@ -46,7 +43,7 @@ async def stdio_client_with_rich_stderr(
             else get_default_environment()
         ),
         errlog=errlog,
-        # cwd=server.cwd,
+        cwd=server.cwd,
     )
 
     if process.pid:
@@ -60,6 +57,7 @@ async def stdio_client_with_rich_stderr(
 
     async def stdout_reader():
         assert process.stdout, "Opened process is missing stdout"
+
         try:
             async with read_stream_writer:
                 buffer = ""
@@ -72,8 +70,6 @@ async def stdio_client_with_rich_stderr(
                     buffer = lines.pop()
 
                     for line in lines:
-                        if not line:
-                            continue
                         try:
                             message = types.JSONRPCMessage.model_validate_json(line)
                         except Exception as exc:
@@ -96,14 +92,23 @@ async def stdio_client_with_rich_stderr(
             ):
                 if chunk.strip():
                     # Let the logging system handle the formatting consistently
-                    logger.event("info", "mcpserver.stderr", chunk.rstrip(), None, {})
+                    try:
+                        logger.event(
+                            "info", "mcpserver.stderr", chunk.rstrip(), None, {}
+                        )
+                    except Exception as e:
+                        logger.error(
+                            f"Error in stderr_reader handling output: {e}",
+                            exc_info=True,
+                        )
         except anyio.ClosedResourceError:
             await anyio.lowlevel.checkpoint()
         except Exception as e:
-            logger.error(f"Error in stderr_reader: {e}")
+            logger.error(f"Unexpected error in stderr_reader: {e}", exc_info=True)
 
     async def stdin_writer():
         assert process.stdin, "Opened process is missing stdin"
+
         try:
             async with write_stream_reader:
                 async for message in write_stream_reader:
@@ -118,8 +123,10 @@ async def stdio_client_with_rich_stderr(
         except Exception as e:
             logger.error(f"Error in stdin_writer: {e}")
 
-    # Use context managers to handle cleanup automatically
-    async with anyio.create_task_group() as tg, process:
+    async with (
+        anyio.create_task_group() as tg,
+        process,
+    ):
         tg.start_soon(stdout_reader)
         tg.start_soon(stdin_writer)
         tg.start_soon(stderr_reader)

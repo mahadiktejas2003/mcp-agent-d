@@ -11,14 +11,18 @@ class ProgressAction(str, Enum):
     """Progress actions available in the system."""
 
     STARTING = "Starting"
+    LOADED = "Loaded"
     RUNNING = "Running"
     INITIALIZED = "Initialized"
     CHATTING = "Chatting"
+    ROUTING = "Routing"
+    PLANNING = "Planning"
+    READY = "Ready"
     CALLING_TOOL = "Calling Tool"
     FINISHED = "Finished"
     SHUTDOWN = "Shutdown"
     AGGREGATOR_INITIALIZED = "Running"
-    ROUTING = "Routing"
+    FATAL_ERROR = "Error"
 
 
 @dataclass
@@ -56,35 +60,38 @@ def convert_log_event(event: Event) -> Optional[ProgressEvent]:
         return None
 
     # Build target string based on the event type
+    # Progress display is currently [time] [event] --- [target] [details]
     namespace = event.namespace
     agent_name = event_data.get("agent_name")
-    if "mcp_aggregator" in namespace:
+    target = agent_name if agent_name is not None else "unknown"
+    details = ""
+    if progress_action == ProgressAction.FATAL_ERROR:
+        details = event_data.get("error_message", "An error occurred")
+    elif "mcp_aggregator" in namespace:
         server_name = event_data.get("server_name", "")
         tool_name = event_data.get("tool_name")
         if tool_name:
-            target = f"{server_name} ({tool_name})"
+            details = f"{server_name} ({tool_name})"
         else:
-            target = f"MCP Server: {server_name}"
+            details = f"{server_name}"
     elif "augmented_llm" in namespace:
         model = event_data.get("model", "")
 
-        target = f"{agent_name} ({model})" if agent_name else model
+        details = f"{model}"
         # Add chat turn if present
         chat_turn = event_data.get("chat_turn")
         if chat_turn is not None:
-            return ProgressEvent(
-                ProgressAction(progress_action),
-                target,
-                f"Turn {chat_turn}",
-                agent_name=event_data.get("agent_name"),
-            )
+            details = f"{model} turn {chat_turn}"
     elif "router_llm" in namespace:
-        target = "Requesting routing from LLM"
+        details = "Requesting routing from LLM"
     else:
-        target = event_data.get("target", "unknown")
+        explicit_target = event_data.get("target")
+        if explicit_target is not None:
+            target = explicit_target
 
     return ProgressEvent(
         ProgressAction(progress_action),
         target,
+        details,
         agent_name=event_data.get("agent_name"),
     )

@@ -1,10 +1,11 @@
 """Rich-based progress display for MCP Agent."""
 
+import time
 from typing import Optional
 from rich.console import Console
 from mcp_agent.console import console as default_console
 from mcp_agent.event_progress import ProgressEvent, ProgressAction
-from rich.progress import Progress, BarColumn, TextColumn, TimeElapsedColumn
+from rich.progress import Progress, SpinnerColumn, TextColumn
 from contextlib import contextmanager
 
 
@@ -16,11 +17,12 @@ class RichProgressDisplay:
         self.console = console or default_console
         self._taskmap = {}
         self._progress = Progress(
-            TimeElapsedColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            BarColumn(bar_width=15),
-            TextColumn(text_format="{task.fields[target]:<18}", style="Blue"),
-            TextColumn(text_format="{task.fields[details]}"),
+            SpinnerColumn(spinner_name="simpleDotsScrolling"),
+            TextColumn(
+                "[progress.description]{task.description}|",
+            ),
+            TextColumn(text_format="{task.fields[target]:<16}", style="Bold Blue"),
+            TextColumn(text_format="{task.fields[details]}", style="dim white"),
             console=self.console,
             transient=False,
         )
@@ -28,14 +30,7 @@ class RichProgressDisplay:
 
     def start(self):
         """start"""
-        # task_id = self._progress.add_task(
-        #     "[white]...mcp-agent...",
-        #     total=None,
-        #     target="mcp-agent app",
-        #     details="",
-        #     task_name="default",
-        # )
-        # self._taskmap["default"] = task_id
+
         self._progress.start()
 
     def stop(self):
@@ -71,15 +66,19 @@ class RichProgressDisplay:
     def _get_action_style(self, action: ProgressAction) -> str:
         """Map actions to appropriate styles."""
         return {
-            ProgressAction.STARTING: "black on yellow",
-            ProgressAction.INITIALIZED: "black on green",
+            ProgressAction.STARTING: "bold yellow",
+            ProgressAction.LOADED: "dim green",
+            ProgressAction.INITIALIZED: "dim green",
             ProgressAction.RUNNING: "black on green",
-            ProgressAction.CHATTING: "white on dark_blue",
-            ProgressAction.ROUTING: "white on dark_blue",
-            ProgressAction.CALLING_TOOL: "white on dark_magenta",
+            ProgressAction.CHATTING: "bold blue",
+            ProgressAction.ROUTING: "bold blue",
+            ProgressAction.PLANNING: "bold blue",
+            ProgressAction.READY: "dim green",
+            ProgressAction.CALLING_TOOL: "bold magenta",
             ProgressAction.FINISHED: "black on green",
             ProgressAction.SHUTDOWN: "black on red",
-            ProgressAction.AGGREGATOR_INITIALIZED: "black on green",
+            ProgressAction.AGGREGATOR_INITIALIZED: "bold green",
+            ProgressAction.FATAL_ERROR: "black on red",
         }.get(action, "white")
 
     def update(self, event: ProgressEvent) -> None:
@@ -91,23 +90,47 @@ class RichProgressDisplay:
             task_id = self._progress.add_task(
                 "",
                 total=None,
-                target=f"{event.target}",
-                details=f"{event.agent_name}",
+                target=f"{event.target or task_name}",  # Use task_name as fallback for target
+                details=f"{event.agent_name or ''}",
             )
             self._taskmap[task_name] = task_id
         else:
             task_id = self._taskmap[task_name]
 
-        # For FINISHED events, mark the task as complete
-        if event.action == ProgressAction.FINISHED:
-            self._progress.update(task_id, total=100, completed=100)
-            self._taskmap.pop(task_name)
-
-        # Update the task with new information
+        # Ensure no None values in the update
         self._progress.update(
             task_id,
             description=f"[{self._get_action_style(event.action)}]{event.action.value:<15}",
-            target=event.target,
-            details=event.details if event.details else "",
+            target=event.target or task_name,  # Use task_name as fallback for target
+            details=event.details or "",
             task_name=task_name,
         )
+
+        if event.action in (
+            ProgressAction.INITIALIZED,
+            ProgressAction.READY,
+            ProgressAction.LOADED,
+        ):
+            self._progress.update(task_id, completed=100, total=100)
+        elif event.action == ProgressAction.FINISHED:
+            self._progress.update(
+                task_id,
+                completed=100,
+                total=100,
+                details=f" / Elapsed Time {time.strftime('%H:%M:%S', time.gmtime(self._progress.tasks[task_id].elapsed))}",
+            )
+            for task in self._progress.tasks:
+                if task.id != task_id:
+                    task.visible = False
+        elif event.action == ProgressAction.FATAL_ERROR:
+            self._progress.update(
+                task_id,
+                completed=100,
+                total=100,
+                details=f" / {event.details}",
+            )
+            for task in self._progress.tasks:
+                if task.id != task_id:
+                    task.visible = False
+        else:
+            self._progress.reset(task_id)

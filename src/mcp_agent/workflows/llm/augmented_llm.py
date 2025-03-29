@@ -119,7 +119,7 @@ class RequestParams(CreateMessageRequestParams):
     The maximum number of iterations to run the LLM for.
     """
 
-    parallel_tool_calls: bool = True
+    parallel_tool_calls: bool = False
     """
     Whether to allow multiple tool calls per iteration.
     Also known as multi-step tool use.

@@ -282,11 +282,21 @@ class Settings(BaseSettings):
     @classmethod
     def find_config(cls) -> Path | None:
         """Find the config file in the current directory or parent directories."""
+        return cls._find_config(["mcp-agent.config.yaml", "mcp_agent.config.yaml"])
+
+    @classmethod
+    def find_secrets(cls) -> Path | None:
+        """Find the secrets file in the current directory or parent directories."""
+        return cls._find_config(["mcp-agent.secrets.yaml", "mcp_agent.secrets.yaml"])
+
+    @classmethod
+    def _find_config(cls, filenames: List[str]) -> Path | None:
+        """Find the config file of one of the possible names in the current directory or parent directories."""
         current_dir = Path.cwd()
 
         # Check current directory and parent directories
         while current_dir != current_dir.parent:
-            for filename in ["mcp-agent.config.yaml", "mcp_agent.config.yaml"]:
+            for filename in filenames:
                 config_path = current_dir / filename
                 if config_path.exists():
                     return config_path
@@ -334,9 +344,9 @@ def get_settings(config_path: str | None = None) -> Settings:
                 yaml_settings = yaml.safe_load(f) or {}
                 merged_settings = yaml_settings
 
-            # Look for secrets file in the same directory
-            secrets_file = config_file.parent / "mcp_agent.secrets.yaml"
-            if secrets_file.exists():
+            # Load secrets (if available)
+            secrets_file = Settings.find_secrets()
+            if secrets_file and secrets_file.exists():
                 with open(secrets_file, "r", encoding="utf-8") as f:
                     yaml_secrets = yaml.safe_load(f) or {}
                     merged_settings = deep_merge(merged_settings, yaml_secrets)

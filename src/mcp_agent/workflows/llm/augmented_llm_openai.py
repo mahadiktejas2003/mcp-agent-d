@@ -79,7 +79,7 @@ class OpenAIAugmentedLLM(
             modelPreferences=self.model_preferences,
             maxTokens=4096,
             systemPrompt=self.instruction,
-            parallel_tool_calls=True,
+            parallel_tool_calls=False,
             max_iterations=10,
             use_history=True,
         )
@@ -163,8 +163,8 @@ class OpenAIAugmentedLLM(
                 }
             else:
                 arguments = {**arguments, "max_tokens": params.maxTokens}
-                if available_tools:
-                    arguments["parallel_tool_calls"] = params.parallel_tool_calls
+                # if available_tools:
+                #     arguments["parallel_tool_calls"] = params.parallel_tool_calls
 
             if params.metadata:
                 arguments = {**arguments, **params.metadata}
