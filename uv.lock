@@ -837,7 +837,7 @@ requires-dist = [
     { name = "anthropic", marker = "extra == 'anthropic'", specifier = ">=0.48.0" },
     { name = "cohere", marker = "extra == 'cohere'", specifier = ">=5.13.4" },
     { name = "fastapi", specifier = ">=0.115.6" },
-    { name = "instructor", specifier = ">=1.7.0" },
+    { name = "instructor", specifier = ">=1.7.7" },
     { name = "instructor", extras = ["anthropic"], marker = "extra == 'anthropic'", specifier = ">=1.7.2" },
     { name = "mcp", specifier = ">=1.5.0" },
     { name = "numpy", specifier = ">=2.1.3" },
