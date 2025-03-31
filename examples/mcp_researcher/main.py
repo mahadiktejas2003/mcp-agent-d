@@ -1,5 +1,7 @@
 import asyncio
 import time
+import os
+from pathlib import Path
 
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
@@ -11,10 +13,23 @@ from rich import print
 
 app = MCPApp(name="mcp_root_test")
 
-
 async def example_usage():
     async with app.run() as agent_app:
+        folder_path = Path("agent_folder")
+        folder_path.mkdir(exist_ok=True)
+
         context = agent_app.context
+
+        # Overwrite the config because full path to agent folder needs to be passed
+        context.config.mcp.servers["interpreter"].args = [
+          "run",
+          "-i",
+          "--rm",
+          "--pull=always",
+          "-v",
+          f"{os.path.abspath('agent_folder')}:/mnt/data/",
+          "ghcr.io/evalstate/mcp-py-repl:latest",
+        ]
 
         async with MCPConnectionManager(context.server_registry):
             interpreter_agent = Agent(
