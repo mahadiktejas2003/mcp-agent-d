@@ -125,6 +125,11 @@ class RequestParams(CreateMessageRequestParams):
     Also known as multi-step tool use.
     """
 
+    temperature: float = 0.7
+    """
+    The likelihood of the model selecting higher-probability options while generating a response.
+    """
+
 
 class AugmentedLLMProtocol(Protocol, Generic[MessageParamT, MessageT]):
     """Protocol defining the interface for augmented LLMs"""

@@ -99,6 +99,19 @@ class AnthropicSettings(BaseModel):
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
 
+class BedrockSettings(BaseModel):
+    """
+    Settings for using Bedrock models in the MCP Agent application.
+    """
+
+    aws_access_key_id: str | None = None
+    aws_secret_access_key: str | None = None
+    aws_session_token: str | None = None
+    aws_region: str | None = None
+
+    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
+
+
 class CohereSettings(BaseModel):
     """
     Settings for using Cohere models in the MCP Agent application.
@@ -263,6 +276,9 @@ class Settings(BaseSettings):
 
     anthropic: AnthropicSettings | None = None
     """Settings for using Anthropic models in the MCP Agent application"""
+
+    bedrock: BedrockSettings | None = None
+    """Settings for using Bedrock models in the MCP Agent application"""
 
     cohere: CohereSettings | None = None
     """Settings for using Cohere models in the MCP Agent application"""
