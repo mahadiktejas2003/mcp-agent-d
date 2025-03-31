@@ -1,4 +1,5 @@
 import json
+import re
 from typing import Iterable, List, Type
 
 from openai import OpenAI
@@ -197,8 +198,11 @@ class OpenAIAugmentedLLM(
             message = choice.message
             responses.append(message)
 
+            # Fixes an issue with openai validation that does not allow non alphanumeric characters, dashes, and underscores
+            sanitized_name = re.sub(r"[^a-zA-Z0-9_-]", "_", self.name) if isinstance(self.name, str) else None
+
             converted_message = self.convert_message_to_message_param(
-                message, name=self.name
+                message, name=sanitized_name
             )
             messages.append(converted_message)
 
