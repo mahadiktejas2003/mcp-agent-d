@@ -456,6 +456,48 @@
       "title": "OpenAISettings",
       "type": "object"
     },
+    "AzureSettings": {
+      "additionalProperties": true,
+      "description": "Settings for using Azure models in the MCP Agent application.",
+      "properties": {
+        "api_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            }
+          ],
+          "default": null,
+          "title": "Api Key"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            }
+          ],
+          "default": null,
+          "title": "Azure Endpoint"
+        },
+        "api_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "API Version"
+        }
+      },
+      "required": [
+        "api_key",
+        "endpoint"
+      ],
+      "title": "AzureSettings",
+      "type": "object"
+    },
     "BedrockSettings": {
       "additionalProperties": true,
       "description": "Settings for using AWS Bedrock models in the MCP Agent application.",
@@ -708,6 +750,18 @@
       ],
       "default": null,
       "description": "Settings for using OpenAI models in the MCP Agent application"
+    },
+    "azure": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AzureSettings"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Settings for using Azure models in the MCP Agent application"
     },
     "bedrock": {
       "anyOf": [

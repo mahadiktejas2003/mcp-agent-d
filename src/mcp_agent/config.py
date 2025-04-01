@@ -135,6 +135,18 @@ class OpenAISettings(BaseModel):
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
 
+class AzureSettings(BaseModel):
+    """
+    Settings for using Azure models in the MCP Agent application.
+    """
+
+    api_key: str
+
+    endpoint: str
+
+    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
+
+
 class TemporalSettings(BaseModel):
     """
     Temporal settings for the MCP Agent application.
@@ -285,6 +297,9 @@ class Settings(BaseSettings):
 
     openai: OpenAISettings | None = None
     """Settings for using OpenAI models in the MCP Agent application"""
+
+    azure: AzureSettings | None = None
+    """Settings for using Azure models in the MCP Agent application"""
 
     otel: OpenTelemetrySettings | None = OpenTelemetrySettings()
     """OpenTelemetry logging settings for the MCP Agent application"""

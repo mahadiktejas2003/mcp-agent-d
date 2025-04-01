@@ -45,6 +45,9 @@ bedrock = [
 openai = [
     "openai>=1.58.1",
 ]
+azure = [
+    "azure-ai-inference>=1.0.0b9",
+]
 cohere = [
     "cohere>=5.13.4",
 ]
