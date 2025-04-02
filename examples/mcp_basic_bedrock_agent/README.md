@@ -20,6 +20,7 @@ Configuration Options
 
 Optional:
 - `default_model`: Defaults to `amazon.nova-lite-v1:0` but can be customized in your config.
+- `profile`: Select which AWS profile should be used.
 
 ## Running the Agent
 

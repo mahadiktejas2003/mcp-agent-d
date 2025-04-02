@@ -108,6 +108,7 @@ class BedrockSettings(BaseModel):
     aws_secret_access_key: str | None = None
     aws_session_token: str | None = None
     aws_region: str | None = None
+    profile: str | None = None
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 

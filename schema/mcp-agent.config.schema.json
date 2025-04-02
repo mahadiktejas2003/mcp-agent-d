@@ -549,6 +549,18 @@
           ],
           "default": null,
           "title": "Session Token"
+        },
+        "profile": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Profile"
         }
       },
       "title": "BedrockSettings",
