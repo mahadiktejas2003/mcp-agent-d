@@ -1,4 +1,4 @@
-from typing import List, Type
+from typing import TYPE_CHECKING, List, Type
 from boto3 import Session
 from mcp.types import (
     CallToolRequestParams,
@@ -20,13 +20,20 @@ from mcp_agent.workflows.llm.augmented_llm import (
 )
 from mcp_agent.logging.logger import get_logger
 
-from mypy_boto3_bedrock_runtime.type_defs import (
-    MessageOutputTypeDef,
-    ConverseRequestTypeDef,
-    MessageUnionTypeDef,
-    ContentBlockUnionTypeDef,
-    ToolConfigurationTypeDef,
-)
+if TYPE_CHECKING:
+    from mypy_boto3_bedrock_runtime.type_defs import (
+        MessageOutputTypeDef,
+        ConverseRequestTypeDef,
+        MessageUnionTypeDef,
+        ContentBlockUnionTypeDef,
+        ToolConfigurationTypeDef,
+    )
+else:
+    MessageOutputTypeDef = object
+    ConverseRequestTypeDef = object
+    MessageUnionTypeDef = object
+    ContentBlockUnionTypeDef = object
+    ToolConfigurationTypeDef = object
 
 
 class BedrockAugmentedLLM(AugmentedLLM[MessageUnionTypeDef, MessageUnionTypeDef]):
