@@ -1,5 +1,5 @@
 import json
-from typing import Iterable, List, Type
+from typing import Iterable, List, Type, Union
 
 from pydantic import BaseModel
 
@@ -15,6 +15,11 @@ from anthropic.types import (
     ToolParam,
     ToolResultBlockParam,
     ToolUseBlockParam,
+    Base64ImageSourceParam,
+    PlainTextSourceParam,
+    Base64PDFSourceParam,
+    ThinkingBlockParam,
+    RedactedThinkingBlockParam,
 )
 from mcp.types import (
     CallToolRequestParams,
@@ -36,8 +41,25 @@ from mcp_agent.workflows.llm.augmented_llm import (
     MCPMessageResult,
     ProviderToMCPConverter,
     RequestParams,
+    CallToolResult,
 )
 from mcp_agent.logging.logger import get_logger
+
+MessageParamContent = Union[
+    str,
+    Iterable[
+        Union[
+            TextBlockParam,
+            ImageBlockParam,
+            ToolUseBlockParam,
+            ToolResultBlockParam,
+            DocumentBlockParam,
+            ThinkingBlockParam,
+            RedactedThinkingBlockParam,
+            ContentBlock,
+        ]
+    ],
+]
 
 
 class AnthropicAugmentedLLM(AugmentedLLM[MessageParam, Message]):
@@ -211,19 +233,9 @@ class AnthropicAugmentedLLM(AugmentedLLM[MessageParam, Message]):
                             request=tool_call_request, tool_call_id=tool_use_id
                         )
 
-                        messages.append(
-                            MessageParam(
-                                role="user",
-                                content=[
-                                    ToolResultBlockParam(
-                                        type="tool_result",
-                                        tool_use_id=tool_use_id,
-                                        content=result.content,
-                                        is_error=result.isError,
-                                    )
-                                ],
-                            )
-                        )
+                        message = self.from_mcp_tool_result(result, tool_use_id)
+
+                        messages.append(message)
 
         if params.use_history:
             self.history.set(messages)
@@ -406,7 +418,9 @@ class AnthropicMCPTypeConverter(ProviderToMCPConverter[MessageParam, Message]):
         extras = param.model_dump(exclude={"role", "content"})
         return MessageParam(
             role=param.role,
-            content=[mcp_content_to_anthropic_content(param.content)],
+            content=[
+                mcp_content_to_anthropic_content(param.content, for_message_param=True)
+            ],
             **extras,
         )
 
@@ -432,25 +446,111 @@ class AnthropicMCPTypeConverter(ProviderToMCPConverter[MessageParam, Message]):
             **typed_dict_extras(param, ["role", "content"]),
         )
 
+    @classmethod
+    def from_mcp_tool_result(
+        cls, result: CallToolResult, tool_use_id: str
+    ) -> MessageParam:
+        """Convert mcp tool result to user MessageParam"""
+        tool_result_block_content: list[TextBlockParam | ImageBlockParam] = []
+
+        for content in result.content:
+            converted_content = mcp_content_to_anthropic_content(
+                content, for_message_param=True
+            )
+            if converted_content["type"] in ["text", "image"]:
+                tool_result_block_content.append(converted_content)
+
+        if not tool_result_block_content:
+            # If no valid content, return as error
+            tool_result_block_content = [
+                TextBlockParam(type="text", text="No result returned")
+            ]
+            result.isError = True
+
+        return MessageParam(
+            role="user",
+            content=[
+                ToolResultBlockParam(
+                    type="tool_result",
+                    tool_use_id=tool_use_id,
+                    content=tool_result_block_content,
+                    is_error=result.isError,
+                )
+            ],
+        )
+
 
 def mcp_content_to_anthropic_content(
     content: TextContent | ImageContent | EmbeddedResource,
-) -> ContentBlock:
-    if isinstance(content, TextContent):
-        return TextBlock(type=content.type, text=content.text)
-    elif isinstance(content, ImageContent):
-        # Best effort to convert an image to text (since there's no ImageBlock)
-        return TextBlock(type="text", text=f"{content.mimeType}:{content.data}")
-    elif isinstance(content, EmbeddedResource):
-        if isinstance(content.resource, TextResourceContents):
-            return TextBlock(type="text", text=content.resource.text)
-        else:  # BlobResourceContents
-            return TextBlock(
-                type="text", text=f"{content.resource.mimeType}:{content.resource.blob}"
+    for_message_param: bool = False,
+) -> ContentBlock | MessageParamContent:
+    """
+    Converts MCP content types into Anthropic-compatible content blocks.
+
+    Args:
+        content (TextContent | ImageContent | EmbeddedResource): The MCP content to convert.
+        for_message_param (bool, optional): If True, returns Anthropic message param content types.
+                                    If False, returns Anthropic response message content types.
+                                    Defaults to False.
+
+    Returns:
+        ContentBlock: The converted content block in Anthropic format.
+    """
+    if for_message_param:
+        if isinstance(content, TextContent):
+            return TextBlockParam(type="text", text=content.text)
+        elif isinstance(content, ImageContent):
+            return ImageBlockParam(
+                type="image",
+                source=Base64ImageSourceParam(
+                    type="base64",
+                    data=content.data,
+                    media_type=content.mimeType,
+                ),
             )
+        elif isinstance(content, EmbeddedResource):
+            if isinstance(content.resource, TextResourceContents):
+                return TextBlockParam(type="text", text=content.resource.text)
+            else:
+                if content.resource.mimeType == "text/plain":
+                    source = PlainTextSourceParam(
+                        type="text",
+                        data=content.resource.blob,
+                        mimeType=content.resource.mimeType,
+                    )
+                elif content.resource.mimeType == "application/pdf":
+                    source = Base64PDFSourceParam(
+                        type="base64",
+                        data=content.resource.blob,
+                        mimeType=content.resource.mimeType,
+                    )
+                else:
+                    # Best effort to convert
+                    return TextBlockParam(
+                        type="text",
+                        text=f"{content.resource.mimeType}:{content.resource.blob}",
+                    )
+                return DocumentBlockParam(
+                    type="document",
+                    source=source,
+                )
     else:
-        # Last effort to convert the content to a string
-        return TextBlock(type="text", text=str(content))
+        if isinstance(content, TextContent):
+            return TextBlock(type=content.type, text=content.text)
+        elif isinstance(content, ImageContent):
+            # Best effort to convert an image to text (since there's no ImageBlock)
+            return TextBlock(type="text", text=f"{content.mimeType}:{content.data}")
+        elif isinstance(content, EmbeddedResource):
+            if isinstance(content.resource, TextResourceContents):
+                return TextBlock(type="text", text=content.resource.text)
+            else:  # BlobResourceContents
+                return TextBlock(
+                    type="text",
+                    text=f"{content.resource.mimeType}:{content.resource.blob}",
+                )
+        else:
+            # Last effort to convert the content to a string
+            return TextBlock(type="text", text=str(content))
 
 
 def anthropic_content_to_mcp_content(

@@ -176,6 +176,12 @@ class ProviderToMCPConverter(Protocol, Generic[MessageParamT, MessageT]):
     def from_mcp_message_param(cls, param: MCPMessageParam) -> MessageParamT:
         """Convert an MCP message (SamplingMessage) to an LLM input type."""
 
+    @classmethod
+    def from_mcp_tool_result(
+        cls, result: CallToolResult, tool_use_id: str
+    ) -> MessageParamT:
+        """Convert an MCP tool result to an LLM input type"""
+
 
 class AugmentedLLM(ContextDependent, AugmentedLLMProtocol[MessageParamT, MessageT]):
     """
@@ -313,6 +319,12 @@ class AugmentedLLM(ContextDependent, AugmentedLLMProtocol[MessageParamT, Message
     def from_mcp_message_param(self, param: MCPMessageParam) -> MessageParamT:
         """Convert an MCP message (SamplingMessage) to an LLM input type."""
         return self.type_converter.from_mcp_message_param(param)
+
+    def from_mcp_tool_result(
+        self, result: CallToolResult, tool_use_id: str
+    ) -> MessageParamT:
+        """Convert an MCP tool result to an LLM input type"""
+        return self.type_converter.from_mcp_tool_result(result, tool_use_id)
 
     @classmethod
     def convert_message_to_message_param(
