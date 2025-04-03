@@ -141,6 +141,16 @@ class AnthropicAugmentedLLM(AugmentedLLM[MessageParam, Message]):
         model = await self.select_model(params)
 
         for i in range(params.max_iterations):
+            if i == params.max_iterations - 1 and response.stop_reason == "tool_use":
+                final_prompt_message = MessageParam(
+                    role="user",
+                    content="""We've reached the maximum number of iterations. 
+                    Please stop using tools now and provide your final comprehensive answer based on all tool results so far. 
+                    At the beginning of your response, clearly indicate that your answer may be incomplete due to reaching the maximum number of tool usage iterations, 
+                    and explain what additional information you would have needed to provide a more complete answer.""",
+                )
+                messages.append(final_prompt_message)
+
             arguments = {
                 "model": model,
                 "max_tokens": params.maxTokens,
