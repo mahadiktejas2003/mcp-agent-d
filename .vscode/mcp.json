@@ -1,0 +1,13 @@
+{
+  "servers": {
+    "codemcp": {
+      "command": "C:\\Users\\Tejas Mahadik\\.local\\bin\\uvx.exe",
+      "args": [
+        "--from",
+        "git+https://github.com/ezyang/codemcp@prod",
+        "codemcp"
+      ],
+      "env": {}
+    }
+  }
+}
