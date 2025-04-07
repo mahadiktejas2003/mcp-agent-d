@@ -1,0 +1,25 @@
+one more task required to successfully run the project create the new files in this current folder-
+
+
+______________________________________________
+File name: mcp_agent.secrets.yaml
+
+contents of file-
+
+$schema: ../../schema/mcp-agent.config.schema.json
+
+openai:
+  api_key: ask_project_creator_for_OpenAI_API_Key
+
+
+____________________________________________________________
+
+File name: mcp_agent.secrets.yaml
+
+contents of file-
+
+Ask project creator for this file and paste the contents in newly created file mcp_agent.secrets.yaml
+
+
+
+
