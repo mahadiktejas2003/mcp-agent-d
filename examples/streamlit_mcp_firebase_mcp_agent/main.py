@@ -6,6 +6,7 @@ from mcp_agent.agents.agent import Agent
 from mcp_agent.workflows.llm.augmented_llm import RequestParams
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 
+
 def format_list_tools_result(list_tools_result: ListToolsResult):
     res = ""
     for tool in list_tools_result.tools:
