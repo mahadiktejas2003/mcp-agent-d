@@ -20,6 +20,16 @@ def format_list_tools_result(list_tools_result: ListToolsResult):
     return res
 
 async def main():
+    result = subprocess.run(['node', '--version'], capture_output=True)
+    if result.returncode != 0:
+        st.error("Node.js not installed! Deployment cannot continue.")
+        return
+    
+    # Verify Firebase MCP package exists
+    result = subprocess.run(['npx', '@gannonh/firebase-mcp', '--version'], capture_output=True)
+    if "not found" in result.stderr.decode():
+        st.error("Firebase MCP package missing! Installing...")
+        subprocess.run(['npm', 'install', '-g', '@gannonh/firebase-mcp'], check=True)
     await app.initialize()
 
     firebase_agent = Agent(
