@@ -9,11 +9,6 @@ import json
 from pathlib import Path
 import subprocess  # <-- Add this line
 
-# Load Firebase key from Streamlit secrets
-if not Path("serviceAccountKey.json").exists():
-    with open("serviceAccountKey.json", "w") as f:
-        json.dump(st.secrets["FIREBASE_SERVICE_ACCOUNT_KEY"], f)
-
 def format_list_tools_result(list_tools_result: ListToolsResult):
     res = ""
     for tool in list_tools_result.tools:
