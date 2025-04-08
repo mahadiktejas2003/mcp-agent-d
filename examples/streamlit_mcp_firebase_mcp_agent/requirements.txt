@@ -1,10 +1,9 @@
 # Core framework dependency
 # -e ../../
  # Link to the local mcp-agent project root
--e ./mcp-agent
+mcp-agent
 streamlit
 openai
 firebase-admin
 pyyaml
 python-dotenv
-
