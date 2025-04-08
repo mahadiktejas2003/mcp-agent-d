@@ -7,6 +7,7 @@ from mcp_agent.workflows.llm.augmented_llm import RequestParams
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 import json
 from pathlib import Path
+import subprocess  # <-- Add this line
 
 # Load Firebase key from Streamlit secrets
 if not Path("serviceAccountKey.json").exists():
