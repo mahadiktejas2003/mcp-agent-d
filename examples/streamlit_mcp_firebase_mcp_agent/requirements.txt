@@ -1,7 +1,7 @@
 # Core framework dependency
 # -e ../../
  # Link to the local mcp-agent project root
-
+git+https://github.com/mahadiktejas2003/mcp-agent.git
 # Additional dependencies specific to this example
 mcp-agent
 streamlit
