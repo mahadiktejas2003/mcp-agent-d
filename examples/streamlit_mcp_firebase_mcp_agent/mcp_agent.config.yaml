@@ -26,7 +26,6 @@ mcp:
       env:
         SERVICE_ACCOUNT_KEY_PATH: "./serviceAccountKey.json"
         FIREBASE_STORAGE_BUCKET: "${FIREBASE_STORAGE_BUCKET}"
-        NODE_PATH: "${NODE_PATH}"
 
 openai:
   # Secrets (API keys, etc.) are stored in an mcp_agent.secrets.yaml file which can be gitignored
