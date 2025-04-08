@@ -23,9 +23,10 @@ mcp:
     firebase-mcp:
       command: "npx"
       args: ["-y", "@gannonh/firebase-mcp"]
-      env:
-  SERVICE_ACCOUNT_KEY_PATH: "serviceAccountKey.json" # Relative path
-  FIREBASE_STORAGE_BUCKET: "${FIREBASE_STORAGE_BUCKET}" # From secrets
+ env:
+        SERVICE_ACCOUNT_KEY_PATH: "./serviceAccountKey.json"  # Relative path
+        FIREBASE_STORAGE_BUCKET: "${FIREBASE_STORAGE_BUCKET}"
+        NODE_PATH: "/usr/local/lib/node_modules" # From secrets
 
 openai:
   # Secrets (API keys, etc.) are stored in an mcp_agent.secrets.yaml file which can be gitignored
