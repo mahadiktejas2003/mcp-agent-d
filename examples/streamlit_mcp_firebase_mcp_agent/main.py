@@ -1,14 +1,14 @@
-from mcp import ListToolsResult
+from mcp import ListToolsResult 
 import streamlit as st
 import asyncio
 import json
+import os
 from pathlib import Path
+from firebase_admin import credentials, initialize_app
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
 from mcp_agent.workflows.llm.augmented_llm import RequestParams
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
-import os
-
 
 def init_firebase():
     try:
@@ -43,6 +43,9 @@ async def query_firestore(agent, collection: str, filters: dict = None):
         return None
 
 async def main():
+    # Set OpenAI API key from secrets
+    os.environ["OPENAI_API_KEY"] = st.secrets.openai.api_key
+
     # Initialize core services
     with st.spinner("⚡ Initializing services..."):
         init_firebase()
