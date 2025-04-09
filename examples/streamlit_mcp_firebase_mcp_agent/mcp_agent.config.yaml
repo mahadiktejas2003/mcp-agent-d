@@ -24,7 +24,7 @@ mcp:
       command: "npx"
       args: ["-y", "@gannonh/firebase-mcp"]
       env:
-        SERVICE_ACCOUNT_KEY_PATH: "./serviceAccountKey.json"
+        SERVICE_ACCOUNT_KEY_PATH: "${FIREBASE_SERVICE_ACCOUNT_JSON}" #"./serviceAccountKey.json"
         FIREBASE_STORAGE_BUCKET: "${FIREBASE_STORAGE_BUCKET}"
 
 openai:
