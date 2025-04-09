@@ -40,7 +40,6 @@ async def main():
     # Initialize core services
     with st.spinner("⚡ Initializing services..."):
         init_firebase()
-        os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
         app = MCPApp(name="firebase_ev_assistant")
         await app.initialize()
 
