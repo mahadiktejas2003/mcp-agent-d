@@ -4,7 +4,7 @@ import asyncio
 import json
 import os
 from pathlib import Path
-from firebase_admin import credentials, initialize_appm get_app, delete_app
+from firebase_admin import credentials, initialize_app, get_app, delete_app
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
 from mcp_agent.workflows.llm.augmented_llm import RequestParams
