@@ -9,16 +9,22 @@ from mcp_agent.workflows.llm.augmented_llm import RequestParams
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 import os
 
+
 def init_firebase():
-    key_path = Path("serviceAccountKey.json")
-    if not key_path.exists():
-        try:
-            with open(key_path, "w") as f:
-                json.dump(st.secrets["FIREBASE_SERVICE_ACCOUNT_KEY"], f)
-            st.success("🔥 Firebase initialized successfully!")
-        except Exception as e:
-            st.error(f"🚨 Firebase initialization failed: {str(e)}")
-            raise
+    try:
+        # Load Firebase config directly from Streamlit secrets
+        firebase_config = json.loads(st.secrets["FIREBASE_SERVICE_ACCOUNT_JSON"])
+        
+        # Ensure newlines in private key are properly formatted
+        firebase_config["private_key"] = firebase_config["private_key"].replace("\\n", "\n")
+        
+        # Initialize Firebase with in-memory credentials
+        cred = credentials.Certificate(firebase_config)
+        initialize_app(cred)
+        st.success("🔥 Firebase initialized successfully!")
+    except Exception as e:
+        st.error(f"🚨 Firebase initialization failed: {str(e)}")
+        raise
 
 def format_list_tools_result(list_tools_result: ListToolsResult):
     return "\n".join(f"- **{tool.name}**: {tool.description}" for tool in list_tools_result.tools)
