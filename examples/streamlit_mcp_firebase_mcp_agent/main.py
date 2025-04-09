@@ -21,7 +21,7 @@ def init_firebase():
             raise
 
 def format_list_tools_result(list_tools_result: ListToolsResult):
-    return "\n".join(f"- {tool.name}: {tool.description}" for tool in list_tools_result.tools)
+    return "\n".join(f"- **{tool.name}**: {tool.description}" for tool in list_tools_result.tools)
 
 async def query_firestore(agent, collection: str, filters: dict = None):
     try:
@@ -38,9 +38,8 @@ async def query_firestore(agent, collection: str, filters: dict = None):
 
 async def main():
     # Initialize core services
-    with st.spinner("⚡️ Initializing services..."):
+    with st.spinner("⚡ Initializing services..."):
         init_firebase()
-        os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
         app = MCPApp(name="firebase_ev_assistant")
         await app.initialize()
 
@@ -62,7 +61,7 @@ async def main():
     st.title("🔋 EV Charging Assistant")
     st.caption("🚀 Powered by Firebase MCP & AI")
     
-    with st.expander("🛠 Available Tools"):
+    with st.expander("🛠️ Available Tools"):
         tools = await firebase_agent.list_tools()
         st.markdown(format_list_tools_result(tools))
 
@@ -131,7 +130,5 @@ async def main():
                     "content": response
                 })
 
-if name == "main":
+if __name__ == "__main__":
     asyncio.run(main())
-
-#current WORKING CODE
