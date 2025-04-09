@@ -12,15 +12,19 @@ from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 
 def init_firebase():
     try:
-        # Load Firebase config directly from Streamlit secrets
-        firebase_config = json.loads(st.secrets["FIREBASE_SERVICE_ACCOUNT_JSON"])
+        # Check if Firebase app already exists
+        try:
+            app = get_app()
+            delete_app(app)  # Clean up previous instance
+        except ValueError:
+            pass  # No existing app
         
-        # Ensure newlines in private key are properly formatted
+        # Initialize fresh instance
+        firebase_config = json.loads(st.secrets["FIREBASE_SERVICE_ACCOUNT_JSON"])
         firebase_config["private_key"] = firebase_config["private_key"].replace("\\n", "\n")
         
-        # Initialize Firebase with in-memory credentials
         cred = credentials.Certificate(firebase_config)
-        initialize_app(cred)
+        initialize_app(cred, name="EV_CHARGING_ASSISTANT")  # Unique app name
         st.success("🔥 Firebase initialized successfully!")
     except Exception as e:
         st.error(f"🚨 Firebase initialization failed: {str(e)}")
@@ -43,38 +47,35 @@ async def query_firestore(agent, collection: str, filters: dict = None):
         return None
 
 async def main():
-    # Set OpenAI API key from secrets
+    # Set OpenAI API key first
     os.environ["OPENAI_API_KEY"] = st.secrets.openai.api_key
 
-    # Initialize core services
-    with st.spinner("⚡ Initializing services..."):
-        init_firebase()
-        app = MCPApp(name="firebase_ev_assistant")
-        await app.initialize()
+    # Initialize services with singleton pattern
+    if "services_initialized" not in st.session_state:
+        with st.spinner("⚡ Initializing services..."):
+            init_firebase()
+            st.session_state.app = MCPApp(name="firebase_ev_assistant")
+            await st.session_state.app.initialize()
+            st.session_state.services_initialized = True
 
-    # Initialize Agent
-    firebase_agent = Agent(
-        name="firebase_agent",
-        instruction="""🔋 You are an EV charging expert with Firebase access. Your capabilities include:
-1. Finding nearby charging stations
-2. Managing reservations & user accounts
-3. Providing energy consumption insights
-4. Real-time status updates
-5. Smart recommendations based on traffic/usage""",
-        server_names=["firebase-mcp"],
-    )
-    await firebase_agent.initialize()
-    llm = await firebase_agent.attach_llm(OpenAIAugmentedLLM)
+    # Initialize Agent with proper server config
+    if "firebase_agent" not in st.session_state:
+        st.session_state.firebase_agent = Agent(
+            name="firebase_agent",
+            instruction="Your EV charging expert instructions...",
+            server_names=["firebase-mcp"],
+        )
+        await st.session_state.firebase_agent.initialize()
+        st.session_state.llm = await st.session_state.firebase_agent.attach_llm(OpenAIAugmentedLLM)
 
     # UI Setup
     st.title("🔋 EV Charging Assistant")
-    st.caption("🚀 Powered by Firebase MCP & AI")
     
     with st.expander("🛠️ Available Tools"):
-        tools = await firebase_agent.list_tools()
+        tools = await st.session_state.firebase_agent.list_tools()
         st.markdown(format_list_tools_result(tools))
 
-    # Chat session
+    # Chat session handling
     if "messages" not in st.session_state:
         st.session_state.messages = [{
             "role": "assistant", 
